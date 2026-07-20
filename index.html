@@ -253,7 +253,31 @@ html,body{height:100%;background:var(--bg);color:var(--text);
     </button>
   </div>
 
-  <!-- ③ 지문 인증 대기 화면 -->
+  <!-- ③ API 키 입력 패널 (처음엔 숨김) -->
+  <div id="pw-apikey" style="display:none;flex-direction:column;align-items:center;
+    width:100%;max-width:320px;text-align:center">
+    <div style="font-size:48px;margin-bottom:16px">🔑</div>
+    <div style="font-size:20px;font-weight:800;color:#e8eaf6;margin-bottom:8px">Google TTS API 키</div>
+    <div style="font-size:13px;color:#546e7a;line-height:1.7;margin-bottom:20px">
+      입력하면 AI 수준의 자연스러운<br>음성으로 문제를 읽어줍니다
+    </div>
+    <input id="apikey-input" type="password" placeholder="AIza..."
+      style="width:100%;padding:14px 16px;background:#1e2035;border:1.5px solid #2a2d4a;
+      border-radius:12px;color:#e8eaf6;font-size:14px;text-align:center;
+      margin-bottom:12px;box-sizing:border-box;outline:none">
+    <button onclick="saveApiKey()"
+      style="width:100%;padding:14px;background:#1b5e20;border:none;border-radius:12px;
+      color:#a5d6a7;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px">
+      🔑 저장하고 시작
+    </button>
+    <button onclick="skipApiKey()"
+      style="width:100%;padding:14px;background:transparent;border:1px solid #2a2d4a;
+      border-radius:12px;color:#546e7a;font-size:14px;cursor:pointer">
+      건너뛰기 (기본 음성 사용)
+    </button>
+  </div>
+
+  <!-- ④ 지문 인증 대기 화면 (처음엔 숨김) -->
   <div id="pw-bio-waiting" style="display:none;flex-direction:column;align-items:center;
     width:100%;max-width:320px">
     <div style="font-size:56px;margin-bottom:20px;animation:pulse 1.5s infinite">👆</div>
@@ -684,14 +708,43 @@ async function registerBiometric(){
     const credId = btoa(String.fromCharCode(...new Uint8Array(cred.rawId)));
     localStorage.setItem(WA_KEY, credId);
     hideBiometricOffer();
-    authSuccess();
+    showApiKeyScreen();
   } catch(e){
     hideBiometricOffer();
-    authSuccess();
+    showApiKeyScreen();
   }
 }
 
-function skipBiometric(){ hideBiometricOffer(); authSuccess(); }
+function skipBiometric(){ hideBiometricOffer(); showApiKeyScreen(); }
+
+function showApiKeyScreen(){
+  // 이미 키가 있으면 바로 앱으로
+  const saved = localStorage.getItem('npte_tts_key');
+  if(saved){
+    authSuccess();
+    return;
+  }
+  document.getElementById('pw-apikey').style.display='flex';
+}
+
+function saveApiKey(){
+  const val = document.getElementById('apikey-input').value.trim();
+  if(val){
+    localStorage.setItem('npte_tts_key', val);
+    GOOGLE_TTS_KEY = val;
+  }
+  hideApiKeyScreen();
+  authSuccess();
+}
+
+function skipApiKey(){
+  hideApiKeyScreen();
+  authSuccess();
+}
+
+function hideApiKeyScreen(){
+  document.getElementById('pw-apikey').style.display='none';
+}
 function hideBiometricOffer(){
   const p = document.getElementById('pw-biometric-offer');
   if(p) p.style.display = 'none';
@@ -769,7 +822,7 @@ let sessQs=[],qIdx=0,answered=false,sCorrect=0,sWrong=0,sWrongIds=[];
 let translateOn=false,timerIv=null,timerLeft=0,trStem='',trOpts=[];
 let ttsOn=false; // 자동 읽기 토글
 let ttsReqId=0; // 요청 ID — 취소 감지용
-const GOOGLE_TTS_KEY='AIzaSyBfixDhktRF7IbD2AXaJSGASFIpUgS3hE4'; // ← 여기에 API 키 입력
+let GOOGLE_TTS_KEY=localStorage.getItem('npte_tts_key')||''; // localStorage에서 로드
 let ttsVoice=null; // 선택된 음성 캐시
 // 음성 목록 비동기 로드 후 캐시
 function loadTtsVoice(){
