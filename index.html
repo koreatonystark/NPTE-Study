@@ -714,9 +714,9 @@ main{padding:16px;max-width:740px;margin:0 auto}.sc{display:none}.sc.on{display:
 </head>
 <body>
 
-<div id="main-tab-bar" style="position:fixed;top:0;left:0;right:0;z-index:10000;
+<div id="main-tab-bar" style="position:fixed;top:0;left:0;right:0;z-index:100;
   background:#0a0f1e;border-bottom:1px solid #1e2d47;
-  display:flex;align-items:center;padding:0 4px;height:44px;gap:4px">
+  display:none;align-items:center;padding:0 4px;height:44px;gap:4px">
   <button onclick="switchApp('quiz')" id="tab-quiz"
     style="flex:1;padding:8px 4px;border:none;border-radius:8px;font-size:12px;font-weight:700;
     cursor:pointer;background:#3b82f6;color:#fff;transition:all .15s">
@@ -733,7 +733,7 @@ main{padding:16px;max-width:740px;margin:0 auto}.sc{display:none}.sc.on{display:
     📊 Chart
   </button>
 </div>
-<div style="height:44px"></div>
+<div id="main-tab-spacer" style="height:44px;display:none"></div>
 
 <div id="pw-screen" style="position:fixed;inset:0;background:#0f1117;z-index:9999;
   display:flex;align-items:center;justify-content:center;flex-direction:column;padding:30px">
@@ -1734,6 +1734,11 @@ async function authWithBiometric(){
 
 function authSuccess(){
   document.getElementById('pw-screen').style.display = 'none';
+  // 탭 바 표시
+  const tb = document.getElementById('main-tab-bar');
+  if(tb) tb.style.display = 'flex';
+  const ts = document.getElementById('main-tab-spacer');
+  if(ts) ts.style.display = 'block';
   loadData(true);
 }
 
@@ -2499,7 +2504,7 @@ async function ttsRead(){
   const reqId=++ttsReqId;
 
   // Google Cloud TTS Neural2 with SSML pauses
-  if(GOOGLE_TTS_KEY&&GOOGLE_TTS_KEY!=='AIzaSyBfixDhktRF7IbD2AXaJSGASFIpUgS3hE4'){
+  if(GOOGLE_TTS_KEY&&GOOGLE_TTS_KEY!=='YOUR_API_KEY'){
     // SSML로 자연스러운 쉼 구성
     function toSsml(text){
       // 1. 특수문자 이스케이프
@@ -2828,15 +2833,15 @@ function switchApp(app) {
   }
   _currentApp = app;
   // 각 앱 초기화 (최초 1회)
-  if(app === 'english' && !window._engInit){window._engInit=true;initEnglishApp();}
-  if(app === 'chart' && !window._chartInit){window._chartInit=true;initChartApp();}
+  if(app === 'english' && !window._engInit){window._engInit=true;if(window.initEnglishApp)window.initEnglishApp();}
+  if(app === 'chart' && !window._chartInit){window._chartInit=true;if(window.initChartApp)window.initChartApp();}
   // TTS 중단
   if(window._ttsAudio){window._ttsAudio.pause();window._ttsAudio=null;}
   window.speechSynthesis && window.speechSynthesis.cancel();
 }
 
 /* ═══ ENGLISH JS ═══ */
-
+(function() {
 // ============================================================
 // DATA — EXPRESSIONS
 // ============================================================
@@ -5829,9 +5834,11 @@ document.addEventListener('click', () =>
 
 // INIT
 loadSave(); buildHome();
-
+// initEnglishApp을 전역으로 노출
+window.initEnglishApp = typeof initEnglishApp !== 'undefined' ? initEnglishApp : function(){};
+})();
 /* ═══ CHART JS ═══ */
-
+(function() {
 // ================================================================
 // SECTIONS DATA
 // ================================================================
@@ -6028,9 +6035,9 @@ trap:"SOAP: S=환자 말, O=PT 측정, A=PT 판단, P=PT 계획. 'tolerates well
 ];
 
 // ================================================================
-// VOCAB DATA
+// CHART_VOCAB DATA
 // ================================================================
-const VOCAB=[
+const CHART_VOCAB=[
 // ── DEMOGRAPHICS ──
 {sec:"demographics",term:"CC",
  ctx:"Chart header: CC: \"knee pain worse with stairs, 6 weeks\"",
@@ -6411,11 +6418,11 @@ function renderStrategy(){
     ${[{s:"-lol",c:"Beta-blocker",p:"HR↓→RPE 사용"},{s:"-pril",c:"ACE inhibitor",p:"혈압약, 기침 부작용"},{s:"-sartan",c:"ARB",p:"혈압약"},{s:"-warin/-parin/-xaban",c:"Anticoagulant",p:"출혈↑→INR 확인"},{s:"-statin",c:"Statin",p:"지질강하, 근병증 주의"},{s:"-olol/-dipine",c:"Ca channel blocker",p:"혈압약"},{s:"-mab",c:"Monoclonal antibody",p:"생물학적 제제"},{s:"-azole",c:"Antifungal",p:"진균 감염"}].map(r=>`<div class="drug-row"><div class="drug-suffix">${r.s}</div><div class="drug-class">${r.c}</div><div class="drug-pt">${r.p}</div></div>`).join("")}`;
 }
 
-// VOCAB QUIZ
+// CHART_VOCAB QUIZ
 let _vqFilter="all";
 function pickVQFilter(f,el){_vqFilter=f;document.querySelectorAll("#vq-filter-pills .pill").forEach(p=>p.classList.remove("on"));el.classList.add("on");}
 function startVocabQuiz(){
-  let pool=_vqFilter==="all"?[...VOCAB]:VOCAB.filter(v=>v.sec===_vqFilter);
+  let pool=_vqFilter==="all"?[...CHART_VOCAB]:CHART_VOCAB.filter(v=>v.sec===_vqFilter);
   pool=shuf(pool);
   VQ={pool,cur:0,ok:0,ng:0,streak:0,best:0,answered:false};
   document.getElementById("vq-setup").style.display="none";
@@ -6548,7 +6555,7 @@ function resetQZ(){document.getElementById("qz-result").style.display="none";doc
 
 // INIT
 loadST();updHdr();
-document.getElementById("vocab-cnt").textContent=VOCAB.length+" VOCAB";
+document.getElementById("vocab-cnt").textContent=CHART_VOCAB.length+" CHART_VOCAB";
 document.getElementById("quiz-cnt").textContent=QZB.length+" QUESTIONS";
 
 // ================================================================
@@ -6993,4 +7000,9 @@ document.addEventListener("click",()=>document.querySelectorAll(".wt.open").forE
   const b=w.querySelector(".wt-bubble");
   if(b){b.style.left="";b.style.top="";}
 }));
-                           
+// initChartApp을 전역으로 노출
+window.initChartApp = typeof initChartApp !== 'undefined' ? initChartApp : function(){};
+})();
+</script>
+</body>
+</html>
