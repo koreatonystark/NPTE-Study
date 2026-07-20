@@ -768,6 +768,7 @@ const CAT_SUBS={};  // 데이터 로드 후 동적으로 채워짐
 let sessQs=[],qIdx=0,answered=false,sCorrect=0,sWrong=0,sWrongIds=[];
 let translateOn=false,timerIv=null,timerLeft=0,trStem='',trOpts=[];
 let ttsOn=false; // 자동 읽기 토글
+let ttsReqId=0; // 요청 ID — 취소 감지용
 const GOOGLE_TTS_KEY='AIzaSyBfixDhktRF7IbD2AXaJSGASFIpUgS3hE4'; // ← 여기에 API 키 입력
 let ttsVoice=null; // 선택된 음성 캐시
 // 음성 목록 비동기 로드 후 캐시
@@ -1453,6 +1454,8 @@ function toggleTts(){
   } else {
     btn.classList.remove('active');
     btn.textContent='🔊';
+    // 진행 중인 API 요청 무효화
+    ttsReqId++;
     // Google TTS 오디오 즉시 중단
     if(window._ttsAudio){
       window._ttsAudio.pause();
@@ -1473,18 +1476,43 @@ async function ttsRead(){
   const L=['Number one. ','Number two. ','Number three. ','Number four. '];
   const opts=q.opts.filter(o=>o);
 
-  // Google Cloud TTS Neural2
+  // 요청 ID 발급 — 응답 전에 ttsOn이 꺼지면 재생 안 함
+  const reqId=++ttsReqId;
+
+  // Google Cloud TTS Neural2 with SSML pauses
   if(GOOGLE_TTS_KEY&&GOOGLE_TTS_KEY!=='YOUR_API_KEY'){
-    const fullText=q.stem+' '+opts.map((o,i)=>L[i]+o).join(' ');
+    // SSML로 자연스러운 쉼 구성
+    function toSsml(text){
+      // 1. 특수문자 이스케이프
+      text=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      // 2. 쉼표 → 300ms (콜론/세미콜론은 쉼 없음)
+      text=text.replace(/,\s*/g,', <break time="300ms"/>');
+      // 3. 마침표/물음표/느낌표 → 500ms
+      text=text.replace(/\.\s+/g,'. <break time="500ms"/>');
+      text=text.replace(/\?\s+/g,'? <break time="500ms"/>');
+      text=text.replace(/\!\s+/g,'! <break time="500ms"/>');
+      // 4. 관계절/접속사 앞 → 250ms
+      text=text.replace(/(who|which|when|where|that|because|although|while|if|after|before|however)/gi,
+        '<break time="250ms"/>$1');
+      return text;
+    }
+    // 문제와 보기 사이 700ms, 보기 번호 앞 500ms
+    const ssml='<speak>'
+      +toSsml(q.stem)
+      +'<break time="700ms"/>'
+      +opts.map((o,i)=>L[i]+'<break time="200ms"/>'+toSsml(o)).join('<break time="600ms"/>')
+      +'</speak>';
     try{
       const resp=await fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key='+GOOGLE_TTS_KEY,
         {method:'POST',headers:{'Content-Type':'application/json'},
          body:JSON.stringify({
-           input:{text:fullText},
+           input:{ssml:ssml},
            voice:{languageCode:'en-US',name:'en-US-Neural2-D'},
            audioConfig:{audioEncoding:'MP3',speakingRate:0.9,pitch:0}
          })});
       const data=await resp.json();
+      // 응답 왔을 때 ttsOn이 꺼졌거나 다른 요청이 생겼으면 재생 안 함
+      if(!ttsOn||reqId!==ttsReqId)return;
       if(data.audioContent){
         const audio=new Audio('data:audio/mp3;base64,'+data.audioContent);
         window._ttsAudio=audio;
@@ -1715,7 +1743,7 @@ function toggleBm(){const q=sessQs[qIdx];store.bm.has(q.id)?store.bm.delete(q.id
 function showResult(){clearInterval(timerIv);const tot=sessQs.length,pct=Math.round(sCorrect/tot*100);document.getElementById('res-score').textContent=sCorrect+'/'+tot;document.getElementById('res-label').textContent=pct+'% correct · '+sWrong+' wrong';document.getElementById('bar-c').style.width=(sCorrect/tot*100)+'%';document.getElementById('bar-w').style.width=(sWrong/tot*100)+'%';document.getElementById('num-c').textContent=sCorrect;document.getElementById('num-w').textContent=sWrong;document.getElementById('btn-rw').style.display=sWrong?'':'none';document.getElementById('prog').style.width='100%';updateStats();showScreen('result');}
 function retrySame(){const qs=[...sessQs];if(order==='rand')qs.sort(()=>Math.random()-.5);sessQs=qs;qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];seenQIds=new Set();sessStartTime=Date.now();sessionAnswers={};answered=false;showScreen('quiz');showQ();}
 function retryWrong(){const wqs=ALL_QS.filter(q=>sWrongIds.includes(q.id));if(!wqs.length)return;sessQs=wqs;qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];seenQIds=new Set();sessStartTime=Date.now();sessionAnswers={};answered=false;showScreen('quiz');showQ();}
-function goHome(){clearInterval(timerIv);window.speechSynthesis.cancel();if(window._ttsAudio){window._ttsAudio.pause();window._ttsAudio=null;}updateStats();showScreen('home');updateBtn();}
+function goHome(){clearInterval(timerIv);ttsReqId++;ttsOn=false;window.speechSynthesis.cancel();if(window._ttsAudio){window._ttsAudio.pause();window._ttsAudio=null;}updateStats();showScreen('home');updateBtn();}
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 window.onload=()=>{loadStore();initAuth();};
 document.addEventListener('visibilitychange',()=>{
