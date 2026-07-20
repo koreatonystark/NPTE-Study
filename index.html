@@ -1479,14 +1479,35 @@ async function ttsRead(){
   // 요청 ID 발급 — 응답 전에 ttsOn이 꺼지면 재생 안 함
   const reqId=++ttsReqId;
 
-  // Google Cloud TTS Neural2
+  // Google Cloud TTS Neural2 with SSML pauses
   if(GOOGLE_TTS_KEY&&GOOGLE_TTS_KEY!=='YOUR_API_KEY'){
-    const fullText=q.stem+' '+opts.map((o,i)=>L[i]+o).join(' ');
+    // SSML로 자연스러운 쉼 구성
+    function toSsml(text){
+      // 1. 특수문자 이스케이프
+      text=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      // 2. 쉼표/세미콜론 → 300ms
+      text=text.replace(/,\s*/g,', <break time="300ms"/>');
+      text=text.replace(/;\s*/g,'; <break time="350ms"/>');
+      // 3. 마침표/물음표/느낌표 → 500ms
+      text=text.replace(/\.\s+/g,'. <break time="500ms"/>');
+      text=text.replace(/\?\s+/g,'? <break time="500ms"/>');
+      text=text.replace(/\!\s+/g,'! <break time="500ms"/>');
+      // 4. 관계절/접속사 앞 → 250ms
+      text=text.replace(/(who|which|when|where|that|because|although|while|if|after|before|however)/gi,
+        '<break time="250ms"/>$1');
+      return text;
+    }
+    // 문제와 보기 사이 700ms, 보기 번호 앞 500ms
+    const ssml='<speak>'
+      +toSsml(q.stem)
+      +'<break time="700ms"/>'
+      +opts.map((o,i)=>L[i]+'<break time="200ms"/>'+toSsml(o)).join('<break time="600ms"/>')
+      +'</speak>';
     try{
       const resp=await fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key='+GOOGLE_TTS_KEY,
         {method:'POST',headers:{'Content-Type':'application/json'},
          body:JSON.stringify({
-           input:{text:fullText},
+           input:{ssml:ssml},
            voice:{languageCode:'en-US',name:'en-US-Neural2-D'},
            audioConfig:{audioEncoding:'MP3',speakingRate:0.9,pitch:0}
          })});
