@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0f1a2e">
+<title>NPTE Chart Reading Master</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+:root{--bg:#0f1a2e;--sf:#162236;--sf2:#1c2d47;--sf3:#243556;--border:#253450;--border2:#2e4068;--accent:#4f8ef7;--accent2:#7eb8f7;--gold:#f5c842;--gold2:#f7d96e;--green:#3ecf8e;--red:#f76f6f;--orange:#f7a54f;--purple:#a78bfa;--text:#e8edf8;--text2:#8fa4c8;--text3:#5a7099;--r:14px;--rs:9px;--rs2:6px;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Inter",sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+header{background:var(--sf);border-bottom:1px solid var(--border);padding:13px 18px;position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px}.logo-icon{font-size:22px}.logo-text{font-size:16px;font-weight:800;color:var(--gold)}.logo-sub{font-size:15px;color:var(--text2)}
+.hstats{display:flex;gap:14px;font-size:15px;color:var(--text2)}.hstat{display:flex;align-items:center;gap:4px}.hstat b{font-family:"JetBrains Mono",monospace;font-weight:700;color:var(--text);font-size:16px}
+.nav{display:flex;background:var(--sf);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}.nav::-webkit-scrollbar{display:none}
+.nb{flex:0 0 auto;padding:11px 16px;font-size:16px;font-weight:600;color:var(--text2);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s}.nb.on{color:var(--gold);border-bottom-color:var(--gold)}.nb:hover{color:var(--text)}
+main{padding:16px;max-width:740px;margin:0 auto}.sc{display:none}.sc.on{display:block}
+.card{background:var(--sf);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:12px}
+.btn{padding:12px 16px;border:none;border-radius:var(--rs);font-size:16px;font-weight:700;cursor:pointer;transition:opacity .15s;width:100%}.btn:hover{opacity:.88}
+.btn-gold{background:var(--gold);color:#111}.btn-p{background:var(--accent);color:#fff}.btn-s{background:var(--sf2);color:var(--text2);border:1px solid var(--border)}
+.btnrow{display:flex;gap:8px}.btnrow .btn{flex:1}
+.pill{padding:5px 12px;border-radius:20px;font-size:15px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--sf2);color:var(--text2);transition:all .15s;white-space:nowrap}.pill.on{background:var(--gold);border-color:var(--gold);color:#111}
+.pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.sec-label{font-size:14px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:1.2px;padding:7px 0 6px;border-bottom:1px solid var(--border);margin-bottom:10px}
+.prog-wrap{margin-bottom:16px}.prog-labels{display:flex;justify-content:space-between;font-size:15px;color:var(--text2);margin-bottom:5px}
+.prog-bar{height:4px;background:var(--border);border-radius:3px;overflow:hidden}.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:3px;transition:width .4s}
+.home-hero{text-align:center;padding:26px 0 20px}.home-hero h1{font-size:22px;font-weight:800;margin-bottom:6px;line-height:1.3}.home-hero h1 em{color:var(--gold);font-style:normal}.home-hero p{font-size:16px;color:var(--text2);line-height:1.7;margin-bottom:18px}
+.feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.feat-card{background:var(--sf);border:1px solid var(--border);border-radius:var(--r);padding:14px;cursor:pointer;transition:all .2s;text-align:center}.feat-card:hover{border-color:var(--gold);transform:translateY(-2px)}
+.feat-icon{font-size:26px;margin-bottom:7px}.feat-title{font-size:16px;font-weight:700;margin-bottom:3px}.feat-desc{font-size:15px;color:var(--text2);line-height:1.4}.feat-cnt{font-size:14px;color:var(--gold);font-weight:700;margin-top:4px;font-family:"JetBrains Mono",monospace}
+.start-big{background:linear-gradient(135deg,rgba(245,200,66,.15),rgba(247,165,79,.08));border:1px solid rgba(245,200,66,.3);border-radius:var(--r);padding:18px;text-align:center;margin-bottom:14px;cursor:pointer;transition:all .2s}.start-big:hover{transform:translateY(-1px)}.start-big-title{font-size:17px;font-weight:800;color:var(--gold);margin-bottom:4px}.start-big-desc{font-size:16px;color:var(--text2)}
+.streak-box{background:linear-gradient(135deg,rgba(62,207,142,.1),rgba(79,142,247,.06));border:1px solid rgba(62,207,142,.2);border-radius:var(--rs);padding:11px 14px;display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.streak-n{font-size:20px;font-weight:800;color:var(--green);font-family:"JetBrains Mono",monospace}
+.chart-wrap{background:var(--sf2);border:1px solid rgba(245,200,66,.25);border-radius:var(--r);margin-bottom:12px;overflow:hidden}
+.chart-header{background:linear-gradient(90deg,rgba(245,200,66,.12),rgba(247,165,79,.06));padding:10px 14px;border-bottom:1px solid rgba(245,200,66,.2);display:flex;align-items:center;gap:8px}
+.chart-header-ico{font-size:17px}.chart-header-title{font-size:16px;font-weight:800;color:var(--gold);letter-spacing:.3px}.chart-header-sub{font-size:14px;color:var(--text2);margin-left:auto;font-family:"JetBrains Mono",monospace}
+.chart-body{padding:10px 14px 12px}
+.chart-sec-head{font-size:13px;font-weight:800;color:var(--accent2);text-transform:uppercase;letter-spacing:.9px;padding:7px 0 3px;margin-top:4px;border-bottom:1px solid var(--border)}.chart-sec-head:first-child{margin-top:0}
+.chart-row{display:flex;gap:0;padding:4px 0;border-bottom:1px solid rgba(37,52,80,.5)}.chart-row:last-child{border-bottom:none}
+.cr-label{font-size:14px;font-weight:700;color:var(--text2);min-width:108px;padding-right:8px;flex-shrink:0;padding-top:1px;font-family:"JetBrains Mono",monospace}.cr-val{font-size:16px;color:var(--text);line-height:1.5;flex:1}
+.hi{color:var(--gold);font-weight:700}.warn{color:var(--red);font-weight:700}.ok{color:var(--green);font-weight:700}.flag{color:var(--orange);font-weight:700}
+.tag-badge{display:inline-block;font-size:13px;font-weight:800;padding:1px 5px;border-radius:3px;margin-left:4px;vertical-align:middle}
+.tag-r{background:rgba(247,111,111,.2);color:var(--red)}.tag-g{background:rgba(62,207,142,.15);color:var(--green)}.tag-y{background:rgba(245,200,66,.15);color:var(--gold)}
+.struct-block{background:var(--sf);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:8px;overflow:hidden}
+.sb-head{display:flex;align-items:center;gap:10px;padding:11px 13px;cursor:pointer;transition:background .15s}.sb-head:hover{background:var(--sf2)}
+.sb-icon{font-size:18px;min-width:26px;text-align:center}.sb-title{font-size:16px;font-weight:700;color:var(--accent2);flex:1}.sb-ko{font-size:15px;color:var(--text2);margin-left:auto;margin-right:8px}.sb-chev{color:var(--text2);font-size:14px;transition:transform .2s}
+.struct-block.open .sb-chev{transform:rotate(180deg)}.sb-body{display:none;padding:12px 13px;border-top:1px solid var(--border);background:rgba(22,34,54,.5)}.struct-block.open .sb-body{display:block}
+.sb-purpose{font-size:16px;color:var(--text2);line-height:1.65;margin-bottom:10px}.sb-purpose strong{color:var(--gold)}
+.sb-what-label{font-size:13px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+.term-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px}.term-chip{background:var(--sf3);border-radius:var(--rs2);padding:7px 9px}
+.tc-en{font-size:15px;font-weight:700;color:var(--accent2);font-family:"JetBrains Mono",monospace;margin-bottom:2px}.tc-ko{font-size:14px;color:var(--text2)}.tc-note{font-size:13px;color:var(--orange);margin-top:2px}
+.sb-similar{margin-bottom:10px}.similar-title{font-size:13px;font-weight:800;color:var(--orange);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px}
+.similar-row{display:flex;gap:6px;align-items:baseline;margin-bottom:4px}.sim-en{font-size:15px;font-weight:700;color:var(--orange);font-family:"JetBrains Mono",monospace;min-width:140px}.sim-ko{font-size:15px;color:var(--text2)}
+.sb-trap{background:rgba(247,111,111,.07);border:1px solid rgba(247,111,111,.2);border-radius:var(--rs2);padding:9px 11px;font-size:15px;color:var(--text2);line-height:1.6}.sb-trap strong{color:var(--red)}
+.strat-step{display:flex;gap:12px;margin-bottom:10px}.strat-n{font-size:20px;font-weight:800;color:var(--gold);font-family:"JetBrains Mono",monospace;min-width:30px;line-height:1.2;margin-top:2px}.strat-body{flex:1}
+.strat-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px}.strat-desc{font-size:16px;color:var(--text2);line-height:1.65}
+.strat-desc em{color:var(--accent2);font-style:normal;font-weight:600}.strat-desc .kw{color:var(--gold);font-weight:700}
+.strat-card{background:var(--sf);border:1px solid var(--border);border-radius:var(--rs);padding:13px;margin-bottom:9px}
+.ref-box{background:rgba(247,111,111,.07);border:1px solid rgba(247,111,111,.2);border-radius:var(--rs);padding:13px;margin-bottom:10px}.ref-box-title{font-size:15px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px}
+.ref-table{font-size:15px;color:var(--text2);line-height:1.9}.ref-table b{color:var(--text)}.ref-table .kw{color:var(--gold);font-weight:700}.ref-table .rw{color:var(--red);font-weight:700}
+.drug-pat{background:var(--sf);border:1px solid var(--border);border-radius:var(--rs);padding:12px;margin-top:10px}
+.drug-row{display:flex;gap:8px;margin-bottom:5px;align-items:baseline}.drug-suffix{font-size:16px;font-weight:800;color:var(--purple);font-family:"JetBrains Mono",monospace;min-width:70px}.drug-class{font-size:16px;font-weight:700;color:var(--text);min-width:110px}.drug-pt{font-size:15px;color:var(--orange)}
+.q-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.q-badge{font-size:14px;font-weight:800;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.6px}
+.qb-info{background:rgba(79,142,247,.15);color:var(--accent2)}.qb-judge{background:rgba(62,207,142,.12);color:var(--green)}.qb-safety{background:rgba(247,111,111,.12);color:var(--red)}.qb-priority{background:rgba(245,200,66,.12);color:var(--gold)}.qb-term{background:rgba(167,139,250,.12);color:var(--purple)}
+.q-num{font-size:15px;color:var(--text2);font-family:"JetBrains Mono",monospace}
+.q-note{background:rgba(247,165,79,.08);border:1px solid rgba(247,165,79,.2);border-radius:var(--rs2);padding:7px 11px;font-size:15px;color:var(--orange);font-weight:600;margin-bottom:10px}
+.q-text{font-size:16px;font-weight:600;color:var(--text);line-height:1.6;padding:8px 0 14px}
+.choices{display:grid;grid-template-columns:1fr;gap:7px;margin-bottom:12px}
+.cbtn{padding:11px 14px;background:var(--sf2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-size:16px;font-weight:500;cursor:pointer;text-align:left;transition:all .15s;line-height:1.5;display:flex;align-items:flex-start;gap:9px}
+.cbtn:hover{border-color:var(--gold);color:var(--gold2)}.cnum{font-size:14px;font-weight:800;font-family:"JetBrains Mono",monospace;color:var(--text2);min-width:16px;margin-top:2px}
+.cbtn.correct{background:rgba(62,207,142,.1);border-color:var(--green);color:var(--green)}.cbtn.wrong{background:rgba(247,111,111,.09);border-color:var(--red);color:var(--red)}.cbtn.show-ans{background:rgba(62,207,142,.07);border-color:rgba(62,207,142,.4);color:var(--green)}.cbtn:disabled{cursor:not-allowed}
+.fb{display:none;border-radius:var(--rs);padding:13px;margin-bottom:11px;line-height:1.6}.fb.ok{background:rgba(62,207,142,.07);border:1px solid rgba(62,207,142,.22)}.fb.ng{background:rgba(247,111,111,.06);border:1px solid rgba(247,111,111,.18)}
+.fb-head{font-size:16px;font-weight:800;margin-bottom:5px}.fb.ok .fb-head{color:var(--green)}.fb.ng .fb-head{color:var(--red)}.fb-body{font-size:16px;color:var(--text2)}.fb-body strong{color:var(--text)}
+.chart-key-box{margin-top:10px;padding:11px 13px;background:var(--sf);border-radius:var(--rs);border-left:3px solid var(--gold)}.ck-title{font-size:13px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px}
+.ck-row{display:flex;gap:7px;margin-bottom:5px;align-items:flex-start}.ck-tag{font-size:13px;font-weight:800;padding:2px 6px;border-radius:3px;white-space:nowrap;margin-top:1px}
+.ck-tg{background:rgba(62,207,142,.15);color:var(--green)}.ck-tr{background:rgba(247,111,111,.15);color:var(--red)}.ck-ty{background:rgba(245,200,66,.15);color:var(--gold)}.ck-tp{background:rgba(167,139,250,.15);color:var(--purple)}.ck-to{background:rgba(247,165,79,.15);color:var(--orange)}
+.ck-val{font-size:15px;color:var(--text2);flex:1;line-height:1.5}.ck-val em{color:var(--accent2);font-style:normal;font-weight:600}
+.res-circle{width:110px;height:110px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;margin:0 auto 16px;border:4px solid var(--green);background:rgba(62,207,142,.07)}
+.res-pct{font-size:30px;font-weight:800;font-family:"JetBrains Mono",monospace;color:var(--green)}.res-lbl{font-size:14px;color:var(--text2)}
+.rgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px}.rstat{text-align:center;background:var(--sf2);border-radius:var(--rs);padding:12px}
+.rstat-v{font-size:20px;font-weight:800;font-family:"JetBrains Mono",monospace}.rstat-l{font-size:14px;color:var(--text2);margin-top:2px}
+.rv-g{color:var(--green)}.rv-r{color:var(--red)}.rv-gold{color:var(--gold)}
+.missed-item{background:var(--sf);border-radius:var(--rs2);padding:8px 11px;margin-bottom:5px;border-left:3px solid var(--red)}.mi-type{font-size:13px;font-weight:800;color:var(--red);text-transform:uppercase;margin-bottom:2px}.mi-q{font-size:15px;color:var(--text2)}
+.vq-card{background:var(--sf);border:1px solid var(--border);border-radius:var(--r);padding:0;margin-bottom:12px;overflow:hidden}
+.vq-term-wrap{background:linear-gradient(135deg,rgba(79,142,247,.12),rgba(167,139,250,.06));border-bottom:1px solid var(--border);padding:12px 16px;text-align:center}
+.vq-term{font-size:24px;font-weight:800;color:var(--accent2);font-family:"JetBrains Mono",monospace}
+.vq-context{font-size:15px;color:var(--text2);padding:10px 14px;line-height:1.7;background:rgba(22,34,54,.4);border-top:1px solid rgba(37,52,80,.5);font-family:"JetBrains Mono",monospace}
+@media(max-width:500px){.feature-grid{grid-template-columns:1fr}.term-grid{grid-template-columns:1fr}main{padding:12px}.cr-label{min-width:90px}}
+
+/* ── TTS PLAY BUTTON ── */
+.tts-btn{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;min-width:20px;background:rgba(79,142,247,.18);border:1px solid rgba(79,142,247,.4);border-radius:50%;cursor:pointer;font-size:8px;color:var(--accent2);transition:all .15s;vertical-align:middle;margin-right:6px;user-select:none;position:relative;top:-1px;flex-shrink:0;}
+.tts-btn:hover{background:rgba(79,142,247,.35);border-color:var(--accent);}
+.tts-btn.speaking{background:rgba(62,207,142,.22);border-color:var(--green);color:var(--green);animation:tts-pulse .65s infinite alternate;}
+@keyframes tts-pulse{from{opacity:.7;transform:scale(1)}to{opacity:1;transform:scale(1.12)}}
+
+/* ── WORD TOOLTIP (말풍선) ── */
+.wt{
+  display:inline;
+  position:relative;
+  cursor:pointer;
+  color:inherit;
+  font-weight:inherit;
+  border-bottom:1px dashed rgba(126,184,247,.6);
+}
+.wt-bubble{
+  display:none;
+  position:fixed;
+  width:290px;
+  background:#182840;
+  border:1px solid var(--accent);
+  border-radius:11px;
+  padding:13px 15px 12px;
+  z-index:99999;
+  box-shadow:0 10px 30px rgba(0,0,0,.65);
+  font-family:"Inter",sans-serif;font-weight:400;
+  pointer-events:none;
+  text-align:left;
+  white-space:normal;
+}
+.wt-bubble::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:7px solid transparent;border-top-color:var(--accent);}
+/* 아래쪽 배치 시 화살표는 위를 가리킴 */
+.wt-bubble.bubble-down::after{top:auto;bottom:100%;border-top-color:transparent;border-bottom-color:var(--accent);}
+.wt.open .wt-bubble{display:block;}
+.wt-pos{font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;display:inline-block;margin-bottom:7px;background:rgba(79,142,247,.2);color:var(--accent2);}
+.wt-pos.warn{background:rgba(247,111,111,.2);color:var(--red);}
+.wt-ko{font-size:13px;font-weight:700;color:#fff;margin-bottom:5px;}
+.wt-nuance{font-size:11px;color:var(--text2);line-height:1.6;margin-bottom:8px;}
+.wt-ex{font-size:11px;background:rgba(255,255,255,.05);border-left:2px solid var(--accent);padding:6px 9px;border-radius:3px;line-height:1.5;}
+.wt-ex .wt-en{color:var(--accent2);font-weight:600;margin-bottom:2px;font-size:11px;}
+.wt-ex .wt-ko-ex{color:var(--text2);}
+@media(max-width:500px){.wt-bubble{width:230px;}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><div class="logo-icon">🗂️</div><div><div class="logo-text">NPTE Chart Reading Master</div><div class="logo-sub">차트 읽기 완전 정복</div></div></div>
+  <div class="hstats"><div class="hstat">🔥<b id="hS">0</b></div><div class="hstat">✅<b id="hT">0</b></div><div class="hstat">🎯<b id="hA">-</b></div></div>
+</header>
+<div class="nav">
+  <button class="nb on" onclick="go('home')">🏠 홈</button>
+  <button class="nb" onclick="go('structure')">📋 차트 구조</button>
+  <button class="nb" onclick="go('vocab')">📖 용어 퀴즈</button>
+  <button class="nb" onclick="go('strategy')">🎯 풀이 전략</button>
+  <button class="nb" onclick="go('quiz')">✏️ 차트 퀴즈</button>
+</div>
+<main>
+<!-- HOME -->
+<div id="sc-home" class="sc on">
+  <div class="home-hero"><h1>NPTE <em>차트 읽기</em><br>완전 정복 앱</h1><p>실제 EMR 스타일 차트를 읽고 임상 판단하는 능력을 단계적으로 훈련합니다.<br>이 앱 하나면 차트 문제 완벽 대비!</p></div>
+  <div id="home-streak" class="streak-box" style="display:none"><div style="font-size:22px">🔥</div><div><div style="font-size:15px;color:var(--text2)">연속 정답</div><div class="streak-n" id="streakN">0</div></div><div style="font-size:15px;color:var(--text2);margin-left:4px">개 진행 중!</div></div>
+  <div class="feature-grid">
+    <div class="feat-card" onclick="go('structure')"><div class="feat-icon">📋</div><div class="feat-title">차트 구조 학습</div><div class="feat-desc">7개 섹션 구성, 각 파트 역할, 핵심 용어 & 유사 표현 메모</div><div class="feat-cnt">7 SECTIONS · 80+ TERMS</div></div>
+    <div class="feat-card" onclick="go('vocab')"><div class="feat-icon">📖</div><div class="feat-title">용어 퀴즈</div><div class="feat-desc">차트 속 핵심 단어·약어·표현 즉시 반응 훈련</div><div class="feat-cnt" id="vocab-cnt">-- VOCAB</div></div>
+    <div class="feat-card" onclick="go('strategy')"><div class="feat-icon">🎯</div><div class="feat-title">풀이 전략</div><div class="feat-desc">8단계 전략 + 즉시 암기 기준표 + 약물 패턴</div><div class="feat-cnt">8 STEPS · QUICK REF</div></div>
+    <div class="feat-card" onclick="go('quiz')"><div class="feat-icon">✏️</div><div class="feat-title">차트 퀴즈</div><div class="feat-desc">실제 EMR 스타일 10개 차트 · 4가지 문제 유형</div><div class="feat-cnt" id="quiz-cnt">-- QUESTIONS</div></div>
+  </div>
+  <div class="start-big" onclick="go('quiz')"><div class="start-big-title">🚀 차트 퀴즈 바로 시작</div><div class="start-big-desc">실제 NPTE 스타일 차트를 읽고 문제를 풀어보세요</div></div>
+</div>
+<!-- STRUCTURE -->
+<div id="sc-structure" class="sc">
+  <div class="sec-label">📋 NPTE 차트의 7가지 구성 섹션</div>
+  <div style="font-size:16px;color:var(--text2);margin-bottom:14px;line-height:1.65">NPTE Chart/Exhibit 문제는 실제 EMR(전자의무기록)과 동일한 구조입니다.<br>각 섹션의 <strong style="color:var(--text)">역할·용어·함정</strong>과 <strong style="color:var(--orange)">유사 표현 메모</strong>를 완전히 숙지하세요.</div>
+  <div id="struct-list"></div>
+</div>
+<!-- VOCAB QUIZ -->
+<div id="sc-vocab" class="sc">
+  <div id="vq-setup">
+    <div class="sec-label">📖 차트 용어 퀴즈</div>
+    <div class="pills" id="vq-filter-pills">
+      <div class="pill on" onclick="pickVQFilter('all',this)">전체</div>
+      <div class="pill" onclick="pickVQFilter('demographics',this)">Demographics</div>
+      <div class="pill" onclick="pickVQFilter('dx',this)">Dx/PMH</div>
+      <div class="pill" onclick="pickVQFilter('meds',this)">Medications</div>
+      <div class="pill" onclick="pickVQFilter('vitals',this)">Vitals</div>
+      <div class="pill" onclick="pickVQFilter('labs',this)">Labs</div>
+      <div class="pill" onclick="pickVQFilter('orders',this)">Orders</div>
+      <div class="pill" onclick="pickVQFilter('notes',this)">PT Notes</div>
+    </div>
+    <button class="btn btn-gold" onclick="startVocabQuiz()">용어 퀴즈 시작 →</button>
+  </div>
+  <div id="vq-area" style="display:none">
+    <div class="prog-wrap"><div class="prog-labels"><span id="vqPtxt">1/20</span><span id="vqStxt">정답 0</span></div><div class="prog-bar"><div class="prog-fill" id="vqPbar" style="width:0%"></div></div></div>
+    <div class="vq-card"><div class="vq-term-wrap"><div class="vq-term" id="vqTerm"></div></div><div class="vq-context" id="vqCtx" style="display:none"></div></div>
+    <div class="card" style="padding:14px">
+      <div class="q-text" id="vqQ" style="padding:0 0 12px"></div>
+      <div class="choices" id="vqChoices"></div>
+      <div class="fb" id="vqFb"><div class="fb-head" id="vqFbHead"></div><div class="fb-body" id="vqFbBody"></div></div>
+      <div class="btnrow"><button class="btn btn-s" id="vqSkip" onclick="vqNext()">건너뛰기</button><button class="btn btn-gold" id="vqNextBtn" onclick="vqNext()" style="display:none">다음 →</button></div>
+    </div>
+  </div>
+  <div id="vq-result" style="display:none">
+    <div class="card" style="text-align:center">
+      <div style="font-size:16px;color:var(--text2);margin-bottom:12px">용어 퀴즈 완료! 📖</div>
+      <div class="res-circle" id="vqResCircle"><div class="res-pct" id="vqResPct">0%</div><div class="res-lbl">정답률</div></div>
+      <div class="rgrid">
+        <div class="rstat"><div class="rstat-v rv-g" id="vqOk">0</div><div class="rstat-l">정답</div></div>
+        <div class="rstat"><div class="rstat-v rv-r" id="vqNg">0</div><div class="rstat-l">오답</div></div>
+        <div class="rstat"><div class="rstat-v rv-gold" id="vqBest">0</div><div class="rstat-l">최고연속</div></div>
+      </div>
+      <div class="btnrow"><button class="btn btn-s" onclick="resetVQ()">처음으로</button><button class="btn btn-gold" onclick="startVocabQuiz()">다시 풀기 →</button></div>
+    </div>
+  </div>
+</div>
+<!-- STRATEGY -->
+<div id="sc-strategy" class="sc">
+  <div class="sec-label">🎯 차트 문제 풀이 전략 — 8단계</div>
+  <div id="strat-list"></div>
+  <div class="sec-label" style="margin-top:6px">🚨 즉시 암기 기준표</div>
+  <div id="ref-tables"></div>
+  <div class="sec-label" style="margin-top:6px">💊 약물 이름 패턴 — 끝글자로 분류</div>
+  <div class="drug-pat" id="drug-table"></div>
+</div>
+<!-- CHART QUIZ -->
+<div id="sc-quiz" class="sc">
+  <div id="qz-setup">
+    <div class="sec-label">✏️ 차트 퀴즈</div>
+    <div class="pills" id="qz-type-pills">
+      <div class="pill on" onclick="pickQZType('all',this)">전체</div>
+      <div class="pill" onclick="pickQZType('safety',this)">⚠️ 안전 판단</div>
+      <div class="pill" onclick="pickQZType('judge',this)">🩺 임상 판단</div>
+      <div class="pill" onclick="pickQZType('priority',this)">🥇 우선순위</div>
+      <div class="pill" onclick="pickQZType('term',this)">📖 용어 해석</div>
+    </div>
+    <button class="btn btn-gold" onclick="startQuiz()">차트 퀴즈 시작 →</button>
+  </div>
+  <div id="qz-area" style="display:none">
+    <div class="prog-wrap"><div class="prog-labels"><span id="qzPtxt">1/35</span><span id="qzStxt">정답 0</span></div><div class="prog-bar"><div class="prog-fill" id="qzPbar" style="width:0%"></div></div></div>
+    <div id="qz-chart" class="chart-wrap" style="display:none"></div>
+    <div class="card" style="padding:14px">
+      <div class="q-meta"><span class="q-badge" id="qzBadge">임상 판단</span><span class="q-num" id="qzNum">#1</span></div>
+      <div class="q-note" id="qzNote" style="display:none"></div>
+      <div class="q-text" id="qzQ"></div>
+      <div class="choices" id="qzChoices"></div>
+      <div class="fb" id="qzFb">
+        <div class="fb-head" id="qzFbHead"></div>
+        <div class="fb-body" id="qzFbBody"></div>
+        <div class="chart-key-box" id="qzKeyBox" style="display:none"><div class="ck-title">🗂️ 차트 읽기 핵심 포인트</div><div id="qzKeyRows"></div></div>
+      </div>
+      <div class="btnrow"><button class="btn btn-s" id="qzSkip" onclick="qzNext()">건너뛰기</button><button class="btn btn-gold" id="qzNextBtn" onclick="qzNext()" style="display:none">다음 →</button></div>
+    </div>
+  </div>
+  <div id="qz-result" style="display:none">
+    <div class="card" style="text-align:center">
+      <div style="font-size:16px;color:var(--text2);margin-bottom:12px">차트 퀴즈 완료! 🗂️</div>
+      <div class="res-circle" id="qzResCircle"><div class="res-pct" id="qzResPct">0%</div><div class="res-lbl">정답률</div></div>
+      <div class="rgrid">
+        <div class="rstat"><div class="rstat-v rv-g" id="qzOk">0</div><div class="rstat-l">정답</div></div>
+        <div class="rstat"><div class="rstat-v rv-r" id="qzNg">0</div><div class="rstat-l">오답</div></div>
+        <div class="rstat"><div class="rstat-v rv-gold" id="qzBest">0</div><div class="rstat-l">최고연속</div></div>
+      </div>
+      <div id="qz-missed" style="display:none;text-align:left;margin-bottom:14px"><div class="sec-label">⚡ 틀린 문제 유형</div><div id="qz-missed-list"></div></div>
+      <div class="btnrow"><button class="btn btn-s" onclick="resetQZ()">설정으로</button><button class="btn btn-gold" onclick="startQuiz()">다시 풀기 →</button></div>
+    </div>
+  </div>
+</div>
+</main>
+<script>
+// ================================================================
+// SECTIONS DATA
+// ================================================================
+const SECTIONS=[
+{id:"demographics",icon:"🪪",title:"Patient Demographics / Identifying Info",ko:"환자 기본 정보",
+purpose:"환자 신상·거주 환경·직업. 나이·성별·거주지 정보가 <strong>중재 목표</strong>와 <strong>퇴원 계획</strong>을 결정. 직접 정답을 묻기보다 context 설정 역할.",
+scan:"나이(연령별 고려), 성별(질환 연관), 직업(복귀 목표), 거주지(계단·독거 여부)",
+terms:[
+  {en:"DOB / Age",ko:"생년월일 / 나이",note:"연령대별 합병증 위험 단서"},
+  {en:"Sex / Gender",ko:"성별",note:"골다공증·임신 등 연관"},
+  {en:"Occupation",ko:"직업",note:"복직 가능성·기능 목표"},
+  {en:"Living situation",ko:"거주 환경",note:"독거·계단·접근성"},
+  {en:"Primary language",ko:"주 사용 언어",note:"교육 방법 결정"},
+  {en:"Referring physician",ko:"의뢰 Physician",note:"전문과 → 진단 힌트"},
+  {en:"Chief complaint (CC)",ko:"주소(主訴)",note:"환자가 말하는 주된 문제"},
+  {en:"Insurance / Payer",ko:"보험 정보",note:"치료 횟수 제한"},
+],
+similar:[
+  {en:"CC = Chief Complaint",ko:"환자가 직접 말하는 주된 문제"},
+  {en:"HPI = History of Present Illness",ko:"현병력 — 발병 경위 상세 기술"},
+  {en:"comes in with",ko:"~을 가지고 내원하다 (구어적)"},
+  {en:"is referred with / for",ko:"~로 의뢰되다"},
+  {en:"has a chief complaint of",ko:"주소(主訴)가 ~이다"},
+  {en:"presents with",ko:"~을 주된 상태로 나타내며 내원하다"},
+],
+trap:"나이+성별 조합 → 위험 인자 추론. 65세 이상 여성 → 골다공증·낙상 자동 연상. 독거 → 퇴원 기준 더 높게 설정."
+},
+{id:"dx",icon:"🩺",title:"Diagnosis / Medical History (Dx / PMH)",ko:"진단명 / 과거 병력",
+purpose:"<strong>가장 중요한 섹션.</strong> Primary Dx(현 진단), Secondary Dx(동반 질환), 수술력(PSH), 과거력(PMH). 모든 임상 판단의 기반.",
+scan:"Primary Dx(오늘 치료 대상), Secondary Dx(금기·주의사항 생성), 수술 날짜(몇 주 경과), 손상 기전(MOI)",
+terms:[
+  {en:"Primary Dx / Admitting Dx",ko:"주 진단명 / 입원 진단",note:""},
+  {en:"Secondary Dx / Comorbidities",ko:"동반 질환",note:"치료 금기·제한 생성"},
+  {en:"PMH (Past Medical History)",ko:"과거 병력",note:""},
+  {en:"PSH (Past Surgical History)",ko:"수술력",note:"날짜 확인 → 몇 주 경과"},
+  {en:"FH (Family History)",ko:"가족력",note:""},
+  {en:"SH (Social History)",ko:"사회력",note:"흡연·음주·운동 습관"},
+  {en:"MOI (Mechanism of Injury)",ko:"손상 기전",note:"외상 vs insidious"},
+  {en:"Onset / Duration",ko:"발병 시점 / 유병 기간",note:"acute vs chronic"},
+  {en:"s/p (status post)",ko:"~ 이후 상태",note:"수술·처치 후 상태"},
+  {en:"Hx (History)",ko:"병력",note:""},
+],
+similar:[
+  {en:"insidious onset",ko:"서서히 발병 → 과사용·퇴행 원인"},
+  {en:"sudden onset / acute onset",ko:"갑자기 발병 → 외상·혈관 원인"},
+  {en:"secondary to ~",ko:"~ 때문에 / ~로 인한 (원인 표현)"},
+  {en:"subsequent to ~",ko:"~ 이후에 (시간 표현, secondary to와 혼동 금지!)"},
+  {en:"prior to ~",ko:"~ 이전에 (before의 격식 표현)"},
+  {en:"following ~",ko:"~ 다음에 / ~ 후에"},
+],
+trap:"Secondary Dx가 치료 금기를 만든다! Primary=hip fracture, Secondary=osteoporosis+anticoagulant → 낙상 예방 최우선. 수술 날짜 → 오늘 날짜 계산 → 몇 주 경과 → 허용 중재 결정."
+},
+{id:"meds",icon:"💊",title:"Medications / Current Medications",ko:"복용 약물",
+purpose:"현재 복용 약물 목록. PT에 직접 영향을 주는 약물 파악 필수. 운동 반응·출혈 위험·혈압·근력·균형에 영향.",
+scan:"항응고제(출혈↑), 베타차단제(HR↓→RPE), 스테로이드(장기→골다공증), 이뇨제(전해질), 당뇨약(Blood glucose)",
+terms:[
+  {en:"Anticoagulant (Warfarin/Eliquis)",ko:"항응고제",note:"출혈 위험↑ → INR 확인"},
+  {en:"Beta-blocker (-lol: Metoprolol)",ko:"베타차단제",note:"HR 반응↓ → RPE 사용"},
+  {en:"ACE inhibitor (-pril: Lisinopril)",ko:"ACE 억제제",note:"기침 부작용, 혈압 안정"},
+  {en:"ARB (-sartan: Losartan)",ko:"안지오텐신 수용체 차단제",note:"혈압약"},
+  {en:"Corticosteroid (Prednisone)",ko:"스테로이드",note:"장기→골다공증·근력저하"},
+  {en:"Diuretic (Furosemide)",ko:"이뇨제",note:"전해질 불균형·어지러움"},
+  {en:"Insulin / Oral hypoglycemic",ko:"인슐린/경구Blood glucose강하제",note:"운동 전후 Blood glucose 모니터"},
+  {en:"NSAID (Ibuprofen)",ko:"비스테로이드 소염제",note:"통증·염증 억제"},
+  {en:"Opioid (Oxycodone)",ko:"마약성 진통제",note:"균형·인지 영향"},
+  {en:"Statin (-statin: Atorvastatin)",ko:"스타틴",note:"근육통·근병증 가능"},
+  {en:"Bronchodilator (Albuterol)",ko:"기관지 확장제",note:"운동 전 흡입 확인"},
+  {en:"PRN (pro re nata)",ko:"필요 시 복용",note:"규칙 복용이 아님"},
+],
+similar:[
+  {en:"is taking / is on ~",ko:"~을 복용 중이다"},
+  {en:"was prescribed ~",ko:"~을 처방받았다"},
+  {en:"discontinued ~",ko:"~을 중단하였다"},
+  {en:"NKDA (No Known Drug Allergies)",ko:"알려진 약물 알레르기 없음"},
+  {en:"BID / TID / QID / QD",ko:"하루 2회 / 3회 / 4회 / 1회"},
+  {en:"PO (per os)",ko:"경구 복용"},
+  {en:"IV (intravenous)",ko:"정맥 주사"},
+  {en:"SC (subcutaneous)",ko:"피하 주사"},
+],
+trap:"Beta-blocker(-lol) → 운동 시 HR 안 오름 → HR 기반 처방 불가 → RPE가 정답! Warfarin/Heparin/Eliquis(-xaban) → 출혈 위험 → INR 확인."
+},
+{id:"vitals",icon:"📊",title:"Vital Signs",ko:"활력 징후",
+purpose:"치료 전·중·후 <strong>안전성 확인의 핵심</strong>. 정상 범위 이탈 = 치료 시작/중단/수정 결정. 가장 빠르게 스캔해야 할 섹션.",
+scan:"이상 수치 즉시 체크: BP·HR·SpO₂·체온·Blood glucose → 각 이상 수치가 의미하는 행동 결정",
+terms:[
+  {en:"BP (Blood Pressure)",ko:"혈압 (mmHg)",note:"정상 <120/80 / HTN >130/80"},
+  {en:"HR (Heart Rate)",ko:"심박수 (bpm)",note:"정상 60-100 / tachy>100 / brady<60"},
+  {en:"RR (Respiratory Rate)",ko:"호흡수 (/min)",note:"정상 12-20 / >20=tachypnea"},
+  {en:"SpO₂ / O₂ Saturation",ko:"산소포화도 (%)",note:"정상 ≥95% / <90%=즉시 중단"},
+  {en:"Temperature",ko:"체온",note:">101°F(38.3°C)=열 → 주의"},
+  {en:"BG / Blood Glucose",ko:"Blood glucose (mg/dL)",note:"<70=저Blood glucose / >300=고Blood glucose"},
+  {en:"Pain (NRS 0-10)",ko:"통증 척도",note:""},
+  {en:"WB Status",ko:"체중 부하 상태",note:"NWB/PWB/WBAT/FWB"},
+  {en:"at rest",ko:"안정 시",note:"운동 전 기저 수치"},
+  {en:"with activity",ko:"활동 시",note:"운동 반응 확인"},
+],
+similar:[
+  {en:"tachycardia",ko:"빈맥 (HR >100)"},
+  {en:"bradycardia",ko:"서맥 (HR <60)"},
+  {en:"hypertension",ko:"고혈압 (BP >130/80)"},
+  {en:"hypotension",ko:"저혈압 (BP <90/60)"},
+  {en:"tachypnea",ko:"빈호흡 (RR >20)"},
+  {en:"diaphoresis",ko:"발한/식은땀 → 운동 중단 신호"},
+  {en:"cyanosis",ko:"청색증 → 즉시 중단"},
+  {en:"dyspnea / SOB",ko:"호흡 곤란 / 숨참"},
+],
+trap:"운동 중단 절대 기준: SpO₂<90% / 수축기BP<90 또는 >180mmHg / 이완기BP>110mmHg / 흉통 / 청색증 / 환자 중단 요청. 'at rest vs with activity' 반드시 구별!"
+},
+{id:"labs",icon:"🔬",title:"Laboratory Values / Lab Results",ko:"검사 수치",
+purpose:"혈액·영상 검사 결과. <strong>정상 범위 이탈 = 치료 수정 또는 Physician 보고 신호.</strong>",
+scan:"Hgb(빈혈), WBC(면역·감염), Platelet(출혈), INR(항응고), BG(Blood glucose), 영상 소견",
+terms:[
+  {en:"Hgb (Hemoglobin)",ko:"혈색소 (g/dL)",note:"정상 남14-18 여12-16 / <8=운동↓↓"},
+  {en:"Hct (Hematocrit)",ko:"적혈구용적률 (%)",note:"빈혈 지표"},
+  {en:"WBC (White Blood Cells)",ko:"백혈구 수",note:">11k=감염 / <1k=면역저하→격리"},
+  {en:"Platelet count",ko:"혈소판 수 (/μL)",note:"<20k=도수 금기 / <50k=주의"},
+  {en:"INR",ko:"국제정상화비율",note:">3.0=출혈↑ / 치료범위 2.0-3.0"},
+  {en:"PT (Prothrombin Time)",ko:"프로트롬빈 시간",note:"응고 기능"},
+  {en:"BUN / Creatinine",ko:"신장 기능",note:"↑=신기능저하→수분불균형"},
+  {en:"HbA1c",ko:"당화혈색소 (%)",note:">7%=Blood glucose조절 불량"},
+  {en:"T-score (bone density)",ko:"골밀도 T 점수",note:"<-2.5=골다공증"},
+  {en:"X-ray / radiograph",ko:"방사선 사진",note:"negative for=소견없음"},
+],
+similar:[
+  {en:"within normal limits (WNL)",ko:"정상 범위 내"},
+  {en:"elevated / increased",ko:"상승됨 / 증가됨"},
+  {en:"decreased / reduced",ko:"감소됨 / 저하됨"},
+  {en:"is negative for ~",ko:"~에 대해 음성 = 해당 소견 없음"},
+  {en:"is positive for ~",ko:"~에 대해 양성 = 해당 소견 있음"},
+  {en:"reveals / shows",ko:"(검사·영상이) 보여주다 / 드러내다"},
+  {en:"is consistent with ~",ko:"~에 부합하다"},
+  {en:"is suggestive of ~",ko:"~을 시사하다"},
+],
+trap:"Lab 이상 수치가 항상 즉시 중단이 아님! Hgb 10.5 → 빈혈이지만 강도 조절 후 가능. Platelet<20,000 → 금기. WBC<1,000 → 역격리. '수정(modify) vs 중단(stop) vs 보고(report)' 구별이 핵심."
+},
+{id:"orders",icon:"📋",title:"Physician Orders / Precautions / Restrictions",ko:"Physician 처방 / 주의사항",
+purpose:"PT가 <strong>반드시 따라야 하는 지시사항.</strong> 이 섹션을 먼저 확인! WB status·ROM 제한·자세 제한·격리 여부. 위반 시 즉시 오답.",
+scan:"WB status / Hip-Sternal-Spinal precautions / Fall risk / Isolation / Activity level",
+terms:[
+  {en:"WB Status (NWB/PWB/WBAT/FWB)",ko:"체중 부하 상태",note:"처방된 수준 엄수"},
+  {en:"Hip precautions",ko:"고관절 주의사항",note:"THA 후: no flex>90°/IR/adduction"},
+  {en:"Sternal precautions",ko:"흉골 주의사항",note:"CABG 후: no push/pull >5 lbs"},
+  {en:"Spinal precautions",ko:"척추 주의사항",note:"수술 후: no BLT(Bend/Lift/Twist)"},
+  {en:"Fall risk / precautions",ko:"낙상 위험 / 예방",note:"HIGH→항상 gait belt 착용"},
+  {en:"Contact precautions",ko:"접촉 격리",note:"장갑+가운 (MRSA/C.diff)"},
+  {en:"Droplet precautions",ko:"비말 격리",note:"수술 마스크 (독감/폐렴)"},
+  {en:"Airborne precautions",ko:"공기 격리",note:"N95+음압 (TB/COVID)"},
+  {en:"Activity as tolerated (AAT)",ko:"허용 범위 내 활동",note:""},
+  {en:"NPO (Nil Per Os)",ko:"금식",note:"Blood glucose·에너지 주의"},
+  {en:"DNR (Do Not Resuscitate)",ko:"심폐소생술 거부",note:""},
+  {en:"Bed rest",ko:"침대 안정",note:"이동 최소화"},
+],
+similar:[
+  {en:"is restricted to ~",ko:"~로 제한되다"},
+  {en:"is limited to ~",ko:"~에 한정되다"},
+  {en:"is contraindicated",ko:"금기이다"},
+  {en:"is not indicated",ko:"적응증이 아니다 (금기보다 약함)"},
+  {en:"should be avoided",ko:"피해야 한다"},
+  {en:"is permitted / is allowed",ko:"허용된다"},
+  {en:"as ordered by physician",ko:"Physician 지시에 따라"},
+  {en:"per protocol",ko:"프로토콜에 따라"},
+],
+trap:"이 섹션이 정답을 바꾸는 빈도 1위! 좋은 중재도 orders 위반=오답. Hip precautions 있는데 flex>90° 운동=즉시 오답. Isolation type별 PPE 정확히 암기 필수."
+},
+{id:"notes",icon:"📝",title:"PT / OT / Nursing Notes (SOAP)",ko:"이전 치료 기록 / SOAP 노트",
+purpose:"이전 세션 기록과 간호 기록. <strong>현재 기능 수준·진행 상황·목표</strong> 파악의 핵심. SOAP 구조 이해 필수.",
+scan:"S(환자 호소) / O(측정·기능 수준) / A(PT 평가·진전) / P(다음 계획·퇴원 목표)",
+terms:[
+  {en:"S: (Subjective)",ko:"주관적 — 환자가 말하는 것",note:"patient reports / denies / states"},
+  {en:"O: (Objective)",ko:"객관적 — 측정·관찰",note:"MMT / ROM / 보행 거리 / 보조 수준"},
+  {en:"A: (Assessment)",ko:"평가 — 치료사 임상 판단",note:"progress / plateau / regression"},
+  {en:"P: (Plan)",ko:"계획 — 다음 세션 계획",note:"continue / progress / modify / DC"},
+  {en:"Ambulation distance",ko:"보행 거리",note:"amb 50 ft = 약 15m"},
+  {en:"Assist level",ko:"보조 수준",note:"Sup / MinA / ModA / MaxA"},
+  {en:"AD (Assistive Device)",ko:"보조 기구",note:"cane/walker/crutches/W/C"},
+  {en:"POC (Plan of Care)",ko:"치료 계획",note:"목표·중재·빈도"},
+  {en:"D/C plan",ko:"퇴원 계획",note:"퇴원 환경·필요 조건"},
+  {en:"tolerates treatment well",ko:"치료를 잘 견뎌냈다",note:"호전≠ 부작용 없이 견딤"},
+  {en:"denies ~",ko:"~ 없다고 부정하다",note:"reports의 반대 방향!"},
+  {en:"has reached a plateau",ko:"기능 정체기",note:"D/C 또는 POC 수정 신호"},
+],
+similar:[
+  {en:"independent with ~",ko:"~을 독립적으로 수행"},
+  {en:"requires ~ for ~",ko:"~을 위해 ~이 필요하다"},
+  {en:"demonstrates ~",ko:"(관찰 가능한 소견을) 보이다"},
+  {en:"progressed to ~",ko:"~으로 진전되었다"},
+  {en:"is making functional progress",ko:"기능적 진전을 보이고 있다"},
+  {en:"has reached a plateau",ko:"정체기에 도달했다 → D/C 고려"},
+  {en:"D/C to home / SNF / acute rehab",ko:"자택/요양원/재활병원으로 퇴원"},
+  {en:"tolerates well",ko:"부작용 없이 견딤 (호전이 아님!)"},
+],
+trap:"SOAP: S=환자 말, O=PT 측정, A=PT 판단, P=PT 계획. 'tolerates well'=견딘 것≠호전. 'denies pain'=통증 없음(reports pain 반대). 'plateau'=정체→D/C 신호."
+}
+];
+
+// ================================================================
+// VOCAB DATA
+// ================================================================
+const VOCAB=[
+// ── DEMOGRAPHICS ──
+{sec:"demographics",term:"CC",
+ ctx:"Chart header: CC: \"knee pain worse with stairs, 6 weeks\"",
+ q:"차트에서 「CC」 항목에 기록된 내용은 누가 어떻게 제공한 정보인가?",
+ ans:"환자가 직접 말한 주관적 주된 불편감",
+ choices:["Physician가 진단한 객관적 임상 소견","환자가 직접 말한 주관적 주된 불편감","검사실에서 측정한 수치","보험사에서 요청한 치료 범주"],
+ exp:"CC = Chief Complaint. 환자 자신의 말로 기록. PT 노트의 SOAP S:(Subjective)와 같은 성격 — 환자가 말하는 것."
+},
+{sec:"demographics",term:"HPI",
+ ctx:"Chart: HPI: \"Patient reports onset of low back pain 3 weeks ago after lifting, insidious worsening since.\"",
+ q:"이 HPI 내용을 바탕으로 치료사가 즉시 파악할 수 있는 임상 정보는?",
+ ans:"발병 시점·기전(lifting)·경과(점진적 악화)가 포함된 현병력",
+ choices:["환자의 과거 수술 이력","발병 시점·기전(lifting)·경과(점진적 악화)가 포함된 현병력","현재 복용 중인 약물 목록","보험 적용 여부"],
+ exp:"HPI = History of Present Illness. 언제(3주 전), 어떻게(lifting), 이후 경과(점진적 악화) — 감별 진단과 치료 계획의 첫 번째 단서."
+},
+{sec:"demographics",term:"referring physician",
+ ctx:"Referring physician: Dr. Johnson (Orthopedic Surgery)\nReason for referral: Post-op rehab s/p R TKA",
+ q:"「Referring physician: Orthopedic Surgery」라고 적혀 있을 때, 이것이 PT 세션에 미치는 실질적 의미는?",
+ ans:"수술 후 재활임을 알 수 있고, 수술 처방·주의사항이 Physician 지시서에 포함될 가능성이 높음",
+ choices:["PT가 수술을 직접 수행한 Physician","수술 후 재활임을 알 수 있고, 수술 처방·주의사항이 Physician 지시서에 포함될 가능성이 높음","보험 청구 시 서명이 필요한 담당자","환자의 주치의를 교체한 기록"],
+ exp:"의뢰 전문과 → 치료 맥락 파악. Orthopedic surgeon → 수술 후 precautions(WB status, ROM 제한) 확인 필수. Neurologist → 신경학적 문제. Cardiologist → 운동 제한 가능."
+},
+{sec:"demographics",term:"living situation",
+ ctx:"Living situation: Lives alone in a 2nd floor apartment. No elevator. One flight of stairs to enter.",
+ q:"이 거주 환경 정보가 PT 퇴원 계획에 미치는 영향으로 가장 옳은 것은?",
+ ans:"독거 + 계단 필수 → 계단 오르내리기 독립 수행이 퇴원 기준이 되어야 함",
+ choices:["거주 환경은 PT 치료와 무관","독거 + 계단 필수 → 계단 오르내리기 독립 수행이 퇴원 기준이 되어야 함","1층이 아니므로 치료 불가","퇴원 후 요양원 입소가 반드시 필요"],
+ exp:"Living situation = 퇴원 기준과 직결. 독거 → 낙상 시 도움 없음 → 더 높은 기능 기준 필요. 2층 + 계단 → 계단 훈련이 D/C 전 필수 목표."
+},
+// ── DX / PMH ──
+{sec:"dx",term:"s/p",
+ ctx:"Dx: s/p L4-L5 discectomy (3 weeks ago)",
+ q:"차트에서 「s/p」 다음에 날짜가 기록되어 있을 때, PT가 이 정보로 가장 먼저 해야 할 것은?",
+ ans:"오늘 날짜와 계산하여 몇 주 경과인지 파악 → 해당 시기의 허용 중재 기준 적용",
+ choices:["수술 집도의 이름 확인","오늘 날짜와 계산하여 몇 주 경과인지 파악 → 해당 시기의 허용 중재 기준 적용","환자에게 재수술 필요 여부 설명","수술 비용 청구 처리"],
+ exp:"s/p + 날짜 = 수술 후 경과 주수 계산 필수. 3 weeks post discectomy → 아급성기 → 점진적 신전 운동 시작 가능, 과부하 금지."
+},
+{sec:"dx",term:"comorbidities",
+ ctx:"Primary Dx: L hip fracture s/p ORIF\nSecondary Dx: Osteoporosis, DVT (3 months ago), Anticoagulant therapy",
+ q:"이 환자의 Secondary Dx 목록이 오늘 PT 세션에 미치는 실질적 영향은?",
+ ans:"골다공증 → 충격 부하 주의 / DVT 병력 + 항응고제 → 도수 치료 강도 제한 및 INR 확인 필요",
+ choices:["Secondary Dx는 PT 치료에 영향 없음","Primary Dx(골절)만 치료하면 됨","골다공증 → 충격 부하 주의 / DVT 병력 + 항응고제 → 도수 치료 강도 제한 및 INR 확인 필요","Secondary Dx가 있으면 모든 PT 금기"],
+ exp:"Secondary Dx = 치료 금기·주의사항의 원천. Primary Dx만 보면 함정! DVT 병력 + 항응고제 → INR 확인 필수. 골다공증 → 관절 보호 원칙."
+},
+{sec:"dx",term:"insidious onset vs sudden onset",
+ ctx:"HPI: Patient reports knee pain of insidious onset over the past 8 weeks. No specific injury recalled.",
+ q:"「insidious onset, no specific injury」가 감별진단에서 시사하는 것은?",
+ ans:"외상 없이 서서히 발병 → 과사용·퇴행성·전신 원인 고려 (sudden onset과 반대)",
+ choices:["응급 수술이 필요한 상태","혈관 원인으로 인한 급성 손상","외상 없이 서서히 발병 → 과사용·퇴행성·전신 원인 고려 (sudden onset과 반대)","심리적 원인으로 인한 통증"],
+ exp:"insidious = 서서히, 원인 불명. 과사용·퇴행·전신 질환 원인. Sudden onset → 외상·혈관·응급 원인. 발병 양식이 감별 진단의 첫 번째 단서."
+},
+{sec:"dx",term:"MOI: FOOSH",
+ ctx:"MOI: Patient fell on outstretched hand (FOOSH) on ice. Now has wrist pain and point tenderness.",
+ q:"「FOOSH」 기전과 점상 압통 위치로 PT가 의심해야 할 것은?",
+ ans:"주상골 골절(scaphoid fracture) 의심",
+ choices:["손목 인대 염좌만 가능","요골 신경 손상 가능성","주상골 골절(scaphoid fracture) 의심","손가락 골절 의심"],
+ exp:"FOOSH = Fall On OutStretched Hand. 해부학적 코담배갑(anatomical snuffbox) 압통 → scaphoid fracture 의심 → Physician에게 refer back. X-ray 음성이어도 골절 가능."
+},
+// ── MEDICATIONS ──
+{sec:"meds",term:"PRN",
+ ctx:"Medications: Oxycodone 5mg PO PRN q4h for pain\n[Last dose: 1.5 hours ago]",
+ q:"「PRN」 복용력과 last dose 1.5시간 전이 오늘 PT 세션에 미치는 영향은?",
+ ans:"마약성 진통제 최근 복용 → 균형·인지 영향 가능 → 낙상 위험 증가, 강도 조절 필요",
+ choices:["PRN이므로 오늘은 복용 안 했을 것","규칙 복용이므로 효과가 일정함","마약성 진통제 최근 복용 → 균형·인지 영향 가능 → 낙상 위험 증가, 강도 조절 필요","진통 효과로 오늘 더 강하게 치료 가능"],
+ exp:"PRN = 필요 시 복용. 1.5시간 전 복용 = 피크 효과 시간대. Opioid → 균형·졸음·인지 영향 → 낙상 위험↑. 치료 전 의식 상태 확인 필수."
+},
+{sec:"meds",term:"Beta-blocker: -lol",
+ ctx:"Medications: Metoprolol 50mg BID\nVital Signs: HR (rest) 58 bpm",
+ q:"Metoprolol과 HR 58 bpm 조합을 보았을 때, 오늘 운동 처방에서 즉시 바꿔야 할 것은?",
+ ans:"목표 심박수 공식(220-나이 × %) 사용 불가 → Borg RPE 스케일로 강도 모니터링",
+ choices:["HR 58이 낮으므로 즉시 치료 중단","HR을 더 올리기 위해 고강도 운동 시작","목표 심박수 공식(220-나이 × %) 사용 불가 → Borg RPE 스케일로 강도 모니터링","HR 58은 Beta-blocker와 무관한 심장 이상"],
+ exp:"Beta-blocker(-lol) → HR 반응 둔화. 약물 효과로 HR 58 = 정상. 이 때문에 THR 공식 사용 불가 → RPE 13-14('다소 힘들다') 기준으로 강도 조절."
+},
+{sec:"meds",term:"Anticoagulant + INR",
+ ctx:"Medications: Warfarin 5mg daily\nLab: INR = 3.6 (Therapeutic range: 2.0-3.0)",
+ q:"Warfarin 복용 중 INR 3.6. 이 수치가 오늘 PT 세션에서 의미하는 것은?",
+ ans:"INR이 치료 범위(2.0-3.0) 초과 → 출혈 위험 증가 → 강한 도수 치료 자제 및 Physician 보고",
+ choices:["INR 3.6은 정상 범위이므로 평소대로","All PT is contraindicated for patients on Warfarin","INR이 치료 범위(2.0-3.0) 초과 → 출혈 위험 증가 → 강한 도수 치료 자제 및 Physician 보고","INR은 PT 치료 결정과 무관"],
+ exp:"INR 치료 범위 2.0-3.0. 3.6 > 3.0 → 과항응고 → 출혈↑. 강한 도수 자제. Physician 보고. INR > 4.0 = 즉각 보고. INR이 범위 내(2.0-3.0)이면 정상 진행."
+},
+{sec:"meds",term:"Corticosteroid 장기 복용",
+ ctx:"PMH: Long-term Prednisone use (>12 months) for rheumatoid arthritis",
+ q:"장기 코르티코스테로이드 복용력이 오늘 PT 치료 계획에서 반드시 고려되어야 하는 이유는?",
+ ans:"골다공증 + 근력 저하 유발 → 충격 운동 주의, 낙상 예방 강조, 관절 보호 운동 선택",
+ choices:["스테로이드는 PT에 영향 없음","혈압이 높아지므로 유산소 운동만 금지","골다공증 + 근력 저하 유발 → 충격 운동 주의, 낙상 예방 강조, 관절 보호 운동 선택","염증이 없으므로 최대 강도 운동 가능"],
+ exp:"장기 코르티코스테로이드 → ①골다공증(충격·과부하 주의) ②근력 저하(낙상 위험↑) ③피부 약화. 치료 방향 = 골 보호 + 균형 훈련 + 점진적 강화."
+},
+{sec:"meds",term:"NKDA",
+ ctx:"Allergies: NKDA",
+ q:"차트 알레르기 섹션에 「NKDA」라고만 적혀 있다. 이것이 의미하는 것은?",
+ ans:"No Known Drug Allergies",
+ choices:["알레르기 항목이 아직 작성되지 않음","약물 알레르기가 있으나 목록 미작성","No Known Drug Allergies","모든 약물 복용이 금지된 상태"],
+ exp:"NKDA = No Known Drug Allergies. '없음'을 명시한 것. 공란과 다름. PT 관련: 새 처방 크림·테이프 적용 전 재확인 습관."
+},
+// ── VITALS ──
+{sec:"vitals",term:"SpO₂ with activity",
+ ctx:"Vitals (at rest): SpO₂ 94%\nNursing note: SpO₂ dropped to 87% when walking to bathroom",
+ q:"안정 시 94%였던 SpO₂가 보행 시 87%로 떨어진 간호 기록을 확인했다. 오늘 PT 세션의 첫 번째 결정은?",
+ ans:"운동 전 주치의에게 보고 후 지시 대기",
+ choices:["산소 포화도가 잠깐 떨어진 것이므로 오늘도 동일하게 진행","저산소증 예방을 위해 앉아서 하는 운동으로 변경","운동 전 주치의에게 보고 후 지시 대기","SpO₂ 94%가 안정 시 정상이므로 오늘도 운동 가능"],
+ exp:"이전 기록의 활동 시 SpO₂ 87% = <90% = 절대 중단 기준. '안정 시'와 '활동 시'는 전혀 다른 의미. 이전 세션 기록이 오늘 결정을 바꿈."
+},
+{sec:"vitals",term:"BP: 수축기 경계",
+ ctx:"Pre-session vitals:\nBP: 174/96 mmHg\nHR: 82 bpm\nSpO₂: 97%",
+ q:"수축기 BP 174 mmHg를 확인했다. 가장 적절한 행동은?",
+ ans:"5분 후 재측정",
+ choices:["즉시 치료 중단 후 응급 처치","BP 174는 완전 정상이므로 즉시 시작","5분 후 재측정","혈압약 투여 후 바로 시작"],
+ exp:"수축기 BP >180 = 즉시 중단. 174 = 경계. 재측정 후 >180이면 중단+보고. 160-179 = 저강도만 가능. 재측정 후에도 판단이 필요한 구간."
+},
+{sec:"vitals",term:"diaphoresis",
+ ctx:"During session: Patient breaks out in cold sweat (diaphoresis) after walking 30 ft. Reports feeling \"dizzy and weak.\"",
+ q:"운동 중 diaphoresis + 어지러움 + 무력감이 동시에 나타났다. PT의 즉각적인 행동은?",
+ ans:"즉시 운동 중단 + 앉히거나 눕히기",
+ choices:["운동 강도를 낮추고 계속 진행","물을 마시게 하고 잠시 쉰 후 재개","즉시 운동 중단 + 앉히거나 눕히기","diaphoresis는 정상 운동 반응이므로 계속"],
+ exp:"diaphoresis(발한) + 어지러움 + 무력감 = 복합 신호 → 즉시 중단. 저Blood glucose(DM 환자) 또는 심혈관 이상 가능. 앉히기→V/S 측정→Blood glucose 확인→Physician 보고."
+},
+{sec:"vitals",term:"BG: 운동 전 기준",
+ ctx:"Patient: Type 2 DM, on insulin\nPre-session BG: 62 mg/dL",
+ q:"당뇨 환자의 운동 전 Blood glucose이 62 mg/dL로 측정되었다. 오늘 PT 세션 결정은?",
+ ans:"Hold exercise therapy",
+ choices:["저강도 운동은 Blood glucose 올려주므로 진행","Blood glucose과 PT 치료는 무관하므로 진행","Hold exercise therapy","인슐린을 직접 투여 후 재측정"],
+ exp:"BG <70 = 저Blood glucose → 운동 금기. 운동 시 더 떨어짐. 간식(15-20g 탄수화물) 섭취 → 15분 후 재측정 → BG >80이면 운동 가능. PT는 인슐린 투여 불가."
+},
+// ── LABS ──
+{sec:"labs",term:"Platelet: 수치별 기준",
+ ctx:"Lab: Platelet count: 35,000/μL (Normal: 150,000-400,000)\nPrimary Dx: Leukemia (chemotherapy)",
+ q:"혈소판 35,000/μL. 오늘 PT 세션에서 도수 치료(manual therapy)에 대한 결정은?",
+ ans:"주의하면서 가능",
+ choices:["35,000은 정상이므로 일반 도수 치료 가능","도수 치료 절대 금기","주의하면서 가능","모든 PT 치료 전면 중단"],
+ exp:"Platelet <20,000 = 도수 금기. 20,000-50,000 = 주의(강한 도수 자제, 가벼운 ROM 가능). >50,000 = 일반 가능. 35,000 = 주의 구간 → 가벼운 치료 가능."
+},
+{sec:"labs",term:"WBC: 면역저하",
+ ctx:"Lab: WBC 0.6 × 10³/μL (Normal: 4.5-11)\nOrders: Reverse isolation precautions",
+ q:"WBC 0.6과 역격리 처방. PT가 이 환자 치료실에 들어가기 전 해야 하는 것은?",
+ ans:"외부 감염원 차단",
+ choices:["일반 접촉 격리(Contact Precautions)와 동일하게 장갑만 착용","역격리는 간호사만 담당하므로 PT는 일반 진입","외부 감염원 차단","WBC와 상관없이 PT 치료 진행"],
+ exp:"역격리(Reverse Isolation) = 면역저하 환자를 외부 감염으로부터 보호. PT → 감염원이 될 수 있음 → 철저한 PPE 착용 후 입실. 평소보다 더 엄격하게."
+},
+{sec:"labs",term:"negative for vs positive for",
+ ctx:"Lab: Radiograph is negative for fracture.\nUrine culture: positive for E. coli (>100,000 CFU/mL)",
+ q:"같은 차트에서 「negative for」와 「positive for」가 모두 등장했다. 각각의 의미는?",
+ ans:"negative for fracture = 골절 없음(정상) / positive for E. coli = 균 검출됨",
+ choices:["negative = 나쁜 결과 / positive = 좋은 결과","negative for fracture = 골절 없음(정상) / positive for E. coli = 균 검출됨","두 표현 모두 정상을 의미","두 표현 모두 이상을 의미"],
+ exp:"의학에서 negative = 해당 소견 없음(정상). positive = 이상 소견 있음. 일상 영어(positive=좋은 것)와 반대! 이 차이를 놓치면 결과를 반대로 해석."
+},
+{sec:"labs",term:"INR: 범위 해석",
+ ctx:"Medications: Warfarin (for DVT prevention)\nLab: INR = 1.3",
+ q:"Warfarin 복용 중인 DVT 예방 환자의 INR이 1.3. 이 수치가 의미하는 것은?",
+ ans:"INR이 치료 범위(2.0-3.0) 미달",
+ choices:["INR 1.3은 정상이므로 아무 조치 불필요","INR이 치료 범위(2.0-3.0) 미달","INR이 낮으므로 도수 치료 즉시 가능","INR 1.3은 위험 수준으로 즉시 응급 처치"],
+ exp:"DVT 예방 목표 INR = 2.0-3.0. 1.3 < 2.0 = 항응고 부족 → Warfarin 용량 조정 필요. PT 직접 처치 아님, Physician에게 보고. INR > 3.0 = 과항응고(출혈↑)."
+},
+// ── ORDERS ──
+{sec:"orders",term:"Hip precautions: approach별",
+ ctx:"PSH: R THA via anterolateral approach (6 weeks ago)\nOrders: Hip precautions in effect",
+ q:"Anterolateral approach THA 후 hip precautions의 제한 동작은 posterolateral과 어떻게 다른가?",
+ ans:"Anterolateral → 신전 + 외회전 제한 (posterolateral은 굴곡·내회전·내전 제한)",
+ choices:["Anterolateral도 posterolateral과 동일하게 굴곡·내회전·내전 제한","Anterolateral에서는 hip precautions 없음","Anterolateral → 신전 + 외회전 제한 (posterolateral은 굴곡·내회전·내전 제한)","모든 THA에서 어떤 동작도 금지"],
+ exp:"Posterolateral approach → 후방 구조물 손상 → No flex>90°/IR/adduction. Anterolateral approach → 전방 구조물 손상 → No extension/ER. Approach가 다르면 precautions도 다름!"
+},
+{sec:"orders",term:"Sternal precautions",
+ ctx:"PSH: CABG ×2 (2 weeks ago)\nOrders: Sternal precautions × 6-8 weeks",
+ q:"CABG 2주 후 환자가 walker로 보행 훈련을 할 때 sternal precautions상 주의사항은?",
+ ans:"Walker 손잡이를 밀며 보행 시 상지 부하 >5 lbs 발생 가능 → 체중 지지 방법 교육 필요",
+ choices:["Walker 보행은 sternal precautions와 무관","Walker 사용은 CABG 후 완전 금지","Walker 손잡이를 밀며 보행 시 상지 부하 >5 lbs 발생 가능 → 체중 지지 방법 교육 필요","흉골 precautions는 앉아서 하는 운동만 제한"],
+ exp:"Sternal precautions = 상지로 밀기·당기기·들기 >5 lbs × 6-8주. Walker 보행 시 상지에 체중을 얼마나 싣는지 확인 필요. 무게를 실지 않고 균형만 잡도록 교육."
+},
+{sec:"orders",term:"Isolation precautions 구별",
+ ctx:"Patient A: MRSA wound infection → [  ] Precautions\nPatient B: Active pulmonary TB → [  ] Precautions",
+ q:"MRSA 창상 감염과 활동성 폐결핵 환자에게 각각 적용해야 할 격리 유형과 PPE는?",
+ ans:"MRSA → Contact(장갑+가운) / TB → Airborne(N95+음압병실)",
+ choices:["MRSA → Airborne / TB → Contact","MRSA → Droplet / TB → Droplet","MRSA → Contact(장갑+가운) / TB → Airborne(N95+음압병실)","두 환자 모두 Contact Precautions"],
+ exp:"Contact = 장갑+가운 (MRSA, C.diff, VRE). Airborne = N95+음압 (TB, COVID, 홍역, 수두). Droplet = 수술 마스크 (독감, 폐렴구균). 병원체 전파 경로에 따라 다름."
+},
+{sec:"orders",term:"WB status 단계 구별",
+ ctx:"Post-op orders: PWB 50% — Left LE\nPatient weighs 160 lbs",
+ q:"「PWB 50%」 처방. 보행 훈련 시 환자가 왼쪽 다리에 실어도 되는 최대 체중은?",
+ ans:"체중의 50% = 약 80 lbs",
+ choices:["왼쪽 다리에 전혀 체중 불가","왼쪽 다리에 완전 체중 허용","체중의 50% = 약 80 lbs","50%는 WBAT와 동일한 의미"],
+ exp:"PWB = 부분 체중 부하. 처방 %가 있으면 그 수치 적용. WBAT = 환자가 견딜 수 있는 만큼(가변적). NWB = 0%. FWB = 100%. 체중계 훈련 또는 감각 피드백으로 교육."
+},
+// ── PT NOTES ──
+{sec:"notes",term:"SOAP: S vs O 구별",
+ ctx:"S: Patient reports pain 7/10 in the right knee.\nO: Therapist notes antalgic gait and 15° knee flexion contracture.",
+ q:"이 SOAP 노트에서 S와 O의 근본적 차이를 올바르게 설명한 것은?",
+ ans:"S = 환자가 말한 것(주관적·측정 불가) / O = 치료사가 측정·관찰한 것",
+ choices:["S = Physician 소견 / O = 간호 기록","S = 환자가 말한 것(주관적·측정 불가) / O = 치료사가 측정·관찰한 것","S와 O는 동일한 출처의 정보","S = 심각한 증상 / O = 경미한 소견"],
+ exp:"S(Subjective) = 환자 말 → pain score, 환자 호소. O(Objective) = PT 측정·관찰 → MMT, ROM, 보행 거리, 보조 수준. 법적 기록상 둘의 출처가 구분되어야 함."
+},
+{sec:"notes",term:"tolerates treatment well",
+ ctx:"A: Patient is making slow but steady functional progress.\nP: Continue POC.\n\nSession Note addendum: Patient tolerates treatment well.",
+ q:"「tolerates treatment well」이라는 표현이 위 Assessment(기능적 진전)와 함께 기록되어 있다. 이 두 문장의 관계는?",
+ ans:"독립적 의미",
+ choices:["tolerates well이 곧 기능 향상을 의미함","둘 다 치료 중단 신호","독립적 의미","tolerates well이 없으면 기능 진전도 없음"],
+ exp:"tolerates well = 이상 반응(SpO₂↓, 통증 악화, 어지러움 등) 없이 견딤. functional progress = 기능이 좋아짐. 둘은 독립적. tolerates well해도 progress 없을 수 있음."
+},
+{sec:"notes",term:"denies",
+ ctx:"S: Patient denies chest pain, shortness of breath, or dizziness during exercise today.",
+ q:"이 문장을 읽고 오늘 운동 중 흉통·호흡곤란·어지러움에 대한 환자의 상태는?",
+ ans:"세 증상 모두 없었다고 환자가 직접 말함",
+ choices:["세 증상이 모두 있었지만 참고 있음","치료사가 세 증상을 관찰하지 못했음","세 증상 모두 없었다고 환자가 직접 말함","환자가 세 증상에 대한 답변을 거부함"],
+ exp:"denies = 환자가 그 증상이 없다고 말함. 가장 자주 오독되는 표현. 'denies chest pain' = 흉통 없음. 빠른 독해 시 'denies' 놓치면 완전히 반대로 해석 → 위험."
+},
+{sec:"notes",term:"functional progress vs plateau",
+ ctx:"Session 4 note: Patient ambulated 40 ft with MinA.\nSession 5 note: Patient ambulated 40 ft with MinA.\nSession 6 note: Patient ambulated 40 ft with MinA.",
+ q:"3회 연속 동일한 기능 수준이 기록되어 있다. 치료사가 취해야 할 다음 단계는?",
+ ans:"정체기(plateau) 인식 → POC 수정(목표·강도·접근법 변경) 또는 퇴원 검토",
+ choices:["동일 POC를 계속 유지하며 더 기다림","목표를 낮추어 재설정","정체기(plateau) 인식 → POC 수정(목표·강도·접근법 변경) 또는 퇴원 검토","환자의 협조가 부족한 것이므로 교육 강화"],
+ exp:"3회 연속 동일 = plateau(정체기). 기능 향상이 없으면 'skilled PT'가 더 이상 필요하지 않다는 보험 기준 적용 가능. POC 수정 or D/C 검토가 임상·법적 의무."
+},
+{sec:"notes",term:"D/C destinations",
+ ctx:"D/C plan: Patient will be discharged to SNF for continued skilled PT and nursing care.",
+ q:"「D/C to SNF」가 「D/C to home with HEP」와 다른 점은 무엇인가?",
+ ans:"SNF = 시설 입소(전문 간호·PT 계속 필요) / Home = 자택 퇴원",
+ choices:["SNF는 더 심한 환자, Home은 경미한 환자의 의미로 동일한 퇴원","SNF = 요양원이지만 PT는 없음","SNF = 시설 입소(전문 간호·PT 계속 필요) / Home = 자택 퇴원","둘 다 자택 퇴원을 의미"],
+ exp:"SNF(Skilled Nursing Facility) = 요양원. 아직 skilled care 필요. Acute rehab = 더 집중적 재활. Home = 기능 충분히 회복. HEP = Home Exercise Program = 자택 운동 처방."
+},
+];
+
+
+
+// ================================================================
+// STRATEGY DATA
+// ================================================================
+const STRATEGIES=[
+{n:"01",title:"질문을 먼저 읽어라 — 그 다음 차트",desc:"차트 전체를 읽으면 시간 낭비. <em>질문이 무엇을 묻는지 먼저</em> 파악한 뒤 필요한 섹션만 집중 확인. 'WB status는?' → <span class='kw'>Orders 섹션만</span> 확인."},
+{n:"02",title:"Orders / Precautions 섹션을 가장 먼저 스캔",desc:"어떤 중재도 Physician 처방 위반 시 오답. <em>WB status, ROM 제한, 낙상 위험, 격리 여부</em>를 30초 안에 파악. 이 섹션이 정답을 가장 많이 바꿈."},
+{n:"03",title:"Vitals & Labs의 이상 수치에 즉시 반응",desc:"정상 범위 이탈 수치 = 행동 결정의 핵심 단서. <span class='kw'>SpO₂<90% / 수축기BP>180 / Platelet<20,000</span>이 보이면 즉시 의미를 연결. 수치 암기보다 <em>이상 수치→행동 패턴</em> 숙달."},
+{n:"04",title:"약물 이름 끝글자로 즉시 분류",desc:"<em>-lol = Beta-blocker → RPE 사용</em> / <em>-warin/-xaban/-parin = 항응고제 → 출혈 주의</em> / -pril/-sartan = 혈압약 / -statin = 지질강하제(근병증) / -mab = 단클론항체."},
+{n:"05",title:"수술 날짜 → 몇 주 경과 → 허용 중재 결정",desc:"'Surgery: June 1 / Today: June 15' → <em>2 weeks post-op</em> 자동 계산 → 급성-아급성기 → aggressive exercise 금지. 날짜 정보 = 반드시 계산."},
+{n:"06",title:"Secondary Dx가 주의사항을 만든다",desc:"Primary Dx만 보면 함정! <em>Osteoporosis + hip fracture</em> → 낙상 예방 최우선. <em>DVT history</em> → 압박 치료 주의. <em>Atrial fibrillation + anticoagulant</em> → 출혈 위험. 동반 질환이 치료 방향을 바꿈."},
+{n:"07",title:"SOAP 노트에서 기능 수준 트래킹",desc:"O: 섹션에서 <em>보조 수준(MinA→Supervision)</em>과 <em>거리(50ft→75ft)</em> 확인. 진전 = 보조 수준 감소 or 거리·속도 증가. P: 섹션의 계획 → <em>오늘 치료 방향</em>."},
+{n:"08",title:"우선순위: 생명 안전 > 환자 안전 > 기능",desc:"여러 이상 소견 동시 존재 시: <em>ABC(기도·호흡·순환) 위협</em> → <em>낙상·출혈 위험</em> → <em>기능 목표</em> 순서. 가장 즉각적인 위협이 1순위."},
+];
+
+// ================================================================
+// CHART DATA (10 charts)
+// ================================================================
+const CHARTS={
+A:{title:"Patient Chart — Orthopedic Inpatient",sub:"Mrs. Kim · 68F · R THA POD 3",rows:{"👤 Demographics":[{l:"Patient",v:"Mrs. Kim, 68 y/o Female"},{l:"Living",v:"Two-story home, lives with spouse"},{l:"Occupation",v:"Retired school teacher"}],"🩺 Diagnosis":[{l:"Primary Dx",v:'<span class="hi">R THA via posterolateral approach</span> (Surgery 3 days ago)'},{l:"Secondary Dx",v:"Osteoporosis, HTN, Type 2 DM (well-controlled)"}],"💊 Medications":[{l:"Medications",v:'<span class="hi">Warfarin</span> 5mg daily, Metformin 500mg BID, Lisinopril 10mg, Ca+Vit D'},{l:"INR (today)",v:'<span class="warn">2.8</span> <span class="tag-badge tag-y">therapeutic: 2.0-3.0</span>'}],"📊 Vital Signs":[{l:"BP",v:"136/82 mmHg"},{l:"HR",v:"76 bpm"},{l:"SpO₂",v:'<span class="ok">97%</span>'},{l:"Pain",v:"4/10 at rest, 7/10 with movement"}],"📋 Orders":[{l:"WB Status",v:'<span class="warn">WBAT — Right LE</span>'},{l:"Hip Precautions",v:'<span class="warn">No flex >90°, No IR, No adduction past midline</span>'},{l:"Fall Risk",v:'<span class="warn">HIGH — Gait belt required</span>'}],"📝 PT Notes":[{l:"POD 2 Note",v:'Ambulated 15 ft with standard walker + <span class="hi">MaxA of 1</span>. Demonstrates guarding. Tolerates treatment well.'}]}},
+B:{title:"Patient Chart — Cardiac / ICU",sub:"Mr. Park · 65M · s/p CABG ×3",rows:{"👤 Demographics":[{l:"Patient",v:"Mr. Park, 65 y/o Male"},{l:"Occupation",v:"Accountant (desk job)"}],"🩺 Diagnosis":[{l:"Primary Dx",v:'<span class="hi">Acute MI — s/p CABG ×3</span> (5 days ago)'},{l:"Secondary Dx",v:"HTN, Hyperlipidemia, Type 2 DM"}],"💊 Medications":[{l:"Medications",v:'<span class="hi">Metoprolol</span> 50mg BID, Aspirin 81mg, Atorvastatin 40mg, Lisinopril 20mg, Insulin glargine'}],"📊 Vital Signs":[{l:"BP (rest)",v:'<span class="ok">118/76 mmHg</span>'},{l:"HR (rest)",v:'<span class="hi">58 bpm</span>'},{l:"SpO₂",v:'<span class="ok">96%</span>'},{l:"BG (pre-session)",v:'<span class="hi">88 mg/dL</span>'}],"📋 Orders":[{l:"Activity",v:"Phase I Cardiac Rehab — low-level"},{l:"Sternal Prec.",v:'<span class="warn">No push/pull >5 lbs bilaterally × 6-8 weeks</span>'},{l:"WB Status",v:"FWB bilaterally"}],"📝 Nursing Note":[{l:"RN Note",v:'Patient <span class="warn">reports dyspnea</span> with ambulation >20 ft. SpO₂ drops to <span class="warn">89%</span> with activity. Returned to rest immediately.'}]}},
+C:{title:"Patient Chart — Neurological",sub:"Mr. Choi · 62M · L CVA",rows:{"👤 Demographics":[{l:"Patient",v:"Mr. Choi, 62 y/o Male"},{l:"Living",v:'<span class="hi">First-floor apartment, lives ALONE</span>'}],"🩺 Diagnosis":[{l:"Primary Dx",v:'<span class="hi">L MCA CVA</span> (3 weeks ago) — R hemiplegia'},{l:"Secondary Dx",v:"Atrial fibrillation, HTN"}],"💊 Medications":[{l:"Medications",v:'<span class="hi">Apixaban (Eliquis)</span> 5mg BID, Lisinopril, Amlodipine'}],"📊 Vital Signs":[{l:"BP",v:'<span class="hi">158/92 mmHg</span>'},{l:"HR",v:"84 bpm (irregular)"},{l:"SpO₂",v:"95%"}],"📋 Orders":[{l:"WB Status",v:"FWB with supervision"},{l:"Fall Risk",v:'<span class="warn">HIGH</span>'},{l:"Activity",v:"OOB TID, gait training with AD as appropriate"}],"📝 PT Notes":[{l:"Day 20 Note",v:'R UE flaccidity, R LE minimal active movement. Amb 20 ft + hemi-walker + <span class="hi">MaxA of 1</span>. Patient <span class="hi">denies</span> pain. States: <span class="hi">"wants to return home."</span>'},{l:"PT Goal",v:'Short-term: Amb 50 ft + MinA / Long-term: <span class="hi">independent amb with cane</span>'}]}},
+D:{title:"Patient Chart — Inpatient Medical",sub:"Mr. Lee · 55M · Pneumonia + CLL",rows:{"👤 Demographics":[{l:"Patient",v:"Mr. Lee, 55 y/o Male — Inpatient Day 4"}],"🩺 Diagnosis":[{l:"Primary Dx",v:"Pneumonia — resolving"},{l:"Secondary Dx",v:'<span class="hi">CLL (Chronic Lymphocytic Leukemia)</span>, Type 2 DM'}],"💊 Medications":[{l:"Medications",v:"IV Antibiotics, Albuterol MDI, Insulin sliding scale"}],"📊 Vital Signs":[{l:"SpO₂",v:'<span class="hi">93% on 2L O₂</span>'},{l:"Temp",v:'<span class="ok">99.1°F</span>'},{l:"HR",v:"88 bpm"},{l:"RR",v:"18"}],"📋 Orders":[{l:"Activity",v:"OOB with assist, ambulate in hall"},{l:"Isolation",v:'<span class="warn">Contact Precautions</span>'}],"🔬 Lab Values":[{l:"WBC",v:'<span class="warn">0.8×10³/μL</span> <span class="tag-badge tag-r">low</span> (Normal: 4.5-11)'},{l:"Hgb",v:'<span class="warn">9.2 g/dL</span> <span class="tag-badge tag-r">low</span>'},{l:"Platelet",v:'<span class="warn">48,000/μL</span> <span class="tag-badge tag-y">caution</span>'},{l:"BG (AM)",v:"142 mg/dL"}]}},
+E:{title:"Patient Chart — Outpatient Orthopedic",sub:"Ms. Jang · 34F · PFPS",rows:{"👤 Demographics":[{l:"Patient",v:"Ms. Jang, 34 y/o Female — Nurse (10h standing/day)"},{l:"CC",v:"L knee pain — insidious onset 6 weeks, stairs worst"}],"🩺 Diagnosis":[{l:"Primary Dx",v:"Patellofemoral pain syndrome (PFPS)"},{l:"PMH",v:"Grade II L MCL sprain (3 yrs ago, resolved)"}],"💊 Medications":[{l:"Medications",v:"Ibuprofen 400mg PRN"}],"📊 Vital Signs":[{l:"BP",v:"116/72"},{l:"Pain",v:"5/10 stairs, 2/10 rest"}],"📋 PT Orders":[{l:"Orders",v:'Evaluate and treat × 8 visits — "address biomechanics"'}],"📝 Exam Findings":[{l:"Exam",v:'Positive patellar grind. VMO <span class="warn">3+/5 bilateral</span>. Tight lateral retinaculum. <span class="hi">Increased Q-angle</span>. Theater sign (+).'}]}},
+F:{title:"SOAP Progress Note — SNF",sub:"Mr. Williams · 70M · R hip ORIF",rows:{"📝 SOAP — Session 5":[{l:"S:",v:'Patient <span class="hi">reports</span> pain 2/10. States: <span class="hi">"I want to walk to dining room by myself."</span>'},{l:"O:",v:'MMT R hip abductors: <span class="hi">3+/5</span>. Amb <span class="hi">75 ft</span> with walker + <span class="hi">Supervision</span>. Stairs: not assessed.'},{l:"A:",v:'Patient is making <span class="hi">functional progress</span>. Amb ↑ from 50 ft. Assist ↓ from MinA to Supervision.'},{l:"P:",v:'Progress amb to 100 ft. Initiate stair training. Target: <span class="hi">independent amb with cane</span> for D/C.'}],"📋 Orders":[{l:"WB Status",v:"WBAT — R LE"},{l:"Fall Risk",v:'<span class="warn">HIGH</span>'}]}},
+G:{title:"Patient Chart — Spinal Cord Injury",sub:"Mr. Torres · 28M · T6 SCI",rows:{"👤 Demographics":[{l:"Patient",v:"Mr. Torres, 28 y/o Male"},{l:"Living",v:"2nd floor apartment, no elevator, lives with roommate"}],"🩺 Diagnosis":[{l:"Primary Dx",v:'<span class="hi">T6 complete SCI (ASIA A)</span> — 10 days post injury'},{l:"Secondary Dx",v:"Newly diagnosed HTN"}],"💊 Medications":[{l:"Medications",v:'Baclofen 10mg TID, Oxybutynin 5mg BID, <span class="hi">Heparin SC BID</span> (DVT prophylaxis)'}],"📊 Vital Signs":[{l:"BP (sitting)",v:'<span class="warn">88/56 mmHg</span>'},{l:"HR",v:"52 bpm"},{l:"SpO₂",v:"96%"}],"📋 Orders":[{l:"Activity",v:"Upright tolerance training, wheelchair mobility"},{l:"DVT Prec.",v:"TED hose + SCDs at all times"}],"📝 PT Notes":[{l:"Session 3",v:'Patient became <span class="warn">dizzy and pale</span> when elevated to 60° on tilt table. BP dropped to <span class="warn">72/40</span>. Immediately returned to supine. Responded well.'}]}},
+H:{title:"Patient Chart — Pediatric",sub:"Jason · 10M · Spastic Diplegic CP",rows:{"👤 Demographics":[{l:"Patient",v:"Jason, 10 y/o Male"},{l:"School",v:"Special education — mainstreamed in PE"}],"🩺 Diagnosis":[{l:"Primary Dx",v:'<span class="hi">Spastic diplegic cerebral palsy</span>'},{l:"Secondary Dx",v:"Seizure disorder (well-controlled), mild cognitive delay"}],"💊 Medications":[{l:"Medications",v:"Levetiracetam (Keppra) 500mg BID, Baclofen 5mg TID"}],"📊 Vital Signs":[{l:"BP",v:"102/64"},{l:"SpO₂",v:"98%"}],"📋 Orders":[{l:"Precautions",v:'<span class="warn">Seizure precautions</span> — padded environment, no unsupervised pool activity'},{l:"WB Status",v:"FWB bilaterally"}],"📝 PT Goals":[{l:"Goals",v:'Improve gait: <span class="hi">reduce scissor gait</span>, stair negotiation, community amb. with supervision'}]}},
+I:{title:"Patient Chart — Pulmonary Rehab",sub:"Mrs. Brown · 71F · COPD Gold III",rows:{"👤 Demographics":[{l:"Patient",v:"Mrs. Brown, 71 y/o Female"},{l:"Hx",v:'<span class="hi">35 pack-year smoking Hx</span> (quit 5 yrs ago)'}],"🩺 Diagnosis":[{l:"Primary Dx",v:'<span class="hi">COPD — Gold Stage III</span> (severe)'},{l:"Secondary Dx",v:"CHF (compensated), Osteoporosis"}],"💊 Medications":[{l:"Medications",v:'<span class="hi">Albuterol MDI</span> PRN, Tiotropium daily, Prednisone 5mg, Furosemide 20mg'}],"📊 Vital Signs":[{l:"SpO₂ (rest)",v:'<span class="hi">90% on room air</span>'},{l:"SpO₂ (activity)",v:'<span class="warn">84% with 6MWT</span>'},{l:"BP",v:"128/80"},{l:"HR",v:"82"}],"📋 Orders":[{l:"O₂",v:'<span class="warn">Supplemental O₂ 2L via NC with activity</span>'},{l:"Activity",v:"Pulmonary rehab 3×/week"}],"📝 Exam":[{l:"Exam",v:'Barrel chest. Pursed lip breathing at rest. <span class="hi">Accessory muscle use</span>. Diffuse expiratory wheezes.'}]}},
+J:{title:"Patient Chart — Wound Care / Diabetes",sub:"Mr. Garcia · 58M · DFU",rows:{"👤 Demographics":[{l:"Patient",v:"Mr. Garcia, 58 y/o Male"},{l:"Living",v:"Lives alone — limited healthcare access"}],"🩺 Diagnosis":[{l:"Primary Dx",v:'<span class="hi">Diabetic foot ulcer (DFU) — R plantar, Stage 3</span>'},{l:"Secondary Dx",v:"Type 2 DM (poorly controlled), PVD, HTN, Obesity"}],"💊 Medications":[{l:"Medications",v:"Insulin glargine 30U daily, Metformin 1000mg BID, Lisinopril, Aspirin 81mg"}],"📊 Vital Signs":[{l:"BG (pre-session)",v:'<span class="warn">318 mg/dL</span>'},{l:"BP",v:'<span class="hi">148/94 mmHg</span>'},{l:"SpO₂",v:"95%"}],"📋 Orders":[{l:"WB Status",v:'<span class="warn">NWB — R foot (offloading required)</span>'},{l:"Wound care",v:"Moist wound healing — dressing change daily"}],"🔬 Lab Values":[{l:"HbA1c",v:'<span class="warn">10.2%</span> (Target: <7%)'},{l:"ABI (R)",v:'<span class="warn">0.6</span> (PVD: <0.9)'},{l:"Wound culture",v:'<span class="warn">MRSA positive</span>'}]}}
+};
+
+// ================================================================
+// QUIZ QUESTIONS BANK
+// ================================================================
+const QZB=[
+// Chart A — THA
+{chart:"A",type:"safety",badge:"qb-safety",note:"⚠️ Medications의 Warfarin과 INR 수치를 함께 확인하세요",q:"This patient is on Warfarin with an INR of 2.8. Which interpretation is CORRECT?",ans:"INR 2.8 is within therapeutic range (2.0-3.0)",choices:["INR 2.8 is at a dangerous level","INR 2.8 is within therapeutic range (2.0-3.0)","All PT is contraindicated for patients on Warfarin","INR is irrelevant to PT decision-making"],exp:"INR 치료 범위=2.0-3.0. 2.8=범위 내 정상. >3.0=출혈 주의. >4.0=즉시 보고. Warfarin=항응고제→출혈 주의이나 INR 정상이면 진행 가능.",keys:[{tag:"INR 범위",cls:"ck-tg",val:"2.0-3.0=치료 범위 / >3.0=출혈 주의 / >4.0=즉시 보고"},{tag:"Warfarin",cls:"ck-tr",val:"항응고제=출혈↑ → INR 확인 후 도수 강도 결정"},{tag:"Lab 읽기",cls:"ck-ty",val:"정상인지 이탈인지 먼저 판단 → 행동 결정"}]},
+{chart:"A",type:"judge",badge:"qb-judge",note:"📋 Orders 섹션의 Hip Precautions를 먼저 확인하세요",q:"For this patient on POD 3 s/p THA, what should be confirmed FIRST before today's PT session?",ans:"Hip precautions",choices:["Blood glucose","Hip precautions","Recheck INR","Perform fall risk assessment first"],exp:"Orders 섹션 우선! Hip precautions 위반=탈구 위험. Posterolateral→No flex>90°, No IR, No adduction. INR 2.8=정상 범위.",keys:[{tag:"Orders 먼저",cls:"ck-tr",val:"Hip precautions=모든 중재보다 먼저. 위반 시 탈구"},{tag:"Approach별",cls:"ck-ty",val:"Posterolateral→flex/IR/adduction 금지 / Anterior→ext/ER 주의"},{tag:"체크 순서",cls:"ck-tg",val:"Orders→Vitals→Labs→Meds→Notes 순으로 스캔"}]},
+{chart:"A",type:"priority",badge:"qb-priority",note:"📝 PT Note(POD 2)와 오늘 날짜를 비교하세요",q:"Based on the POD 2 note (MaxA of 1, 15 ft ambulation), what is the MOST appropriate goal for today (POD 3)?",ans:"Progress assist level from MaxA to MinA or slightly increase ambulation distance",choices:["Begin independent ambulation training immediately","Progress assist level from MaxA to MinA or slightly increase ambulation distance","Initiate stair training","Ambulate throughout the room without assistance"],exp:"POD 3=수술 3일 후=급성-아급성기. 점진적 진행. 보조 수준 감소 or 거리 소폭 증가. POD 3 계단 훈련=너무 이름. 독립 보행=퇴원 목표 수준.",keys:[{tag:"진전 원칙",cls:"ck-tg",val:"보조 수준 감소 OR 거리·속도 증가=기능적 진전"},{tag:"SOAP P:",cls:"ck-ty",val:"이전 노트 P: 섹션→오늘 치료 방향"},{tag:"POD 고려",cls:"ck-to",val:"POD 3=급성기→점진적 진행 원칙"}]},
+// Chart B — Cardiac
+{chart:"B",type:"safety",badge:"qb-safety",note:"⚠️ Nursing Note의 SpO₂와 Medications를 함께 확인하세요",q:"The nursing note documents SpO₂ of 89% with activity. What is the FIRST action for today's PT session?",ans:"Report to physician and discontinue activity",choices:["Switch to low-intensity exercise and continue","Perform breathing exercises in bed only","Report to physician and discontinue activity","Measure SpO₂ directly; proceed if >90%"],exp:"이전 세션 SpO₂<90%=절대 중단. 이미 기록됨→Physician 보고 후 지시 대기. SpO₂<90%=즉시 중단 기준.",keys:[{tag:"절대 중단",cls:"ck-tr",val:"SpO₂<90% / 수축기BP>180 / 흉통 / 청색증 / 환자 요청"},{tag:"Notes 활용",cls:"ck-ty",val:"이전 세션 반응=오늘 강도 결정의 핵심"},{tag:"보고 순서",cls:"ck-tg",val:"즉각 위협→중단→Physician 보고→지시 대기"}]},
+{chart:"B",type:"judge",badge:"qb-judge",note:"💊 Metoprolol과 Sternal Precautions를 함께 고려하세요",q:"Which option CORRECTLY pairs the exercise intensity monitoring method with the prohibited movement for Phase I cardiac rehab?",ans:"Use Borg RPE scale + no UE push/pull >5 lbs (Sternal precautions)",choices:["Use target HR and allow all upper extremity exercises","Use Borg RPE scale + no UE push/pull >5 lbs (Sternal precautions)","Adjust intensity by SpO₂ only + no lower extremity exercise","Adjust intensity by BP only + bed rest only"],exp:"Metoprolol(-lol)=Beta-blocker→HR 반응↓→RPE 사용. Sternal precautions=CABG 후 6-8주→상지 push/pull >5 lbs 금지.",keys:[{tag:"-lol 법칙",cls:"ck-tr",val:"Beta-blocker=HR 반응↓→RPE로 대체"},{tag:"Sternal Prec.",cls:"ck-ty",val:"CABG 후 6-8주→상지 push/pull/lift >5 lbs 금기"},{tag:"Phase I",cls:"ck-tg",val:"침대→앉기→서기→복도보행 단계적 진행"}]},
+{chart:"B",type:"term",badge:"qb-term",note:"📊 HR 58 bpm과 Medications를 연결하세요",q:"This patient has a resting HR of 58 bpm. What is the MOST appropriate interpretation?",ans:"Expected bradycardia from Metoprolol (Beta-blocker)",choices:["Abnormal bradycardia due to cardiac surgery complication","Expected bradycardia from Metoprolol (Beta-blocker)","Side effect of diabetes medication","Measurement error"],exp:"Beta-blocker 복용→HR 낮아짐=예상된 약물 효과. 비정상 아님. 이 때문에 THR 대신 RPE 사용.",keys:[{tag:"Beta-blocker",cls:"ck-tp",val:"HR↓+BP↓→운동 시에도 HR이 충분히 오르지 않음"},{tag:"임상 적용",cls:"ck-tg",val:"HR 기반 처방 불가→RPE 스케일 사용"},{tag:"정상 범위",cls:"ck-ty",val:"Beta-blocker 복용 시 HR 50대도 정상 가능"}]},
+// Chart C — Neuro
+{chart:"C",type:"priority",badge:"qb-priority",note:"📋 Living situation과 PT Goals를 함께 확인하세요",q:"When establishing this patient's discharge plan, what should the PT address FIRST?",ans:"Safe independent mobility in a first-floor apartment with solo living",choices:["Begin right UE spasticity neuromuscular re-education immediately","Safe independent mobility in a first-floor apartment with solo living","BP 158/92 → stop exercise immediately","Cardiac monitoring for atrial fibrillation"],exp:"독거+1층+Fall risk HIGH+MaxA of 1. 환자 목표=귀가. PT 목표=안전한 귀가를 위한 이동 능력. BP 158/92=경계, 즉시 중단 기준(>180) 아님.",keys:[{tag:"D/C 우선순위",cls:"ck-ty",val:"환자 목표+Living situation→치료 우선순위 결정"},{tag:"BP 해석",cls:"ck-tg",val:">180=중단 / 158=모니터하며 진행 가능"},{tag:"독거 기준",cls:"ck-tr",val:"독거→낙상 시 도움 없음→더 높은 기능 기준으로 퇴원"}]},
+{chart:"C",type:"term",badge:"qb-term",note:"📝 SOAP Note의 단어를 정확히 해석하세요",q:"In the SOAP note, what does 'Patient denies pain' mean MOST accurately?",ans:"The patient reports having no pain",choices:["The patient is tolerating pain","The therapist determined the patient has no pain","The patient reports having no pain","The patient is refusing pain treatment"],exp:"denies=그 증상이 없다고 환자가 직접 말함. reports pain=통증이 있다고 말함. 방향 반전! denies 놓치면 의미가 완전히 반전.",keys:[{tag:"denies ⚠️",cls:"ck-tr",val:"증상 없음을 환자가 말함 — reports(있음)의 정반대"},{tag:"SOAP S:",cls:"ck-tg",val:"reports / denies / states / describes=환자가 말함"},{tag:"함정",cls:"ck-ty",val:"빠른 독해 시 denies 놓치면 반대 해석→오답"}]},
+// Chart D — Medical
+{chart:"D",type:"safety",badge:"qb-safety",note:"🔬 Lab Values와 Isolation을 함께 확인하세요",q:"WBC is 0.8 and Platelet is 48,000. What is the MOST appropriate safety decision for today's PT session?",ans:"WBC 0.8 = severe immunocompromise → strict Contact Precautions + Platelet 48,000 = caution for manual therapy",choices:["Platelet <50,000 → discontinue all treatment","WBC 0.8 = severe immunocompromise → strict Contact Precautions + Platelet 48,000 = caution for manual therapy","Values are within normal range; proceed with treatment","BG 142 → administer insulin immediately then treat"],exp:"WBC 0.8<1,000=심각한 면역저하→역격리. Contact Precautions 필수. Platelet 48,000=20,000-50,000 구간→주의하며 가능(금기<20,000). BG 142=경미한 고Blood glucose, 운동 가능.",keys:[{tag:"WBC 기준",cls:"ck-tr",val:"<1,000=심각한 면역저하→감염 예방 최우선"},{tag:"Platelet",cls:"ck-ty",val:"<20k=금기 / 20-50k=주의 / >50k=일반 가능"},{tag:"Contact PPE",cls:"ck-tp",val:"장갑+가운 / Droplet=마스크 / Airborne=N95+음압"}]},
+{chart:"D",type:"term",badge:"qb-term",note:"📋 Isolation 섹션을 확인하세요",q:"When entering a room with 'Contact Precautions' ordered, what PPE must the PT wear?",ans:"Gloves + Gown",choices:["N95 mask + gloves + gown","Gloves + Gown","Surgical mask only","Gloves + gown + negative pressure room"],exp:"Contact=장갑+가운 (MRSA, C.diff, VRE). Droplet=수술 마스크 (독감). Airborne=N95+음압 (TB, COVID, 홍역).",keys:[{tag:"Contact",cls:"ck-tg",val:"장갑+가운→MRSA/C.diff/VRE"},{tag:"Droplet",cls:"ck-tp",val:"수술 마스크→독감/폐렴구균"},{tag:"Airborne",cls:"ck-tr",val:"N95+음압→TB/COVID/수두/홍역"}]},
+// Chart E — Outpatient
+{chart:"E",type:"judge",badge:"qb-judge",note:"📝 Exam Findings에서 VMO와 Q-angle을 확인하세요",q:"Which chart finding MOST directly determines the treatment direction for this PFPS patient?",ans:"VMO weakness 3+/5 + increased Q-angle",choices:["Currently on Ibuprofen PRN → recovery through anti-inflammatory","History of MCL sprain → re-evaluate MCL","VMO weakness 3+/5 + increased Q-angle","Occupation (nurse) → recommend immediate leave of absence"],exp:"PFPS 기전=VMO 약화+Q-angle 증가→슬개골 외측 편위→연골 스트레스. 치료=VMO 강화+외측 스트레칭+생체역학 교정. MMT 3+/5=약화(정상 5/5).",keys:[{tag:"MMT 읽기",cls:"ck-ty",val:"3/5=중력에 완전 ROM+저항 없음 / 3+/5=최소 저항 가능"},{tag:"PFPS 기전",cls:"ck-tg",val:"VMO 약화+Q-angle↑→슬개골 외측 편위→연골 스트레스"},{tag:"PRN",cls:"ck-tp",val:"PRN=필요 시 복용=규칙 복용 아님"}]},
+{chart:"E",type:"term",badge:"qb-term",note:"📝 Exam Findings 용어를 해석하세요",q:"What does a positive Theater sign indicate?",ans:"Knee pain increases when rising after prolonged sitting",choices:["Clicking sounds in the knee","Increased intra-articular space","Knee pain increases when rising after prolonged sitting","Joint locking with weight bearing"],exp:"Theater sign=영화관에서 오래 앉아 있다가 일어날 때 슬개골 통증. PFPS 특이적 소견. 좌위에서 슬개골이 대퇴와 지속 접촉→통증.",keys:[{tag:"Theater sign",cls:"ck-tp",val:"오래 앉기 후 일어날 때 통증=PFPS 특이적"},{tag:"positive ⚠️",cls:"ck-tr",val:"의학에서 positive=이상 소견 있음 (일상 긍정과 반대!)"},{tag:"PFPS 증상",cls:"ck-tg",val:"계단/오래 앉기/쪼그리기 시 통증 악화"}]},
+// Chart F — SOAP
+{chart:"F",type:"term",badge:"qb-term",note:"📝 SOAP 각 파트의 의미를 구별하세요",q:"Who documents 'A: Patient is making functional progress' in a SOAP note?",ans:"Physical therapist",choices:["The patient","Family member / caregiver","Physical therapist","Physician"],exp:"S=환자 말 / O=PT 측정·관찰 / A=PT의 임상 평가·판단 / P=PT의 다음 계획. A 섹션=치료사 기록.",keys:[{tag:"S",cls:"ck-tp",val:"환자가 말하는 것=주관적"},{tag:"O",cls:"ck-tg",val:"PT가 측정·관찰=객관적"},{tag:"A",cls:"ck-ty",val:"PT의 임상 판단=Assessment"},{tag:"P",cls:"ck-tr",val:"PT의 다음 계획=Plan"}]},
+{chart:"F",type:"priority",badge:"qb-priority",note:"📝 O 섹션의 보조 수준 변화와 P 섹션의 목표를 확인하세요",q:"Based on this SOAP note, what is the MOST appropriate treatment goal for today's session?",ans:"Achieve 100 ft ambulation + initiate stair training",choices:["Return to MaxA and retrain","Initiate independent ambulation and determine discharge immediately","Achieve 100 ft ambulation + initiate stair training","Maintain same 75 ft distance"],exp:"P: 섹션='Progress amb to 100 ft + Initiate stair training'. 현재 Supervision으로 75 ft=호전 중. P의 계획이 오늘 목표.",keys:[{tag:"P: 섹션",cls:"ck-tg",val:"Plan=다음 세션 목표→오늘 치료 방향 직접 결정"},{tag:"진전 패턴",cls:"ck-ty",val:"50ft MinA→75ft Supervision→목표: 100ft+계단"},{tag:"D/C 기준",cls:"ck-tp",val:"Plan의 장기 목표=퇴원 기준"}]},
+// Chart G — SCI
+{chart:"G",type:"safety",badge:"qb-safety",note:"⚠️ Vitals의 BP와 PT Notes의 반응을 확인하세요",q:"During tilt table training at 60°, BP drops to 72/40 and the patient appears pale. What should be done FIRST?",ans:"Return to supine position immediately",choices:["Give water and continue","Return to supine position immediately","Recheck vital signs then decide","Call physician and maintain current position"],exp:"SCI 후 기립성 저혈압=흔한 합병증. BP 72/40=심각한 저혈압. 즉시 수평 복귀 1순위. Physician 호출은 복귀 후.",keys:[{tag:"기립성 저혈압",cls:"ck-tr",val:"SCI→자율신경 조절 불량→기립 시 BP↓→즉시 수평"},{tag:"T6 주의",cls:"ck-ty",val:"T6 이상 SCI→자율신경반사이상 위험도 주의"},{tag:"처치 순서",cls:"ck-tg",val:"즉시 수평→BP 재측정→Physician 보고→원인 확인"}]},
+{chart:"G",type:"judge",badge:"qb-judge",note:"💊 Heparin SC BID의 목적과 PT 영향을 파악하세요",q:"What is the purpose of Heparin SC BID, and how does it affect the PT session?",ans:"DVT prophylaxis anticoagulant",choices:["Antihypertensive medication","DVT prophylaxis anticoagulant","Muscle relaxant for spasticity","Pain management medication"],exp:"SCI 환자=DVT 고위험(하지 부동). Heparin SC=피하 항응고제=DVT 예방. PT 영향: 출혈↑→강한 도수 주의.",keys:[{tag:"Heparin 목적",cls:"ck-ty",val:"DVT 예방=SCI 환자 필수 (부동→혈전)"},{tag:"항응고 영향",cls:"ck-tr",val:"출혈 위험↑→도수 강도 조절"},{tag:"SC 의미",cls:"ck-tp",val:"SC=subcutaneous=피하 주사"}]},
+// Chart H — Peds
+{chart:"H",type:"judge",badge:"qb-judge",note:"📋 Seizure Precautions와 치료 목표를 함께 확인하세요",q:"Which option CORRECTLY pairs Jason's MOST important safety consideration with his primary treatment goal?",ans:"Seizure prevention (supervised aquatic only) + reducing scissor gait pattern is the primary treatment goal",choices:["BP monitoring + upper extremity strengthening","Seizure prevention (supervised aquatic only) + reducing scissor gait pattern is the primary treatment goal","Cognitive training + immediate independent ambulation","Confirm medications + prohibit intensive treatment"],exp:"Seizure precautions=수중 단독 금지. 치료 목표='reduce scissor gait'=spastic CP의 전형적 보행 패턴(고관절 내전 과활성). Baclofen=근이완제→경직↓.",keys:[{tag:"Seizure Prec.",cls:"ck-tr",val:"수중 단독 금지+감독 필수+패드 환경"},{tag:"Scissor gait",cls:"ck-ty",val:"고관절 내전 과활성→다리 교차=spastic diplegia 특징"},{tag:"Baclofen",cls:"ck-tg",val:"근이완제→경직↓→PT 효과 극대화"}]},
+// Chart I — Pulm
+{chart:"I",type:"safety",badge:"qb-safety",note:"⚠️ SpO₂ 수치와 Orders의 O₂ 처방을 함께 확인하세요",q:"SpO₂ is 90% at rest and drops to 84% with activity. What should be done FIRST before starting exercise?",ans:"Apply supplemental O₂ 2L and confirm SpO₂",choices:["SpO₂ 84% → prohibit all exercise","Administer Albuterol inhaler before exercise, then begin","Apply supplemental O₂ 2L and confirm SpO₂","No O₂ prescription → exercise not possible"],exp:"Orders에 'Supplemental O₂ 2L with activity' 처방됨. 활동 전 O₂ 적용이 선행. 84%=즉시 중단 기준, O₂ 없이 운동 불가.",keys:[{tag:"처방 이행",cls:"ck-tr",val:"O₂ 처방 있음→활동 전 반드시 적용 후 시작"},{tag:"COPD SpO₂",cls:"ck-ty",val:"안정 시 90%=COPD Gold III에서 흔함"},{tag:"Albuterol",cls:"ck-tg",val:"운동 전 15-20분 흡입→기관지 확장→운동 능력↑"}]},
+{chart:"I",type:"term",badge:"qb-term",note:"📝 Exam 소견 용어를 해석하세요",q:"What do 'barrel chest' and 'accessory muscle use' together indicate?",ans:"Pulmonary hyperinflation (air trapping)",choices:["Pectoral muscle hypertrophy","Pulmonary hyperinflation (air trapping)","Cardiomegaly","Normal aging changes"],exp:"Barrel chest=앞뒤 직경 증가=COPD의 air trapping 결과. Accessory muscle use=호흡 작업 증가의 신호. COPD 중증에서 흔함.",keys:[{tag:"Barrel chest",cls:"ck-ty",val:"흉곽 앞뒤 직경 증가=air trapping=COPD 특징"},{tag:"Accessory muscles",cls:"ck-tr",val:"보조 호흡근(SCM/사각근)=호흡 작업 증가=중증 신호"},{tag:"Pursed lip",cls:"ck-tg",val:"입술 오므려 호기=기도 양압 유지=호기 어려움 보상"}]},
+// Chart J — Wound/DM
+{chart:"J",type:"safety",badge:"qb-safety",note:"⚠️ BG 수치와 WB Orders를 확인하세요",q:"This patient's blood glucose is 318 mg/dL. What is the MOST appropriate decision for today's PT session?",ans:"Hold exercise and report to physician",choices:["Lower blood glucose with low-intensity exercise","Proceed with upper extremity exercise only","Hold exercise and report to physician","Administer insulin then begin treatment"],exp:"BG >300 mg/dL=운동 금기(케톤산증 위험). Physician 보고 필요. BG 250-300=주의. BG<70=저Blood glucose→즉시 간식+운동 금지.",keys:[{tag:"BG 기준",cls:"ck-tr",val:">300=운동 금기 / 250-300=주의 / <70=저Blood glucose→금지"},{tag:"DM 운동",cls:"ck-ty",val:"운동 전후 BG 확인 / 80-180=운동 가능 범위"},{tag:"PT 역할",cls:"ck-gk",val:"PT=인슐린 투여 불가→이상 수치 발견 시 보고"}]},
+{chart:"J",type:"judge",badge:"qb-judge",note:"📋 MRSA+와 NWB Orders를 함께 확인하세요",q:"For this patient with MRSA positive and DFU on NWB status, which TWO actions should the PT take?",ans:"Apply Contact Precautions (gloves + gown) + strict NWB with offloading device for mobility training",choices:["Airborne Precautions + immediate surgical referral","Apply Contact Precautions (gloves + gown) + strict NWB with offloading device for mobility training","Proceed without isolation + full weight bearing","Droplet Precautions + no mobility training"],exp:"MRSA=Contact Precautions(장갑+가운). DFU NWB=발에 체중 금지+offloading 필수. BG 높지만 치료 결정=MRSA+NWB가 핵심.",keys:[{tag:"MRSA",cls:"ck-tr",val:"MRSA=Contact Precautions=장갑+가운"},{tag:"DFU NWB",cls:"ck-ty",val:"발에 체중=상처 악화→offloading device 필수"},{tag:"ABI 해석",cls:"ck-tp",val:"ABI 0.6<0.9=PVD=말초혈류↓→상처 치유 어려움"}]}
+];
+
+// ================================================================
+// APP STATE & LOGIC
+// ================================================================
+let ST={totOk:0,totAll:0,sessStreak:0};
+let VQ={pool:[],cur:0,ok:0,ng:0,streak:0,best:0,answered:false};
+let QZ={pool:[],cur:0,ok:0,ng:0,streak:0,best:0,answered:false,missed:[]};
+
+function loadST(){try{const d=JSON.parse(localStorage.getItem("npte_chart")||"{}");ST.totOk=d.ok||0;ST.totAll=d.all||0;ST.sessStreak=d.ss||0;}catch(e){}}
+function saveST(){try{localStorage.setItem("npte_chart",JSON.stringify({ok:ST.totOk,all:ST.totAll,ss:ST.sessStreak}));}catch(e){}}
+function updHdr(){
+  document.getElementById("hS").textContent=ST.sessStreak;
+  document.getElementById("hT").textContent=ST.totAll;
+  document.getElementById("hA").textContent=ST.totAll>0?Math.round(ST.totOk/ST.totAll*100)+"%":"-";
+  const sb=document.getElementById("home-streak");
+  if(ST.sessStreak>0){sb.style.display="flex";document.getElementById("streakN").textContent=ST.sessStreak;}
+  else sb.style.display="none";
+}
+function shuf(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+
+const SCREENS=["home","structure","vocab","strategy","quiz"];
+function go(name){
+  document.querySelectorAll(".sc").forEach(s=>s.classList.remove("on"));
+  document.querySelectorAll(".nb").forEach(b=>b.classList.remove("on"));
+  document.getElementById("sc-"+name).classList.add("on");
+  const idx=SCREENS.indexOf(name);
+  if(idx>=0)document.querySelectorAll(".nb")[idx].classList.add("on");
+  if(name==="structure"&&!document.getElementById("struct-list").innerHTML)renderStructure();
+  if(name==="strategy"&&!document.getElementById("strat-list").innerHTML)renderStrategy();
+  if(name==="home")updHdr();
+}
+
+function renderStructure(){
+  document.getElementById("struct-list").innerHTML=SECTIONS.map(s=>`
+    <div class="struct-block" id="sb-${s.id}">
+      <div class="sb-head" onclick="toggleSB('${s.id}')">
+        <div class="sb-icon">${s.icon}</div>
+        <div class="sb-title">${s.title}</div>
+        <div class="sb-ko">${s.ko}</div>
+        <div class="sb-chev">▼</div>
+      </div>
+      <div class="sb-body">
+        <div class="sb-purpose">${s.purpose}</div>
+        <div class="sb-what-label">✅ 여기서 빠르게 확인할 것</div>
+        <div style="font-size:15px;color:var(--text2);margin-bottom:10px">${s.scan}</div>
+        <div class="sb-what-label">🔑 핵심 용어</div>
+        <div class="term-grid">${s.terms.map(t=>`<div class="term-chip"><div class="tc-en">${makeTTSBtn(t.en)}${t.en}</div><div class="tc-ko">${t.ko}</div>${t.note?`<div class="tc-note">→ ${t.note}</div>`:""}</div>`).join("")}</div>
+        <div class="sb-similar">
+          <div class="similar-title">📎 유사 표현 메모</div>
+          ${s.similar.map(r=>`<div class="similar-row"><div class="sim-en">${makeTTSBtn(r.en)}${r.en}</div><div class="sim-ko">${r.ko}</div></div>`).join("")}
+        </div>
+        <div class="sb-trap"><strong>⚠️ 함정 주의:</strong> ${s.trap}</div>
+      </div>
+    </div>`).join("");
+}
+function toggleSB(id){document.getElementById("sb-"+id).classList.toggle("open");}
+
+function renderStrategy(){
+  document.getElementById("strat-list").innerHTML=STRATEGIES.map(s=>`
+    <div class="strat-card"><div class="strat-step">
+      <div class="strat-n">${s.n}</div>
+      <div class="strat-body"><div class="strat-title">${s.title}</div><div class="strat-desc">${s.desc}</div></div>
+    </div></div>`).join("");
+
+  document.getElementById("ref-tables").innerHTML=`
+    <div class="ref-box"><div class="ref-box-title">⛔ 운동 절대 중단 기준</div><div class="ref-table">
+      <b>SpO₂</b> <span class="rw">&lt;90%</span> — 즉시 중단<br>
+      <b>수축기 BP</b> <span class="rw">&lt;90 또는 &gt;180 mmHg</span><br>
+      <b>이완기 BP</b> <span class="rw">&gt;110 mmHg</span><br>
+      <b>HR</b> <span class="rw">&gt;130 bpm</span> at rest (판단)<br>
+      <b>흉통 / 청색증 / 심한 어지러움</b><br>
+      <b>환자 중단 요청</b> — 절대 무시 금지<br>
+      <b>BG</b> <span class="rw">&lt;70 또는 &gt;300 mg/dL</span>
+    </div></div>
+    <div class="ref-box"><div class="ref-box-title">🔬 Lab 기준 즉시 행동표</div><div class="ref-table">
+      <b>Platelet</b> <span class="rw">&lt;20,000</span> = 도수 치료 금기 / 20-50k = 주의<br>
+      <b>WBC</b> <span class="rw">&lt;1,000</span> = 심각한 면역저하 → 역격리<br>
+      <b>Hgb</b> <span class="rw">&lt;8 g/dL</span> = 운동 강도 대폭 감소<br>
+      <b>INR</b> <span class="rw">&gt;3.0</span> = 출혈 위험 / >4.0 = 즉시 보고<br>
+      <b>HbA1c</b> <span class="rw">&gt;7%</span> = Blood glucose 조절 불량<br>
+      <b>T-score</b> <span class="rw">&lt;-2.5</span> = 골다공증 → 충격 운동 주의
+    </div></div>
+    <div class="ref-box"><div class="ref-box-title">🦠 격리 유형별 PPE</div><div class="ref-table">
+      <b>Contact</b> = 장갑+가운 <span class="kw">(MRSA/C.diff/VRE)</span><br>
+      <b>Droplet</b> = 수술 마스크 <span class="kw">(독감/폐렴구균)</span><br>
+      <b>Airborne</b> = N95+음압 <span class="kw">(TB/COVID/홍역/수두)</span>
+    </div></div>`;
+
+  document.getElementById("drug-table").innerHTML=`
+    <div class="sec-label" style="border:none;padding:0 0 8px">약물 이름 끝글자 → 분류 즉시 인식</div>
+    ${[{s:"-lol",c:"Beta-blocker",p:"HR↓→RPE 사용"},{s:"-pril",c:"ACE inhibitor",p:"혈압약, 기침 부작용"},{s:"-sartan",c:"ARB",p:"혈압약"},{s:"-warin/-parin/-xaban",c:"Anticoagulant",p:"출혈↑→INR 확인"},{s:"-statin",c:"Statin",p:"지질강하, 근병증 주의"},{s:"-olol/-dipine",c:"Ca channel blocker",p:"혈압약"},{s:"-mab",c:"Monoclonal antibody",p:"생물학적 제제"},{s:"-azole",c:"Antifungal",p:"진균 감염"}].map(r=>`<div class="drug-row"><div class="drug-suffix">${r.s}</div><div class="drug-class">${r.c}</div><div class="drug-pt">${r.p}</div></div>`).join("")}`;
+}
+
+// VOCAB QUIZ
+let _vqFilter="all";
+function pickVQFilter(f,el){_vqFilter=f;document.querySelectorAll("#vq-filter-pills .pill").forEach(p=>p.classList.remove("on"));el.classList.add("on");}
+function startVocabQuiz(){
+  let pool=_vqFilter==="all"?[...VOCAB]:VOCAB.filter(v=>v.sec===_vqFilter);
+  pool=shuf(pool);
+  VQ={pool,cur:0,ok:0,ng:0,streak:0,best:0,answered:false};
+  document.getElementById("vq-setup").style.display="none";
+  document.getElementById("vq-area").style.display="block";
+  document.getElementById("vq-result").style.display="none";
+  renderVQ();
+}
+function renderVQ(){
+  if(VQ.cur>=VQ.pool.length){showVQResult();return;}
+  const q=VQ.pool[VQ.cur],total=VQ.pool.length;
+  document.getElementById("vqPtxt").textContent=`${VQ.cur+1}/${total}`;
+  document.getElementById("vqStxt").textContent=`정답 ${VQ.ok}`;
+  document.getElementById("vqPbar").style.width=Math.round(VQ.cur/total*100)+"%";
+  // term에 TTS 버튼
+  const termTxt = q.term;
+  document.getElementById("vqTerm").innerHTML = makeTTSBtn(termTxt) + escH(termTxt);
+  const ctxEl=document.getElementById("vqCtx");
+  if(q.ctx){
+    ctxEl.style.display="block";
+    const ctxRaw = q.ctx.replace(/<[^>]+>/g,'').trim();
+    const isPureEn = /^[^가-힣]{10,}$/.test(ctxRaw);
+    ctxEl.innerHTML = (isPureEn ? makeTTSBtn(ctxRaw) : '') + q.ctx.replace(/\n/g,"<br>");
+  } else ctxEl.style.display="none";
+  document.getElementById("vqQ").innerHTML=applyWT(escH(q.q));
+  const cs=shuf([...q.choices]);
+  const chEl=document.getElementById("vqChoices");chEl.innerHTML="";
+  cs.forEach((c,i)=>{const btn=document.createElement("button");btn.className="cbtn";btn.dataset.ans=c;btn.innerHTML=`<span class="cnum">${i+1}</span><span>${applyWT(escH(c))}</span>`;btn.onclick=()=>checkVQ(c,q);chEl.appendChild(btn);});
+  const fb=document.getElementById("vqFb");fb.style.display="none";fb.className="fb";
+  document.getElementById("vqSkip").style.display="block";
+  document.getElementById("vqNextBtn").style.display="none";
+  VQ.answered=false;
+}
+function checkVQ(chosen,q){
+  if(VQ.answered)return;VQ.answered=true;const ok=chosen===q.ans;
+  document.querySelectorAll("#vqChoices .cbtn").forEach(btn=>{btn.disabled=true;const orig=btn.dataset.ans;if(orig===q.ans)btn.classList.add(ok?"correct":"show-ans");else if(orig===chosen&&!ok)btn.classList.add("wrong");});
+  if(ok){VQ.ok++;VQ.streak++;ST.totOk++;ST.sessStreak++;if(VQ.streak>VQ.best)VQ.best=VQ.streak;}else{VQ.ng++;VQ.streak=0;ST.sessStreak=0;}
+  ST.totAll++;saveST();updHdr();
+  const fb=document.getElementById("vqFb");fb.style.display="block";fb.className="fb "+(ok?"ok":"ng");
+  document.getElementById("vqFbHead").textContent=ok?"✅ 정답!":"❌ 오답";
+  document.getElementById("vqFbBody").innerHTML=`<strong>정답:</strong> ${q.ans}<br><br>${q.exp}`;
+  document.getElementById("vqSkip").style.display="none";document.getElementById("vqNextBtn").style.display="block";
+}
+function vqNext(){VQ.cur++;renderVQ();}
+function showVQResult(){
+  document.getElementById("vq-area").style.display="none";document.getElementById("vq-result").style.display="block";
+  const total=VQ.pool.length,pct=total>0?Math.round(VQ.ok/total*100):0;
+  document.getElementById("vqResPct").textContent=pct+"%";
+  document.getElementById("vqOk").textContent=VQ.ok;document.getElementById("vqNg").textContent=VQ.ng;document.getElementById("vqBest").textContent=VQ.best;
+  const c=document.getElementById("vqResCircle"),sc=c.querySelector(".res-pct");
+  c.style.borderColor=pct>=80?"var(--green)":pct>=60?"var(--gold)":"var(--red)";sc.style.color=pct>=80?"var(--green)":pct>=60?"var(--gold)":"var(--red)";
+}
+function resetVQ(){document.getElementById("vq-result").style.display="none";document.getElementById("vq-area").style.display="none";document.getElementById("vq-setup").style.display="block";}
+
+// CHART RENDER
+function renderChart(chartId,container){
+  const ch=CHARTS[chartId];if(!ch){container.style.display="none";return;}
+  container.style.display="block";
+  let html=`<div class="chart-header"><div class="chart-header-ico">🗂️</div><div class="chart-header-title">${ch.title}</div><div class="chart-header-sub">${ch.sub}</div></div><div class="chart-body">`;
+  for(const[secName,rows]of Object.entries(ch.rows)){
+    html+=`<div class="chart-sec-head">${applyWT(secName)}</div>`;
+    // cr-val에 tooltip 적용 (이미 HTML 태그 포함되어 있으므로 applyWT 사용)
+    rows.forEach(r=>{html+=`<div class="chart-row"><div class="cr-label">${applyWT(r.l)}</div><div class="cr-val">${applyWT(r.v)}</div></div>`;});
+  }
+  html+="</div>";container.innerHTML=html;
+}
+
+// CHART QUIZ
+let _qzType="all";
+function pickQZType(t,el){_qzType=t;document.querySelectorAll("#qz-type-pills .pill").forEach(p=>p.classList.remove("on"));el.classList.add("on");}
+function startQuiz(){
+  let pool=_qzType==="all"?[...QZB]:QZB.filter(q=>q.type===_qzType);
+  pool=shuf(pool);
+  QZ={pool,cur:0,ok:0,ng:0,streak:0,best:0,answered:false,missed:[]};
+  document.getElementById("qz-setup").style.display="none";
+  document.getElementById("qz-area").style.display="block";
+  document.getElementById("qz-result").style.display="none";
+  document.getElementById("quiz-cnt").textContent=QZB.length+" QUESTIONS";
+  renderQZ();
+}
+function renderQZ(){
+  if(QZ.cur>=QZ.pool.length){showQZResult();return;}
+  const q=QZ.pool[QZ.cur],total=QZ.pool.length;
+  document.getElementById("qzPtxt").textContent=`${QZ.cur+1}/${total}`;
+  document.getElementById("qzStxt").textContent=`정답 ${QZ.ok}`;
+  document.getElementById("qzPbar").style.width=Math.round(QZ.cur/total*100)+"%";
+  document.getElementById("qzNum").textContent=`#${QZ.cur+1}`;
+  const badge=document.getElementById("qzBadge");
+  const bm={safety:"⚠️ 안전 판단",judge:"🩺 임상 판단",priority:"🥇 우선순위",term:"📖 용어 해석"};
+  badge.textContent=bm[q.type]||q.type;badge.className="q-badge "+q.badge;
+  const noteEl=document.getElementById("qzNote");
+  if(q.note){noteEl.style.display="block";noteEl.textContent=q.note;}else noteEl.style.display="none";
+  document.getElementById("qzQ").innerHTML=applyWT(escH(q.q));
+  renderChart(q.chart,document.getElementById("qz-chart"));
+  const cs=shuf([...q.choices]);
+  const chEl=document.getElementById("qzChoices");chEl.innerHTML="";
+  cs.forEach((c,i)=>{const btn=document.createElement("button");btn.className="cbtn";btn.dataset.ans=c;btn.innerHTML=`<span class="cnum">${i+1}</span><span>${applyWT(escH(c))}</span>`;btn.onclick=()=>checkQZ(c,q);chEl.appendChild(btn);});
+  const fb=document.getElementById("qzFb");fb.style.display="none";fb.className="fb";
+  document.getElementById("qzKeyBox").style.display="none";
+  document.getElementById("qzSkip").style.display="block";document.getElementById("qzNextBtn").style.display="none";
+  QZ.answered=false;
+}
+function checkQZ(chosen,q){
+  if(QZ.answered)return;QZ.answered=true;const ok=chosen===q.ans;
+  document.querySelectorAll("#qzChoices .cbtn").forEach(btn=>{btn.disabled=true;const orig=btn.dataset.ans;if(orig===q.ans)btn.classList.add(ok?"correct":"show-ans");else if(orig===chosen&&!ok)btn.classList.add("wrong");});
+  if(ok){QZ.ok++;QZ.streak++;ST.totOk++;ST.sessStreak++;if(QZ.streak>QZ.best)QZ.best=QZ.streak;}
+  else{QZ.ng++;QZ.streak=0;ST.sessStreak=0;QZ.missed.push({type:{safety:"안전",judge:"임상",priority:"우선순위",term:"용어"}[q.type]||q.type,q:q.q.substring(0,55)});}
+  ST.totAll++;saveST();updHdr();
+  const fb=document.getElementById("qzFb");fb.style.display="block";fb.className="fb "+(ok?"ok":"ng");
+  document.getElementById("qzFbHead").textContent=ok?"✅ 정답!":"❌ 오답 — 해설을 확인하세요";
+  document.getElementById("qzFbBody").innerHTML=`<strong>정답:</strong> ${q.ans}<br><br>${q.exp}`;
+  if(q.keys&&q.keys.length>0){
+    document.getElementById("qzKeyBox").style.display="block";
+    document.getElementById("qzKeyRows").innerHTML=q.keys.map(k=>`<div class="ck-row"><span class="ck-tag ${k.cls}">${k.tag}</span><div class="ck-val">${k.val}</div></div>`).join("");
+  }
+  document.getElementById("qzSkip").style.display="none";document.getElementById("qzNextBtn").style.display="block";
+}
+function qzNext(){QZ.cur++;renderQZ();}
+function showQZResult(){
+  document.getElementById("qz-area").style.display="none";document.getElementById("qz-result").style.display="block";
+  const total=QZ.pool.length,pct=total>0?Math.round(QZ.ok/total*100):0;
+  document.getElementById("qzResPct").textContent=pct+"%";
+  document.getElementById("qzOk").textContent=QZ.ok;document.getElementById("qzNg").textContent=QZ.ng;document.getElementById("qzBest").textContent=QZ.best;
+  const c=document.getElementById("qzResCircle"),sc=c.querySelector(".res-pct");
+  c.style.borderColor=pct>=80?"var(--green)":pct>=60?"var(--gold)":"var(--red)";sc.style.color=pct>=80?"var(--green)":pct>=60?"var(--gold)":"var(--red)";
+  const ms=document.getElementById("qz-missed");
+  if(QZ.missed.length>0){ms.style.display="block";document.getElementById("qz-missed-list").innerHTML=QZ.missed.slice(0,6).map(m=>`<div class="missed-item"><div class="mi-type">${m.type}</div><div class="mi-q">${m.q}...</div></div>`).join("");}
+  else ms.style.display="none";
+}
+function resetQZ(){document.getElementById("qz-result").style.display="none";document.getElementById("qz-area").style.display="none";document.getElementById("qz-setup").style.display="block";}
+
+// INIT
+loadST();updHdr();
+document.getElementById("vocab-cnt").textContent=VOCAB.length+" VOCAB";
+document.getElementById("quiz-cnt").textContent=QZB.length+" QUESTIONS";
+
+// ================================================================
+// UTIL
+// ================================================================
+function escH(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+
+// ── TTS ──
+let _ttsA=null;
+function speakText(raw,btn){
+  if(!("speechSynthesis"in window)){alert("음성 미지원 브라우저입니다.");return;}
+  if(_ttsA&&_ttsA.btn===btn){window.speechSynthesis.cancel();btn.classList.remove("speaking");btn.textContent="▶";_ttsA=null;return;}
+  window.speechSynthesis.cancel();
+  if(_ttsA){_ttsA.btn.classList.remove("speaking");_ttsA.btn.textContent="▶";}
+  const text=raw.replace(/★/g,"").replace(/\s+/g," ").trim();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang="en-US";u.rate=0.88;u.pitch=1;
+  const sv=()=>{const vs=window.speechSynthesis.getVoices();const v=vs.find(v=>v.lang==="en-US"&&/Google/.test(v.name))||vs.find(v=>v.lang==="en-US")||vs.find(v=>v.lang.startsWith("en"));if(v)u.voice=v;};
+  sv();if(!window.speechSynthesis.getVoices().length)window.speechSynthesis.onvoiceschanged=sv;
+  btn.classList.add("speaking");btn.textContent="■";_ttsA={btn,u};
+  u.onend=u.onerror=()=>{btn.classList.remove("speaking");btn.textContent="▶";_ttsA=null;};
+  window.speechSynthesis.speak(u);
+}
+function makeTTSBtn(text){
+  if(!text)return"";
+  const safe=String(text).replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/"/g,"&quot;");
+  return`<span class="tts-btn" onclick="event.stopPropagation();speakText('${safe}',this)" title="발음 듣기">▶</span>`;
+}
+
+// ── WORD TOOLTIP DB ──
+const WT_DB=[
+  // ── 방향 지시어 ──
+  {k:"MOST",          pos:"형용사 (최상급)",    warn:false, ko:"가장 ~한",                       nuance:"최상의 하나를 고르는 지시어. BEST와 방향 동일.",                                               en:"Which is the MOST appropriate intervention?",         ko2:"가장 적절한 중재는?"},
+  {k:"BEST",          pos:"형용사 (최상급)",    warn:false, ko:"가장 좋은",                       nuance:"임상적 최우선 선택.",                                                                           en:"What is the BEST initial response?",                  ko2:"가장 좋은 초기 반응은?"},
+  {k:"LEAST",         pos:"형용사 ⚠️",          warn:true,  ko:"가장 ~하지 않은",                nuance:"방향 반전! 나쁜 것·틀린 것을 고르는 함정.",                                                   en:"Which is LEAST appropriate?",                         ko2:"가장 부적절한 것은? ← 나쁜 것 선택!"},
+  {k:"FIRST",         pos:"부사",               warn:false, ko:"가장 먼저",                       nuance:"시간적 순서 1번. 우선순위 첫 번째 행동.",                                                      en:"What should the therapist do FIRST?",                 ko2:"치료사가 가장 먼저 해야 할 것은?"},
+  {k:"IMMEDIATELY",   pos:"부사",               warn:false, ko:"즉시 / 당장",                     nuance:"지연 없이 즉각 행동. 응급·안전 상황.",                                                         en:"Therapist should IMMEDIATELY stop exercise",          ko2:"치료사는 즉시 운동을 중단해야 한다"},
+  {k:"EXCEPT",        pos:"접속사 ⚠️",          warn:true,  ko:"~을 제외하고",                   nuance:"방향 반전! 나머지 3개는 맞고 하나만 틀린 것.",                                               en:"All of the following EXCEPT...",                      ko2:"다음 중 ~을 제외한 → 틀린 것 선택!"},
+  {k:"NOT",           pos:"부정어 ⚠️",          warn:true,  ko:"아닌",                            nuance:"부정 방향! NOT appropriate = 해서는 안 되는 것.",                                             en:"Which is NOT appropriate?",                           ko2:"적절하지 않은 것은? ← 나쁜 것 선택!"},
+  {k:"AVOID",         pos:"동사 ⚠️",            warn:true,  ko:"피하다 / 금지",                  nuance:"금지 표현. 해서는 안 되는 행동.",                                                               en:"The therapist should AVOID...",                       ko2:"치료사는 ~을 피해야 한다"},
+  {k:"PRIMARY",       pos:"형용사",             warn:false, ko:"주된 / 가장 중요한",              nuance:"Primary Dx = 오늘 치료 대상 진단. Primary goal = 주된 목표.",                                 en:"Primary Dx: R THA via posterolateral approach",       ko2:"주 진단: 우측 고관절 전치환술"},
+  {k:"SECONDARY",     pos:"형용사",             warn:false, ko:"이차적인 / 부가적인",             nuance:"Secondary Dx = 동반 질환. 치료 금기·주의사항을 만들어냄.",                                   en:"Secondary Dx: Osteoporosis, HTN",                     ko2:"동반 질환: 골다공증, 고혈압"},
+
+  // ── Vital Signs ──
+  {k:"SpO2",          pos:"약어",               warn:false, ko:"산소포화도 (%)",                 nuance:"정상 ≥95%. <90% = 운동 즉시 중단. 활동 시 하강 여부 반드시 확인.",                           en:"SpO2 drops to 87% with ambulation — stop exercise",  ko2:"보행 시 SpO2 87% → 즉시 중단"},
+  {k:"BP",            pos:"약어",               warn:false, ko:"Blood Pressure / 혈압",          nuance:"정상 <120/80. 운동 중단: 수축기 >180 또는 <90. 고혈압: >130/80.",                            en:"BP 158/92 mmHg — elevated",                          ko2:"혈압 158/92 — 고혈압 범위"},
+  {k:"HR",            pos:"약어",               warn:false, ko:"Heart Rate / 심박수 (bpm)",      nuance:"정상 60-100. Beta-blocker 복용 시 HR로 운동 강도 측정 불가 → RPE 사용.",                      en:"HR 58 bpm — bradycardia on Metoprolol",               ko2:"심박수 58 — Beta-blocker로 인한 서맥"},
+  {k:"RR",            pos:"약어",               warn:false, ko:"Respiratory Rate / 호흡수 (회/분)", nuance:"정상 12-20. >20 = tachypnea(빈호흡). 운동 시 모니터링 필요.",                         en:"RR 22 breaths/min — mild tachypnea",                 ko2:"호흡수 22 — 경도 빈호흡"},
+  {k:"BG",            pos:"약어",               warn:false, ko:"Blood Glucose / Blood glucose (mg/dL)",   nuance:"<70 = 저Blood glucose → 운동 금기, 탄수화물 15-20g 섭취 후 재측정. >250 = 고Blood glucose → 주의.",           en:"BG 62 mg/dL — hypoglycemia, hold exercise",          ko2:"Blood glucose 62 — 저Blood glucose → 운동 금기"},
+  {k:"mmHg",          pos:"단위",               warn:false, ko:"혈압 단위 (밀리미터 수은주)",    nuance:"혈압·폐동맥압 측정 단위. 120/80 mmHg = 정상 혈압.",                                           en:"BP 118/76 mmHg — normal range",                      ko2:"혈압 118/76 mmHg — 정상 범위"},
+  {k:"bpm",           pos:"단위",               warn:false, ko:"beats per minute / 분당 박동수", nuance:"심박수(HR) 단위. 정상 60-100 bpm.",                                                             en:"HR 76 bpm — normal",                                 ko2:"심박수 76회/분 — 정상"},
+  {k:"diaphoresis",   pos:"명사",               warn:false, ko:"발한 / 식은땀 (비정상적 발한)",  nuance:"운동과 무관한 발한 = 심혈관계 이상 신호. 심근경색, 저Blood glucose, 자율신경 이상 시 나타남.",        en:"Diaphoresis + chest pain → cardiac emergency",       ko2:"식은땀 + 흉통 → 심혈관계 응급"},
+  {k:"dyspnea",       pos:"명사",               warn:false, ko:"호흡곤란 / 숨차는 느낌",         nuance:"운동 시 비정상적 호흡곤란 → SpO2 확인 + 운동 중단 고려. 안정 시 호흡곤란 = 더 심각.",        en:"Reports dyspnea with ambulation >20 ft",             ko2:"20피트 보행 시 호흡곤란 → 확인 필요"},
+  {k:"barrel chest",  pos:"명사구",             warn:false, ko:"술통형 흉곽",                    nuance:"AP 직경 증가. COPD의 전형적 소견. 과호흡으로 인한 폐 과팽창.",                               en:"Barrel chest — classic COPD sign",                   ko2:"술통형 흉곽 — COPD 전형적 소견"},
+  {k:"accessory muscle",pos:"명사구",           warn:false, ko:"보조 호흡근 사용",               nuance:"승모근·흉쇄유돌근 등 사용 → 호흡 곤란의 객관적 소견. COPD, 천식에서 관찰.",                 en:"Accessory muscle use — respiratory distress",        ko2:"보조 호흡근 사용 → 호흡 곤란 소견"},
+
+  // ── Lab Values ──
+  {k:"INR",           pos:"약어",               warn:false, ko:"항응고 수치 (정상 1.0 / 치료 2.0-3.0)", nuance:">3.0 출혈 위험↑. >4.0 즉시 보고. Warfarin 모니터링 지표.",                        en:"INR 2.8 — within therapeutic range (2.0-3.0)",       ko2:"INR 2.8 — 치료 범위 내 (2.0-3.0)"},
+  {k:"WBC",           pos:"약어",               warn:false, ko:"White Blood Cell / 백혈구 (×10³/μL)", nuance:"정상 4.5-11. <1.0 = 면역저하 → 역격리(reverse isolation). >11 = 감염.",         en:"WBC 0.8 — severe immunocompromise → reverse isolation", ko2:"백혈구 0.8 — 역격리 필요"},
+  {k:"Hgb",           pos:"약어",               warn:false, ko:"Hemoglobin / 혈색소 (g/dL)",     nuance:"정상: 남 14-18, 여 12-16. <8 g/dL = 운동 강도 대폭 감소.",                               en:"Hgb 9.2 g/dL — mild anemia",                         ko2:"혈색소 9.2 — 경도 빈혈"},
+  {k:"Hct",           pos:"약어",               warn:false, ko:"Hematocrit / 적혈구용적률 (%)",  nuance:"빈혈 지표. <25% = 운동 강도 대폭 감소.",                                                   en:"Hct 28% — anemia, reduce exercise intensity",        ko2:"Hct 28% — 빈혈, 운동 강도 감소"},
+  {k:"Platelet",      pos:"약어",               warn:false, ko:"혈소판 수",                       nuance:"<50,000 = 도수 치료 주의. <20,000 = 모든 도수 치료 절대 금기.",                             en:"Platelet 35,000 — manual therapy with caution",      ko2:"혈소판 35,000 — 도수 치료 주의"},
+  {k:"HbA1c",         pos:"약어",               warn:false, ko:"당화혈색소 (%) — 3개월 평균 Blood glucose", nuance:">7% = Blood glucose 조절 불량. 당뇨 관리 상태 지표.",                                          en:"HbA1c 8.2% — poor glycemic control",                 ko2:"당화혈색소 8.2% — Blood glucose 조절 불량"},
+  {k:"T-score",       pos:"약어",               warn:false, ko:"골밀도 T점수",                    nuance:"-1.0 ~ -2.5 = 골감소증. <-2.5 = 골다공증 → 충격 운동 주의.",                              en:"T-score -2.8 — osteoporosis",                        ko2:"T점수 -2.8 — 골다공증"},
+  {k:"negative for",  pos:"형용사구",           warn:false, ko:"~에 음성 / ~이 없음",             nuance:"검사 결과 음성 = 해당 소견 없음. 'negative for fracture' = 골절 없음.",                     en:"X-ray negative for fracture",                        ko2:"방사선 사진 골절 없음"},
+  {k:"positive for",  pos:"형용사구",           warn:false, ko:"~에 양성 / ~이 있음",             nuance:"검사 결과 양성 = 해당 소견 존재. 'positive for DVT' = DVT 확인됨.",                        en:"Ultrasound positive for DVT",                        ko2:"초음파 DVT 양성 — 혈전 확인됨"},
+
+  // ── 약물 ──
+  {k:"Warfarin",      pos:"약물명 (항응고제)",  warn:false, ko:"와파린 — Vitamin K 길항 항응고제", nuance:"INR 모니터링 필수. 치료 범위 2.0-3.0. 출혈 위험. -warin 계열.",                         en:"Warfarin 5mg daily — check INR 2.8",                ko2:"와파린 복용 → INR 2.8 확인"},
+  {k:"Metoprolol",    pos:"약물명 (Beta-blocker)", warn:false, ko:"메토프롤롤 — Beta-blocker", nuance:"HR 반응 둔화. 운동 강도 측정에 HR 대신 RPE 사용 필수. -lol 계열.",                        en:"Metoprolol 50mg BID — use RPE not target HR",       ko2:"메토프롤롤 → HR 대신 RPE 사용"},
+  {k:"Lisinopril",    pos:"약물명 (ACE inhibitor)", warn:false, ko:"리시노프릴 — ACE 억제제", nuance:"혈압약. -pril 계열. 부작용: 마른 기침. 운동 시 혈압 안정화.",                             en:"Lisinopril 10mg — ACE inhibitor, antihypertensive", ko2:"리시노프릴 — 혈압약, 기침 부작용"},
+  {k:"Metformin",     pos:"약물명 (경구Blood glucose강하제)", warn:false, ko:"메트포르민 — 당뇨약 (1차 선택)", nuance:"Type 2 DM 1차 치료제. 저Blood glucose 위험 낮음. 운동 시 Blood glucose 모니터링.",                  en:"Metformin 500mg BID — Type 2 DM",                   ko2:"메트포르민 — 2형 당뇨 1차 치료"},
+  {k:"Insulin",       pos:"약물명 (인슐린)",    warn:false, ko:"인슐린 — Blood glucose 강하 호르몬",      nuance:"운동 전후 Blood glucose 모니터링 필수. 저Blood glucose(<70) 위험. glargine = 지속형.",                       en:"Insulin glargine — check BG before exercise",       ko2:"인슐린 → 운동 전 Blood glucose 확인"},
+  {k:"Aspirin",       pos:"약물명 (항혈소판제)", warn:false, ko:"아스피린 — 항혈소판제",          nuance:"혈전 예방. 항응고제보다 약한 출혈 위험. 심장 질환 예방에 사용.",                           en:"Aspirin 81mg — antiplatelet therapy",               ko2:"아스피린 81mg — 항혈소판 치료"},
+  {k:"Atorvastatin",  pos:"약물명 (스타틴)",    warn:false, ko:"아토르바스타틴 — 지질강하제 (스타틴)", nuance:"-statin 계열. 콜레스테롤 저하. 부작용: 근육통(myopathy) 가능.",               en:"Atorvastatin 40mg — statin, watch for myopathy",    ko2:"아토르바스타틴 — 스타틴, 근육통 주의"},
+  {k:"Apixaban",      pos:"약물명 (DOAC)",      warn:false, ko:"아픽사반(Eliquis) — 직접 항응고제", nuance:"-xaban 계열. DOAC. 출혈 위험. INR 모니터링 불필요하지만 출혈 주의.",               en:"Apixaban (Eliquis) 5mg BID — anticoagulant",        ko2:"아픽사반 — 항응고제, 출혈 주의"},
+  {k:"Heparin",       pos:"약물명 (항응고제)",  warn:false, ko:"헤파린 — 항응고제 (주사)",        nuance:"SC(피하 주사). DVT 예방 목적. -parin 계열. 출혈 위험.",                                    en:"Heparin SC BID — DVT prophylaxis",                  ko2:"헤파린 피하주사 — DVT 예방"},
+  {k:"Baclofen",      pos:"약물명 (근이완제)",  warn:false, ko:"바클로펜 — 중추성 근이완제",      nuance:"경직 억제. SCI, MS에서 사용. 부작용: 졸음·저혈압. 갑자기 중단 금지.",                     en:"Baclofen 10mg TID — muscle relaxant for spasticity", ko2:"바클로펜 — 경직 억제, 졸음 주의"},
+  {k:"Oxybutynin",    pos:"약물명 (항콜린제)",  warn:false, ko:"옥시부티닌 — 방광 경련 억제",     nuance:"신경인성 방광 치료. SCI 환자에서 자주 사용. 항콜린 부작용: 구갈·변비.",                   en:"Oxybutynin 5mg BID — neurogenic bladder",           ko2:"옥시부티닌 — 신경인성 방광, SCI"},
+  {k:"Albuterol",     pos:"약물명 (기관지확장제)", warn:false, ko:"알부테롤 — 기관지 확장제",    nuance:"MDI(흡입기). 운동 전 사용. 천식·COPD. 필요 시(PRN) 사용.",                               en:"Albuterol MDI PRN — bronchodilator",                ko2:"알부테롤 흡입기 — 기관지 확장"},
+  {k:"Amlodipine",    pos:"약물명 (칼슘차단제)", warn:false, ko:"암로디핀 — 칼슘채널차단제",      nuance:"혈압약. -dipine 계열. 기립성 저혈압 주의. 말초 부종 부작용.",                              en:"Amlodipine 5mg — calcium channel blocker",          ko2:"암로디핀 — 혈압약, 기립성 저혈압 주의"},
+  {k:"Furosemide",    pos:"약물명 (이뇨제)",    warn:false, ko:"푸로세마이드 — 이뇨제 (Lasix)", nuance:"부종 감소. 전해질(K+) 손실 주의. 운동 시 탈수·현기증 주의.",                              en:"Furosemide 40mg — diuretic, monitor electrolytes",  ko2:"푸로세마이드 — 이뇨제, 전해질 감소"},
+  {k:"PRN",           pos:"약어",               warn:false, ko:"Pro Re Nata / 필요 시 복용",      nuance:"증상 발현 시에만 복용. 마지막 복용 시간이 통증 수준에 영향.",                               en:"Ibuprofen 400mg PRN — last dose 1.5hr ago",         ko2:"필요 시 복용 — 마지막 복용 1.5시간 전"},
+  {k:"BID",           pos:"약어",               warn:false, ko:"Bis In Die / 하루 2회",           nuance:"복약 빈도 표기. BID=2회, TID=3회, QID=4회, QD/daily=1회.",                               en:"Metoprolol 50mg BID — twice daily",                 ko2:"메토프롤롤 50mg 하루 2회"},
+  {k:"TID",           pos:"약어",               warn:false, ko:"Ter In Die / 하루 3회",           nuance:"복약 빈도. TID=3회. BID(2회), QID(4회)와 구별.",                                           en:"Baclofen 10mg TID — three times daily",             ko2:"바클로펜 10mg 하루 3회"},
+
+  // ── WB Status ──
+  {k:"WBAT",          pos:"약어",               warn:false, ko:"Weight Bearing As Tolerated / 가능한 만큼 체중 부하", nuance:"환자가 견딜 수 있는 만큼 체중 허용. FWB에 가까운 범위.",       en:"WB Status: WBAT — Right LE",                        ko2:"오른쪽 하지 가능한 만큼 체중 부하"},
+  {k:"NWB",           pos:"약어 ⚠️",            warn:true,  ko:"Non-Weight Bearing / 체중 부하 금지", nuance:"해당 사지에 체중 전혀 금지. 가장 엄격한 제한. 위반 시 즉시 오답.",             en:"WB Status: NWB — do NOT bear weight",               ko2:"체중 부하 완전 금지"},
+  {k:"PWB",           pos:"약어",               warn:false, ko:"Partial Weight Bearing / 부분 체중 부하", nuance:"지정된 % 이내로 체중 제한. 보통 50% 이하.",                             en:"WB Status: PWB 50% — Right LE",                     ko2:"오른쪽 하지 50% 이내 체중 부하"},
+  {k:"FWB",           pos:"약어",               warn:false, ko:"Full Weight Bearing / 완전 체중 부하", nuance:"정상적인 체중 부하. 제한 없음.",                                            en:"WB Status: FWB bilaterally",                        ko2:"양측 완전 체중 부하 허용"},
+
+  // ── 보조 수준 ──
+  {k:"MaxA",          pos:"약어",               warn:false, ko:"Maximum Assistance / 최대 보조",  nuance:"환자 25% 미만 수행. 치료사가 75% 이상 도움. 가장 의존적인 단계.",                         en:"Ambulated 15 ft with MaxA of 1",                    ko2:"1인 최대 보조로 15피트 보행"},
+  {k:"ModA",          pos:"약어",               warn:false, ko:"Moderate Assistance / 중간 보조", nuance:"환자 50% 수행. 치료사가 50% 도움 제공.",                                                  en:"Ambulated 30 ft with ModA",                         ko2:"중간 보조로 30피트 보행"},
+  {k:"MinA",          pos:"약어",               warn:false, ko:"Minimal Assistance / 최소 보조",  nuance:"환자 75% 이상 수행. 치료사 25% 미만 도움.",                                              en:"Ambulated 50 ft with MinA",                         ko2:"최소 보조로 50피트 보행"},
+  {k:"Supervision",   pos:"명사",               warn:false, ko:"감독 / 신체 접촉 없이 옆에서만", nuance:"신체 접촉 없이 감독만. MinA보다 독립적. 안전을 위해 곁에 있음.",                          en:"Ambulated 75 ft with Supervision",                  ko2:"감독 하에 75피트 보행"},
+
+  // ── 수술·처치 약어 ──
+  {k:"THA",           pos:"약어",               warn:false, ko:"Total Hip Arthroplasty / 전 고관절 치환술", nuance:"접근법에 따라 Hip precautions 결정. Posterolateral = 금기 엄격. Anterolateral = 완화.", en:"R THA via posterolateral approach",      ko2:"우측 전 고관절 치환술 (후외측 접근)"},
+  {k:"ORIF",          pos:"약어",               warn:false, ko:"Open Reduction Internal Fixation / 관혈적 정복 내고정술", nuance:"골절 수술. 내고정물로 골편 고정. WB status 처방 필수 확인.", en:"R hip ORIF — check WB status orders",              ko2:"우측 고관절 ORIF → WB 처방 확인"},
+  {k:"CABG",          pos:"약어",               warn:false, ko:"Coronary Artery Bypass Graft / 관상동맥 우회술", nuance:"심장 수술. Sternal precautions 필수 6-8주. Phase I cardiac rehab.", en:"s/p CABG x3 — Sternal Precautions apply",          ko2:"관상동맥 우회술 → 흉골 주의사항 적용"},
+  {k:"CVA",           pos:"약어",               warn:false, ko:"Cerebrovascular Accident / 뇌졸중 (뇌혈관 사고)", nuance:"뇌혈관 막힘(허혈) 또는 출혈. 편측 마비·감각 이상·언어 장애.", en:"L MCA CVA — R hemiplegia",                         ko2:"좌측 중대뇌동맥 뇌졸중 → 우측 편마비"},
+  {k:"SCI",           pos:"약어",               warn:false, ko:"Spinal Cord Injury / 척수 손상",  nuance:"손상 레벨과 완전/불완전 여부가 기능 예후 결정. T6 = 복부 근육 약화.",                     en:"T6 complete SCI (ASIA A)",                          ko2:"T6 완전 척수 손상 (ASIA A)"},
+  {k:"ASIA",          pos:"약어",               warn:false, ko:"American Spinal Injury Association 분류", nuance:"A=완전(감각·운동 없음), B=감각만, C=운동 약함, D=운동 기능적, E=정상.", en:"ASIA A — complete SCI, no motor/sensory below",    ko2:"ASIA A — 병변 하부 운동·감각 완전 소실"},
+  {k:"s/p",           pos:"의료 약어",          warn:false, ko:"status post / ~ 이후의 상태",     nuance:"과거 수술·처치 후 상태. s/p THA = THA 시행 후. 경과 기간 계산 필요.",                     en:"s/p CABG x3 (5 days ago)",                          ko2:"관상동맥 우회술 3회 후 5일 경과"},
+  {k:"POD",           pos:"약어",               warn:false, ko:"Post-Operative Day / 수술 후 며칠째", nuance:"POD 3 = 수술 후 3일째. 허용 중재 수준 결정의 기준.",                           en:"POD 3 — post-op day 3",                             ko2:"수술 후 3일째"},
+  {k:"hemiplegia",    pos:"명사",               warn:false, ko:"편마비 / 한쪽 완전 마비",         nuance:"뇌졸중 후 병변 반대쪽 완전 마비. hemiparesis(불완전 마비)와 구별.",                       en:"L CVA — R hemiplegia",                              ko2:"좌측 CVA → 우측 편마비"},
+  {k:"hemiparesis",   pos:"명사",               warn:false, ko:"편측 불완전 마비 (부분 약화)",    nuance:"병변 반대쪽 근력 약화(마비 아님). hemiplegia(완전 마비)보다 기능 예후 좋음.",             en:"R hemiparesis — partial weakness",                  ko2:"우측 불완전 마비 — 부분 약화"},
+  {k:"flaccidity",    pos:"명사",               warn:false, ko:"이완성 마비 / 근 긴장 소실",      nuance:"LMN 병변 또는 CVA 급성기. 반사 감소 or 소실. 경직(spasticity)과 반대.",                   en:"R UE flaccidity — LMN or acute CVA",                ko2:"우측 상지 이완성 → LMN 병변 또는 급성기"},
+  {k:"spasticity",    pos:"명사",               warn:false, ko:"경직 / 근 과긴장 (속도 의존적)",  nuance:"UMN 병변 → 속도 의존적 저항 증가. SCI, CVA에서 나타남. Baclofen으로 치료.",             en:"Spasticity — UMN lesion, treat with Baclofen",      ko2:"경직 — 상위운동신경원 병변"},
+
+  // ── 격리·안전 ──
+  {k:"Contact",       pos:"격리 유형",          warn:false, ko:"Contact Precautions / 접촉 격리", nuance:"장갑+가운 착용 필수 입실 시. MRSA, C.diff, VRE 등. 장비 전용화.",                        en:"Contact Precautions — gloves + gown upon entry",    ko2:"접촉 격리 → 입실 시 장갑+가운 필수"},
+  {k:"Droplet",       pos:"격리 유형",          warn:false, ko:"Droplet Precautions / 비말 격리", nuance:"수술 마스크 착용. 독감, 폐렴구균, COVID-19 등.",                                          en:"Droplet Precautions — surgical mask required",      ko2:"비말 격리 → 수술 마스크 착용"},
+  {k:"Airborne",      pos:"격리 유형",          warn:false, ko:"Airborne Precautions / 공기 격리", nuance:"N95 마스크+음압 격리실 필수. TB, COVID, 홍역, 수두.",                                 en:"Airborne Precautions — N95 + negative pressure room", ko2:"공기 격리 → N95+음압격리실"},
+  {k:"MRSA",          pos:"약어",               warn:false, ko:"메티실린 내성 황색포도상구균",    nuance:"접촉 격리(Contact Precautions). 장갑+가운. 다제 내성균.",                                 en:"MRSA — Contact Precautions, gloves + gown",         ko2:"MRSA → 접촉 격리 필수"},
+  {k:"PPE",           pos:"약어",               warn:false, ko:"Personal Protective Equipment / 개인 보호 장비", nuance:"격리 유형에 따라 다름. Contact=장갑+가운, Droplet=마스크, Airborne=N95.", en:"PPE required — check isolation type",              ko2:"보호 장비 착용 → 격리 유형 확인"},
+  {k:"Gait belt",     pos:"명사구",             warn:false, ko:"보행 벨트 — 낙상 고위험 환자 필수 착용", nuance:"Fall Risk HIGH = gait belt 반드시 착용. 보행·이동 시 치료사가 잡는 안전 벨트.", en:"Fall Risk HIGH — Gait belt required",              ko2:"낙상 위험 HIGH → 보행 벨트 착용 필수"},
+
+  // ── 수술·치료 주의사항 ──
+  {k:"Sternal",       pos:"형용사",             warn:false, ko:"흉골의 (Sternal Precautions = 흉골 주의사항)", nuance:"CABG 후 흉골 절개 → push/pull >5 lbs 금지 6-8주. 기침 시 흉골 지지.", en:"Sternal Precautions: No push/pull >5 lbs",        ko2:"흉골 주의사항 → 5파운드 초과 밀기·당기기 금지"},
+  {k:"posterolateral",pos:"형용사",             warn:false, ko:"후외측 접근법 — Hip precautions 필수", nuance:"THA 후외측 = 굴곡>90°·내회전·내전 금지. 가장 흔한 접근법.",                   en:"THA via posterolateral — strict Hip Precautions",   ko2:"후외측 THA → 굴곡>90° 금지"},
+  {k:"Anterolateral", pos:"형용사",             warn:false, ko:"전외측 접근법 — Hip precautions 완화", nuance:"THA 전외측 = Hip precautions 불필요 or 완화. 후외측과 반드시 구별.",           en:"THA via anterolateral — Precautions may be relaxed", ko2:"전외측 THA → 주의사항 완화 가능"},
+  {k:"Precautions",   pos:"명사 (복수)",        warn:false, ko:"주의사항들",                       nuance:"Hip/Sternal/Fall/Spinal Precautions. Orders 섹션에서 반드시 먼저 확인.",               en:"Hip Precautions: No flex >90 degrees",              ko2:"고관절 주의사항 → 90도 이상 굴곡 금지"},
+  {k:"adduction",     pos:"명사",               warn:false, ko:"내전 (몸 중심선 방향 이동)",       nuance:"THA 후외측 후 금기. 다리를 안쪽으로 모으는 동작.",                                        en:"No adduction past midline — Hip Precautions",       ko2:"내전 금지 → 다리를 중앙선 너머 안쪽으로 금지"},
+  {k:"guarding",      pos:"명사",               warn:false, ko:"근육 보호 반응 (통증으로 인한 긴장)", nuance:"통증 시 근육이 자동으로 긴장. 급성기 소견. 과도한 guarding은 ROM 제한.",            en:"Demonstrates guarding — acute pain response",       ko2:"통증으로 인한 근육 보호 반응"},
+
+  // ── 기록·기능 표현 ──
+  {k:"reports",       pos:"동사 ★ 주관",        warn:false, ko:"(환자가) 호소하다",               nuance:"환자의 주관적 증상에만! PT 객관적 관찰과 구별. S 섹션에 기록.",                           en:"Patient reports pain 2/10",                         ko2:"환자는 통증 2/10을 호소한다 (주관적)"},
+  {k:"denies",        pos:"동사 ⚠️",            warn:true,  ko:"(증상이 없다고) 부정",            nuance:"reports의 반대! 해당 증상이 없음을 환자가 말하는 것. 놓치면 의미 반전!",                  en:"Patient denies chest pain, dyspnea",                ko2:"환자는 흉통·호흡곤란이 없다고 한다"},
+  {k:"tolerates",     pos:"동사",               warn:false, ko:"견디다 / 이상 없이 소화",         nuance:"tolerates treatment well = 이상 반응 없이 견딤. 기능 향상과는 별개 개념.",                en:"Patient tolerates treatment well",                  ko2:"환자는 치료를 이상 없이 견딘다"},
+  {k:"demonstrates",  pos:"동사 (객관)",        warn:false, ko:"(소견을) 보이다",                 nuance:"PT가 관찰하는 객관적 소견. reports(환자 주관)와 반대.",                                    en:"Demonstrates guarding with movement",               ko2:"움직임 시 보호 반응을 보인다 (객관적)"},
+  {k:"ambulated",     pos:"동사 (과거형)",      warn:false, ko:"보행했다",                        nuance:"PT 노트 기록. 거리+보조 수준이 함께 기록됨. 진전 = 거리↑ or 보조 수준↓.",                en:"Patient ambulated 75 ft with Supervision",          ko2:"환자는 감독 하에 75피트 보행했다"},
+  {k:"plateau",       pos:"명사",               warn:false, ko:"정체기 / 고원기",                 nuance:"기능 향상이 멈춘 상태. 3회 연속 동일 기록 → POC 수정 or D/C 검토.",                      en:"3 sessions at same level — plateau, modify POC",    ko2:"3회 동일 수준 → 정체기, POC 수정"},
+  {k:"functional progress", pos:"명사구",       warn:false, ko:"기능적 진전",                     nuance:"측정 가능한 기능 향상. 보조 수준 감소 or 거리·속도 증가로 증명.",                          en:"Patient is making functional progress",             ko2:"환자가 기능적으로 향상되고 있다"},
+  {k:"insidious",     pos:"형용사",             warn:false, ko:"서서히 / 점진적으로",             nuance:"insidious onset = 서서히 발병. 외상 없는 비기계적·퇴행성 원인 시사.",                     en:"Insidious onset, no specific injury event",         ko2:"서서히 발병 → 비외상성 원인 시사"},
+  {k:"DVT",           pos:"약어",               warn:false, ko:"Deep Vein Thrombosis / 심부정맥혈전증", nuance:"편측 하지 부종+발적+온감 → 의심. 운동 금기, 즉시 Physician 보고.",                 en:"DVT precautions — TED hose + SCDs required",        ko2:"심부정맥혈전증 예방 → 압박 스타킹"},
+  {k:"RPE",           pos:"약어",               warn:false, ko:"Rate of Perceived Exertion / 자각 운동 강도", nuance:"Borg 6-20. Beta-blocker 복용 시 HR 대신 사용. 12-14 = 적정 강도.",   en:"Use RPE scale — Borg 12-14 for moderate intensity",  ko2:"RPE 12-14 = 중등도 강도 (적정)"},
+  {k:"Borg",          pos:"고유명사",           warn:false, ko:"Borg RPE 스케일 (6-20)",          nuance:"6=완전 휴식, 20=최대 운동. 심장 환자·Beta-blocker 복용자에서 HR 대신 사용.",             en:"Borg RPE 12-14 = moderate, appropriate intensity",   ko2:"Borg 12-14 = 중등도 강도 (적정)"},
+  {k:"HEP",           pos:"약어",               warn:false, ko:"Home Exercise Program / 자택 운동 처방", nuance:"퇴원 후 자택에서 수행하는 운동 프로그램. D/C to home with HEP.",           en:"D/C to home with HEP",                              ko2:"자택 운동 처방과 함께 자택 퇴원"},
+  {k:"D/C",           pos:"약어",               warn:false, ko:"Discharge / 퇴원 또는 치료 종료", nuance:"D/C to home = 자택 퇴원 / D/C to SNF = 요양원 입소.",                               en:"D/C to SNF for continued skilled PT",               ko2:"전문 PT 계속을 위해 요양원 입소"},
+  {k:"SNF",           pos:"약어",               warn:false, ko:"Skilled Nursing Facility / 요양원", nuance:"전문 간호+PT가 계속 필요한 시설. 자택 복귀보다 높은 의존도.",                      en:"D/C to SNF — still needs skilled care",             ko2:"요양원 입소 — 전문 케어 계속 필요"},
+  {k:"POC",           pos:"약어",               warn:false, ko:"Plan of Care / 치료 계획서",       nuance:"목표·중재·빈도·기간 명시. 수정 시 재평가 필요.",                                         en:"Continue current POC / progress to stairs",         ko2:"현재 치료 계획 유지 / 계단 훈련으로 진행"},
+  {k:"SOAP",          pos:"약어",               warn:false, ko:"S=주관 O=객관 A=평가 P=계획",     nuance:"PT 노트 표준 형식. S=환자 말 / O=측정·관찰 / A=임상 판단 / P=다음 계획.",             en:"SOAP note — S:subjective, O:objective, A:assessment, P:plan", ko2:"PT 기록 형식"},
+  {k:"NKDA",          pos:"약어",               warn:false, ko:"No Known Drug Allergies / 약물 알레르기 없음", nuance:"알레르기 없음. allergic to penicillin과 반대.",                      en:"Allergies: NKDA",                                   ko2:"알려진 약물 알레르기 없음"},
+  {k:"HPI",           pos:"약어",               warn:false, ko:"History of Present Illness / 현병력", nuance:"발병 경위·기간·특성·악화/완화 인자 상세 기술.",                               en:"HPI: insidious onset, 6 weeks, stairs worst",       ko2:"현병력: 서서히 발병, 6주, 계단이 가장 심함"},
+  {k:"PMH",           pos:"약어",               warn:false, ko:"Past Medical History / 과거 병력", nuance:"이전 질환·수술 이력. Secondary Dx와 함께 치료 제한 생성.",                           en:"PMH: HTN, Type 2 DM, Osteoporosis",                 ko2:"과거 병력: 고혈압, 2형 당뇨, 골다공증"},
+  {k:"FOOSH",         pos:"약어",               warn:false, ko:"Fall On OutStretched Hand / 손 뻗어 낙상", nuance:"손 뻗어 낙상 → 주상골 골절·Colles 골절·RC 손상 의심.",              en:"MOI: FOOSH — suspect scaphoid fracture",            ko2:"손 뻗어 낙상 → 주상골 골절 의심"},
+  {k:"PFPS",          pos:"약어",               warn:false, ko:"Patellofemoral Pain Syndrome / 슬개대퇴 통증 증후군", nuance:"슬개골과 대퇴골 사이 연골 자극. Q-angle 증가, VMO 약화 연관.", en:"PFPS — VMO weakness, increased Q-angle",           ko2:"슬개대퇴 통증 증후군 → VMO 약화·Q-angle"},
+  {k:"secondary to",  pos:"전치사구",           warn:false, ko:"~때문에 / ~으로 인한",            nuance:"인과관계 표현. 원인이 뒤에 온다.",                                                        en:"Weakness secondary to femoral nerve lesion",        ko2:"대퇴신경 병변으로 인한 근력 약화"},
+  {k:"status post",   pos:"의료 관용구",        warn:false, ko:"~ 이후의 상태 (s/p)",            nuance:"과거 수술·시술 후 상태. 경과 기간 계산 필요.",                                           en:"s/p CABG x3 (5 days ago)",                          ko2:"관상동맥 우회술 3회 후 5일 경과"},
+  {k:"contraindicated",pos:"형용사 ⚠️",         warn:true,  ko:"금기인",                          nuance:"하면 환자에게 해가 됨. is not indicated보다 강한 금지.",                                  en:"Manual therapy is contraindicated",                 ko2:"도수 치료는 금기이다"},
+  {k:"indicates",     pos:"동사 (강한 연결)",   warn:false, ko:"시사한다 (강한 연결)",            nuance:"소견→진단 강한 연결. suggests / consistent with보다 강도 높음.",                          en:"ST displacement indicates MI",                      ko2:"ST분절 변위는 심근경색을 시사한다"},
+  {k:"suggests",      pos:"동사 (약한 연결)",   warn:false, ko:"암시한다 (간접적)",               nuance:"indicates보다 간접적. 가능성을 제시.",                                                     en:"Finding suggests systemic disease",                 ko2:"소견이 전신 질환을 암시한다"},
+  {k:"DFU",           pos:"약어",               warn:false, ko:"Diabetic Foot Ulcer / 당뇨발 궤양", nuance:"당뇨 합병증. 감각 저하 + 혈액 순환 저하 → 상처 악화. 체중 부하 제한.", en:"DFU — offloading and wound care required",         ko2:"당뇨발 궤양 → 체중 부하 제한, 상처 관리"},
+  {k:"HTN",           pos:"약어",               warn:false, ko:"Hypertension / 고혈압",           nuance:">130/80 mmHg. 운동 중단 기준: 수축기 >180. 항고혈압제 복용 확인.",                    en:"Secondary Dx: HTN — monitor BP during exercise",    ko2:"고혈압 → 운동 시 혈압 모니터링"},
+  {k:"CLL",           pos:"약어",               warn:false, ko:"Chronic Lymphocytic Leukemia / 만성 림프구성 백혈병", nuance:"WBC↑, 면역저하. 감염 위험. 격리 주의사항 확인.",           en:"CLL — immunocompromised, check WBC and precautions", ko2:"CLL → 면역저하, 격리 주의사항 확인"},
+  {k:"NKDA",          pos:"약어",               warn:false, ko:"No Known Drug Allergies / 약물 알레르기 없음", nuance:"알레르기 섹션에서 확인.",                                           en:"Allergies: NKDA",                                   ko2:"알려진 약물 알레르기 없음"},
+
+  // ── 진단명·상태 ──
+  {k:"Type 2 DM",     pos:"진단명",             warn:false, ko:"제2형 당뇨병",                    nuance:"인슐린 저항성. 운동 전후 Blood glucose 확인 필수. BG <70 = 저Blood glucose → 운동 중지. BG >250 = 고Blood glucose → 주의.",  en:"Type 2 DM — check BG before/after exercise",       ko2:"2형 당뇨 → 운동 전후 Blood glucose 확인"},
+  {k:"Type 2",        pos:"형용사",             warn:false, ko:"제2형 (당뇨 분류)",               nuance:"Type 2 DM = 인슐린 저항성. 가장 흔한 당뇨 유형. 비만·운동 부족과 연관.",               en:"Type 2 DM — most common diabetes",                  ko2:"2형 당뇨 — 인슐린 저항성"},
+  {k:"resolving",     pos:"형용사 (현재분사)",   warn:false, ko:"호전 중 / 회복 중인",             nuance:"질환이 치료 중이며 나아지는 상태. 'Pneumonia — resolving' = 폐렴이 회복 중.",           en:"Pneumonia — resolving (getting better)",            ko2:"폐렴 회복 중 → 여전히 주의사항 존재"},
+  {k:"COPD",          pos:"약어",               warn:false, ko:"Chronic Obstructive Pulmonary Disease / 만성폐쇄성폐질환", nuance:"폐기종+만성기관지염. SpO2 낮음. 운동 시 산소 보충. 기관지확장제 사전 사용.", en:"COPD — Gold Stage III, SpO2 low",                ko2:"COPD → SpO2 모니터링, 기관지확장제"},
+  {k:"Gold Stage",    pos:"분류 체계",           warn:false, ko:"COPD 중증도 분류 (Gold 1-4)",      nuance:"Stage I=경도, II=중등도, III=중증, IV=초중증. Stage III = FEV1 30-50% 예측치.",       en:"COPD Gold Stage III — severe",                      ko2:"COPD 중증 → SpO2 관리, 저강도 운동"},
+  {k:"Pneumonia",     pos:"명사",               warn:false, ko:"폐렴",                             nuance:"폐 실질 감염·염증. 발열, 기침, SpO2 저하. 격리 유형 확인 필요.",                       en:"Pneumonia — resolving, on IV antibiotics",           ko2:"폐렴 → 격리 확인, SpO2 모니터링"},
+  {k:"Osteoporosis",  pos:"명사",               warn:false, ko:"골다공증",                         nuance:"T-score < -2.5. 골절 위험↑. 충격 운동 금지. 낙상 예방 최우선.",                       en:"Secondary Dx: Osteoporosis — fall prevention priority", ko2:"골다공증 → 낙상 예방, 충격 운동 금지"},
+  {k:"Seizure",       pos:"명사",               warn:false, ko:"발작 / 경련",                      nuance:"뇌의 이상 전기 활동. 발작 시 안전 확보 우선. padded environment 처방 확인.",           en:"Seizure precautions — padded environment",          ko2:"발작 주의사항 → 패드 환경, 수영 금지"},
+  {k:"PVD",           pos:"약어",               warn:false, ko:"Peripheral Vascular Disease / 말초혈관질환", nuance:"ABI <0.9 = PVD. 하지 혈액 순환 장애. 당뇨와 함께 DFU 위험↑.",         en:"PVD: ABI 0.6 (<0.9) — peripheral ischemia",        ko2:"말초혈관질환 → ABI 0.6, 혈액 순환 저하"},
+
+  // ── 수치 판단 기준 (차트 라벨용) ──
+  {k:"SpO₂",          pos:"수치 — 산소포화도",  warn:false, ko:"산소포화도 (%)\n✅ 정상: ≥95%\n⚠️ 주의: 90-94%\n🚨 즉시 중단: <90%", nuance:"활동 중 하강 여부 반드시 확인. <90% = 즉각 운동 중단 + Physician 보고.", en:"SpO₂ <90% = immediate exercise cessation",         ko2:"SpO2 90% 미만 → 즉시 중단"},
+  {k:"Fall Risk",     pos:"안전 등급",           warn:true,  ko:"낙상 위험도\n🚨 HIGH = 반드시 Gait Belt 착용\n⚠️ MODERATE = 주의\n✅ LOW = 일반 관찰", nuance:"HIGH = gait belt 착용 + 항상 감독. 낙상 시 보고 의무.", en:"Fall Risk HIGH — gait belt required at all times",  ko2:"낙상 위험 HIGH → 보행 벨트 필수"},
+  {k:"HIGH",          pos:"위험 등급 ⚠️",        warn:true,  ko:"높음 / 위험 수준",                nuance:"Fall Risk HIGH = 보행 벨트 필수. 항상 직접 감독 필요.",                               en:"Fall Risk: HIGH — never leave unattended",           ko2:"낙상 위험 HIGH → 자리 비우기 금지"},
+
+  // ── 의료 약어 ──
+  {k:"OOB",           pos:"약어",               warn:false, ko:"Out Of Bed / 침대 밖으로",        nuance:"OOB with assist = 보조하여 침대 밖 활동. 기립성 저혈압 주의. SCI·수술 후 초기 이동.", en:"OOB TID — out of bed 3 times daily with assist",   ko2:"하루 3회 보조하여 침대 밖 활동"},
+  {k:"TID",           pos:"약어",               warn:false, ko:"Ter In Die / 하루 3회",           nuance:"복약·처방 빈도. OOB TID = 하루 3회 침대 밖 활동. BID=2회, QID=4회.",                  en:"OOB TID / Baclofen 10mg TID",                       ko2:"하루 3회"},
+  {k:"BID",           pos:"약어",               warn:false, ko:"Bis In Die / 하루 2회",           nuance:"복약·처방 빈도. BID=2회, TID=3회, QID=4회, daily/QD=1회.",                           en:"Metoprolol 50mg BID — twice daily",                 ko2:"하루 2회"},
+  {k:"MDI",           pos:"약어",               warn:false, ko:"Metered Dose Inhaler / 정량식 흡입기", nuance:"일정량 약물을 흡입하는 기구. 기관지확장제(Albuterol) 투여에 사용. 운동 전 사용.", en:"Albuterol MDI PRN — use before exercise if needed", ko2:"정량식 흡입기 → 운동 전 사용 가능"},
+  {k:"NC",            pos:"약어",               warn:false, ko:"Nasal Cannula / 코 캐뉼라",       nuance:"코에 꽂아 산소를 공급하는 장치. 2L via NC = 분당 2리터 산소 공급.",                   en:"Supplemental O₂ 2L via NC",                         ko2:"코 캐뉼라로 분당 2L 산소 공급"},
+  {k:"SC",            pos:"약어",               warn:false, ko:"Subcutaneous / 피하 주사",        nuance:"피부 밑 지방층에 주사. Heparin SC = 피하 주사 헤파린. 인슐린도 SC로 투여.",          en:"Heparin SC BID — subcutaneous injection",           ko2:"헤파린 피하 주사 하루 2회"},
+  {k:"LE",            pos:"약어",               warn:false, ko:"Lower Extremity / 하지 (다리)",   nuance:"LE = 하지. UE = 상지. WB status는 항상 LE 기준.",                                    en:"R LE — NWB / L LE — FWB",                           ko2:"우측 하지 / 좌측 하지"},
+  {k:"UE",            pos:"약어",               warn:false, ko:"Upper Extremity / 상지 (팔)",     nuance:"UE = 상지(팔·손). R UE flaccidity = 우측 상지 이완성 마비.",                          en:"R UE flaccidity — R LE minimal movement",            ko2:"우측 상지 이완성 마비"},
+  {k:"IR",            pos:"약어",               warn:false, ko:"Internal Rotation / 내회전",      nuance:"THA 후외측 후 금기. 고관절을 안쪽으로 돌리는 동작.",                                   en:"No IR — Hip Precautions (posterolateral THA)",      ko2:"내회전 금지 → 후외측 THA 주의사항"},
+  {k:"MMT",           pos:"약어",               warn:false, ko:"Manual Muscle Test / 도수 근력 검사\n0=없음 1=미세 2=중력 제거 3=중력 이김 4=저항 이김 5=정상", nuance:"0-5 척도. 3/5 = 중력은 이기지만 저항은 못 이김. 3+/5 = 3과 4 사이.", en:"MMT hip abductors 3+/5",                            ko2:"고관절 외전근 도수 근력 3+/5"},
+  {k:"ROM",           pos:"약어",               warn:false, ko:"Range of Motion / 관절 가동 범위", nuance:"관절이 움직일 수 있는 각도 범위. 수동(PROM)·능동(AROM) 구분.",                     en:"ROM restricted — No hip flex >90°",                 ko2:"관절 가동 범위 제한"},
+  {k:"AD",            pos:"약어",               warn:false, ko:"Assistive Device / 보조 기구",    nuance:"보행 보조 기구. walker, cane, crutches 포함. 처방 확인 필요.",                         en:"Gait training with AD as appropriate",               ko2:"적절한 보조 기구로 보행 훈련"},
+  {k:"ABI",           pos:"약어",               warn:false, ko:"Ankle-Brachial Index / 발목-상완 지수\n✅ 정상: 1.0-1.4\n⚠️ PVD 의심: <0.9\n🚨 중증 PVD: <0.5", nuance:"발목혈압÷상완혈압. <0.9 = 말초혈관질환. <0.5 = 중증 허혈.", en:"ABI 0.6 — PVD diagnosed (<0.9)",                   ko2:"ABI 0.6 → 말초혈관질환 확진"},
+  {k:"6MWT",          pos:"약어",               warn:false, ko:"6 Minute Walk Test / 6분 보행 검사", nuance:"6분간 최대한 걸은 거리(m). COPD·심폐 기능 평가. SpO2 동시 모니터링 필수.",     en:"SpO₂ 84% with 6MWT",                                ko2:"6분 보행 검사 중 SpO2 84% → 심각한 저하"},
+  {k:"DM",            pos:"약어",               warn:false, ko:"Diabetes Mellitus / 당뇨병",      nuance:"Type 1 = 인슐린 절대 부족. Type 2 = 인슐린 저항성(가장 흔함). 운동 전후 Blood glucose 확인.", en:"Type 2 DM — check BG, monitor during exercise",     ko2:"당뇨병 → Blood glucose 모니터링 필수"},
+
+  // ── 증상·소견 ──
+  {k:"hemi-walker",   pos:"명사",               warn:false, ko:"헤미 워커 / 반측 보행기",         nuance:"편마비 환자용 보행기. 한 손으로 사용. 표준 walker보다 가볍고 좁음.",                  en:"Amb 20 ft + hemi-walker + MaxA of 1",               ko2:"편마비용 보행기 사용, 최대 보조 1인"},
+  {k:"hemi walker",   pos:"명사",               warn:false, ko:"헤미 워커 / 반측 보행기",         nuance:"편마비 환자용 보행기. 한 손으로 사용.",                                               en:"Amb with hemi-walker + MaxA",                        ko2:"편마비용 보행기"},
+  {k:"scissor gait",  pos:"명사구",             warn:false, ko:"가위 보행 — 다리가 교차되는 보행", nuance:"뇌성마비에서 고관절 내전근 경직으로 다리가 교차됨. 내전근 스트레칭·보행 훈련 필요.", en:"Scissor gait — hip adductor spasticity in CP",      ko2:"가위 보행 → 뇌성마비 내전근 경직"},
+  {k:"pursed lip",    pos:"명사구",             warn:false, ko:"입술 오므리기 호흡 (Pursed Lip Breathing)", nuance:"COPD 환자의 보상 호흡법. 호기 시간 연장 → 폐 허탈 방지. 자발적 또는 비자발적.", en:"Pursed lip breathing at rest — COPD sign",          ko2:"입술 오므리기 호흡 → COPD 호흡 보상"},
+  {k:"wheezes",       pos:"명사 (복수)",         warn:false, ko:"천명음 / 쌕쌕거리는 호흡음",      nuance:"기도 협착 시 공기 통과 소리. 기관지경련·COPD·천식에서 청진 시 들림.",               en:"Diffuse expiratory wheezes — airway obstruction",   ko2:"전반적 호기 천명음 → 기도 폐쇄"},
+  {k:"expiratory",    pos:"형용사",             warn:false, ko:"호기의 / 날숨과 관련된",           nuance:"expiratory wheezes = 날숨 시 천명음. COPD 특징적 소견.",                             en:"Expiratory wheezes — COPD hallmark",                ko2:"호기 천명음 → COPD 특징 소견"},
+  {k:"diplegic",      pos:"형용사",             warn:false, ko:"양측 하지 마비성",                 nuance:"Spastic diplegia = 뇌성마비 유형. 양측 하지 경직. 상지는 비교적 정상.",             en:"Spastic diplegic CP — bilateral LE spasticity",     ko2:"경직형 양측 하지 뇌성마비"},
+  {k:"tilt table",    pos:"명사구",             warn:false, ko:"틸트 테이블 (기립 훈련 장비)",    nuance:"수직 각도 조절 가능한 침대. 기립성 저혈압 훈련. SCI 환자에서 점진적 각도 증가.",     en:"Elevated to 60° on tilt table — BP dropped to 72/40", ko2:"틸트 테이블 60° → BP 72/40 → 즉시 수평"},
+  {k:"offloading",    pos:"명사",               warn:false, ko:"체중 부하 제거 / 면압 제거",       nuance:"DFU 치료의 핵심. 상처 부위의 체중·압력을 완전히 제거. NWB + 특수 신발/캐스트.", en:"DFU — offloading required, NWB",                    ko2:"당뇨발 궤양 → 완전 면압 제거 필수"},
+  {k:"Stage 3",       pos:"명사구",             warn:false, ko:"Stage 3 (압박 궤양 또는 DFU 단계)", nuance:"DFU Stage 3 = 전층 피부 손상, 근막 도달. 압박궤양 Stage 3 = 피하조직 노출.",      en:"DFU Stage 3 — full thickness wound",                ko2:"3단계 궤양 → 전층 피부 손상"},
+  {k:"pack-year",     pos:"명사구",             warn:false, ko:"갑년 (흡연력 단위)",               nuance:"하루 1갑 × 흡연 연수. 35 pack-year = 35년간 하루 1갑. 폐 손상 정도 지표.",          en:"35 pack-year smoking Hx — significant COPD risk",   ko2:"35갑년 흡연 → 상당한 폐 손상"},
+  {k:"Tiotropium",    pos:"약물명 (항콜린제)",   warn:false, ko:"티오트로피움 — COPD 장기 기관지확장제", nuance:"장기작용 항콜린제. COPD 유지 요법. Spiriva라는 상품명.",                    en:"Tiotropium daily — LAMA for COPD maintenance",      ko2:"티오트로피움 — COPD 유지 기관지확장제"},
+  {k:"Prednisone",    pos:"약물명 (스테로이드)", warn:false, ko:"프레드니손 — 경구 코르티코스테로이드", nuance:"염증 억제. 장기 복용 시 골다공증·근위부 근력저하·Blood glucose 상승. 낙상 위험↑.",    en:"Prednisone 5mg — corticosteroid, watch bone density", ko2:"프레드니손 → 장기 복용 시 골다공증·근력저하"},
+  {k:"glargine",      pos:"약물명 (인슐린)",     warn:false, ko:"인슐린 글라진 — 지속형 인슐린 (24시간)", nuance:"장기 작용 기저 인슐린. 하루 1회 투여. 저Blood glucose 위험. 운동 전 Blood glucose 확인.",   en:"Insulin glargine — long-acting basal insulin",      ko2:"지속형 인슐린 → 운동 전 Blood glucose 확인"},
+  {k:"comorbidities", pos:"명사 (복수)",         warn:false, ko:"동반 질환들",                      nuance:"주 진단 외 동시에 가진 다른 질환들. 치료 금기·주의사항을 만들어냄.",               en:"Secondary Dx / Comorbidities",                      ko2:"동반 질환 → 치료 제한 요소 확인"},
+  {k:"Supplemental",  pos:"형용사",             warn:false, ko:"보충 / 추가적인",                  nuance:"Supplemental O₂ = 보충 산소. 처방된 산소 공급량 확인 필수.",                         en:"Supplemental O₂ 2L via NC with activity",           ko2:"활동 시 코 캐뉼라 2L 보충 산소"},
+  {k:"orthostatic",   pos:"형용사",             warn:false, ko:"기립성 / 체위 변환과 관련된",      nuance:"orthostatic hypotension = 기립성 저혈압. 앉거나 일어날 때 BP↓. SCI·장기 와상 환자에서 흔함.", en:"Orthostatic hypotension — sit up slowly",         ko2:"기립성 저혈압 → 천천히 자세 변환"},
+  {k:"hypotension",   pos:"명사",               warn:false, ko:"저혈압 / 혈압 저하",               nuance:"수축기 <90 mmHg. 기립성 저혈압: 자세 변환 시 20mmHg 이상 하강. 즉시 수평 자세로.", en:"BP dropped to 72/40 — severe hypotension",          ko2:"혈압 72/40 → 즉시 수평 자세"},
+  {k:"communityamb",  pos:"목표 표현",           warn:false, ko:"지역사회 보행 능력",               nuance:"집 밖 지역사회에서 독립적으로 보행 가능한 기능 수준. 외래 PT의 장기 목표.",          en:"Community ambulation with supervision",             ko2:"지역사회 보행 → 외래 PT 장기 목표"},
+
+  // ── 수치 판단 기준 (라벨 클릭용) ──
+  {k:"Vital Signs",   pos:"섹션명",             warn:false, ko:"활력 징후\n• BP: <120/80 정상 / >130/80 고혈압 / 운동중단 >180\n• HR: 60-100 정상\n• RR: 12-20 정상\n• SpO2: ≥95% 정상", nuance:"치료 전·중·후 반드시 확인. 이상 수치 = 즉각 행동 결정.",  en:"Vital Signs — check before every PT session",       ko2:"매 치료 전 활력 징후 확인"},
+  {k:"Lab Values",    pos:"섹션명",             warn:false, ko:"검사 수치\n• WBC: 4.5-11 정상 (<1.0=역격리)\n• Hgb: 남14-18 여12-16\n• Platelet: >100,000 정상 (<20,000=도수금기)\n• INR: 1.0 정상 (2-3=항응고치료범위)", nuance:"이상 수치 = 치료 수정 or 중단 신호.", en:"Lab Values — check before PT",                      ko2:"검사 수치 → 치료 결정 기준"},
+  {k:"Medications",   pos:"섹션명",             warn:false, ko:"약물 목록\n• -lol = Beta-blocker (HR 둔화→RPE 사용)\n• -warin/-xaban/-parin = 항응고제 (출혈↑)\n• -pril/-sartan = 혈압약\n• -statin = 지질강하제 (근병증 주의)", nuance:"약물 이름 끝글자로 계열 즉시 파악. PT에 영향 주는 약물 확인.", en:"Medications — check drug class before PT",          ko2:"약물 섹션 → 끝글자로 계열 파악"},
+  {k:"Orders",        pos:"섹션명 ⚠️",          warn:true,  ko:"Physician 처방 / 주의사항\n⚠️ 이 섹션을 가장 먼저 확인!\n• WB Status\n• Hip/Sternal/Fall Precautions\n• Isolation Type\n• Activity Level", nuance:"모든 중재는 Orders를 먼저 확인. 처방 위반 = 즉시 오답.",    en:"Orders — check FIRST before any intervention",      ko2:"처방 섹션 → 모든 중재 전 먼저 확인"},
+  {k:"PT Notes",      pos:"섹션명",             warn:false, ko:"치료 기록 (SOAP 형식)\n• S: 환자가 말한 것 (주관적)\n• O: 측정·관찰 (객관적)\n• A: 치료사의 임상 판단\n• P: 다음 치료 계획", nuance:"기능 수준(보조 수준+거리)이 여기에 기록됨. 진전·정체 판단 기준.", en:"PT Notes — SOAP format documentation",              ko2:"치료 기록 → SOAP 형식"},
+
+  // ── 수치 단독 항목 ──
+  {k:"WB Status",     pos:"처방 항목",          warn:false, ko:"Weight Bearing Status / 체중 부하 상태\n🚫 NWB = 금지\n⬇️ PWB = 부분\n↕️ WBAT = 허용 범위 내\n✅ FWB = 완전 허용", nuance:"Orders 섹션에서 반드시 먼저 확인. 위반 시 즉각 오답.",       en:"WB Status: WBAT — Right LE",                        ko2:"체중 부하 상태 → 반드시 먼저 확인"},
+  {k:"Activity",      pos:"처방 항목",          warn:false, ko:"활동 처방 / 허용 활동 수준",       nuance:"Activity as tolerated = 허용 범위 내 활동. Bed rest = 이동 최소화. Phase I = 심장 재활 초기.", en:"Activity: Phase I Cardiac Rehab — low level",      ko2:"활동 처방 → 심장 재활 1단계"},
+  {k:"Exam Findings", pos:"섹션명",             warn:false, ko:"검사 소견 / 평가 결과",            nuance:"PT가 객관적으로 측정·관찰한 결과. SOAP의 O 섹션과 같은 내용.",                      en:"Exam Findings — objective data",                    ko2:"검사 소견 → 객관적 측정 결과"},
+  {k:"Theater sign",  pos:"임상 검사",          warn:false, ko:"극장 징후 / 무릎 통증 (PFPS 특이 소견)", nuance:"오래 앉아 있다가 일어날 때 무릎 통증 악화. PFPS의 특이적 소견.",          en:"Theater sign (+) — PFPS pathognomonic",             ko2:"극장 징후 양성 → PFPS 특이 소견"},
+  {k:"patellar grind",pos:"임상 검사",          warn:false, ko:"슬개골 마찰 검사 (PFPS 평가)",     nuance:"슬개골을 압박하며 무릎 신전 시 통증·마찰음 → PFPS 양성.",                           en:"Positive patellar grind — PFPS sign",               ko2:"슬개골 마찰 양성 → PFPS 소견"},
+  {k:"Q-angle",       pos:"해부학적 측정",       warn:false, ko:"Q각 / 사두근 당김 각도\n남성 정상: 10-15°\n여성 정상: 15-20°\n증가 시: 슬개골 외측 이동 → PFPS 위험", nuance:"ASIS-슬개골-경골조면 각도. 증가 = 슬개골 외측 편위 → PFPS 위험.", en:"Increased Q-angle — patellar maltracking",          ko2:"Q각 증가 → 슬개골 외측 편위 위험"},
+  {k:"VMO",           pos:"약어",               warn:false, ko:"Vastus Medialis Oblique / 내측광근 사근", nuance:"슬개골 내측 안정화 근육. 약화 시 슬개골 외측 편위 → PFPS. 3+/5 = 중력은 이기나 저항 못 이김.", en:"VMO 3+/5 bilateral — PFPS risk",                  ko2:"내측광근 약화 → 슬개골 불안정, PFPS"},
+  {k:"retinaculum",   pos:"해부학 용어",         warn:false, ko:"지대 (인대성 띠)",                 nuance:"lateral retinaculum = 외측 지대. 슬개골 외측 당김. 긴장 시 슬개골 외측 편위 → PFPS.", en:"Tight lateral retinaculum — patellar tilt",         ko2:"외측 지대 긴장 → 슬개골 외측 편위"},
+  {k:"antalgic",      pos:"형용사",             warn:false, ko:"통증 회피성 (걸음걸이 변형)",      nuance:"antalgic gait = 통증 때문에 한쪽 다리를 빨리 들어 체중 지지를 피하는 보행 패턴.",     en:"Antalgic gait — pain-avoidance pattern",            ko2:"통증 회피 보행 → 한쪽 하중 시간 단축"},
+  {k:"contracture",   pos:"명사",               warn:false, ko:"구축 / 관절 굳음",                 nuance:"관절 주변 연부 조직 단축으로 ROM 제한. 15° knee flexion contracture = 완전 신전 불가.", en:"15° knee flexion contracture — ROM limited",       ko2:"무릎 굴곡 구축 15° → 완전 신전 불가"},
+  {k:"ALONE",         pos:"생활 상황 ⚠️",        warn:true,  ko:"혼자 거주 (독거)\n⚠️ 퇴원 기준 더 높게 설정\n⚠️ 낙상 시 도움 없음\n⚠️ 독립 이동 필수 확인",  nuance:"독거 = 퇴원 기준이 더 높아짐. 독립적 이동·안전 확보 필수.",           en:"Lives ALONE — higher D/C criteria required",        ko2:"독거 → 독립 이동 능력이 퇴원 조건"},
+
+  // ── 사용자 요청 미등재 ──
+  {k:"Isolation",       pos:"격리 / 격리 처방",   warn:false, ko:"격리 주의사항\n• Contact: 장갑+가운 (MRSA, C.diff)\n• Droplet: 수술 마스크 (독감)\n• Airborne: N95+음압 (TB, COVID)\n• Reverse: 역격리 (WBC<1,000)", nuance:"격리 유형에 따라 PPE 착용. Isolation Precautions 섹션 반드시 확인.", en:"Isolation: Contact Precautions — gloves + gown",   ko2:"격리 주의사항 → PPE 착용 유형 확인"},
+  {k:"Hx",              pos:"약어",               warn:false, ko:"History / 병력",                  nuance:"Hx = History. PMH(과거병력), Family Hx(가족력), Social Hx(사회력). Smoking Hx = 흡연력.",  en:"35 pack-year smoking Hx",                          ko2:"흡연력 35갑년"},
+  {k:"MCL sprain",      pos:"진단명",             warn:false, ko:"내측 측부인대 염좌",               nuance:"Grade I=미세 파열, Grade II=부분 파열(경미한 불안정), Grade III=완전 파열(심한 불안정). MCL = Medial Collateral Ligament.",  en:"Grade II L MCL sprain (resolved)",                ko2:"좌측 내측 측부인대 2도 염좌 (회복됨)"},
+  {k:"Grade II",        pos:"손상 등급",           warn:false, ko:"2도 손상 — 부분 파열\nGrade I: 미세 파열 (안정적)\nGrade II: 부분 파열 (경미한 불안정)\nGrade III: 완전 파열 (수술 고려)", nuance:"인대 손상 등급. Grade II = 부분 파열, 경미한 불안정성, 통증 심함.", en:"Grade II MCL sprain — partial tear",               ko2:"2도 손상 → 부분 파열, 경미한 불안정"},
+  {k:"Atrial fibrillation", pos:"진단명",         warn:false, ko:"심방세동 (AF/AFib)\n⚠️ 불규칙한 심박 → HR로 강도 측정 어려움\n⚠️ 항응고제 복용 동반 (출혈↑)\n⚠️ 뇌졸중 위험↑", nuance:"심방이 불규칙하게 수축. Afib = AFib = A.Fib. 항응고제 복용 이유. CVA 원인.", en:"Atrial fibrillation — Apixaban for stroke prevention", ko2:"심방세동 → 항응고제, 뇌졸중 위험"},
+  {k:"TED hose",        pos:"의료 기구",           warn:false, ko:"Thrombo-Embolic Deterrent 스타킹\n— DVT 예방용 압박 스타킹\n— SCI·수술 후·장기 와상 환자 처방\n— 항상 착용 (SCDs와 함께)", nuance:"탄성 압박 스타킹. DVT 예방. SCDs(공기 압박 장치)와 함께 처방.",  en:"TED hose + SCDs — DVT prophylaxis",               ko2:"압박 스타킹 → DVT 예방"},
+  {k:"SCDs",            pos:"약어",               warn:false, ko:"Sequential Compression Devices\n— 공기 압박 장치 (DVT 예방)\n— 다리를 간헐적으로 압박해 혈액 순환 촉진\n— TED hose와 함께 처방", nuance:"전기로 작동하는 공기 주머니가 간헐적으로 하지를 압박. DVT 예방.",   en:"TED hose + SCDs at all times — DVT prevention",   ko2:"공기 압박 장치 → DVT 예방"},
+  {k:"bilaterally",     pos:"부사",               warn:false, ko:"양측으로 / 양쪽 모두",             nuance:"양쪽 모두에 적용. 'No push/pull >5 lbs bilaterally' = 양손 모두 5파운드 초과 금지.",       en:"No push/pull >5 lbs bilaterally",                  ko2:"양측 모두 5파운드 초과 밀기·당기기 금지"},
+  {k:"Phase I",         pos:"단계 분류",           warn:false, ko:"Phase I Cardiac Rehab — 입원 심장 재활\n• 저강도 활동 (MET 1-3)\n• Borg RPE 11-13\n• 연속 보행 <200m\n• 항상 감독", nuance:"심장 수술·심근경색 후 병원 내 재활. Phase II = 외래 재활.",        en:"Phase I Cardiac Rehab — low-level activity",       ko2:"입원 심장 재활 1단계 → 저강도"},
+  {k:"Cardiac Rehab",   pos:"치료 프로그램",       warn:false, ko:"심장 재활\nPhase I: 입원 (저강도)\nPhase II: 외래 (중간 강도, 12주)\nPhase III: 지역사회 유지", nuance:"심혈관 질환 후 단계적 운동 재활. HR·BP·SpO2 모니터링 필수.",         en:"Phase I Cardiac Rehab — post-CABG protocol",       ko2:"심장 재활 1단계 → 수술 후 입원 재활"},
+  {k:"Hyperlipidemia",  pos:"진단명",             warn:false, ko:"고지혈증 / 이상지질혈증\n— 콜레스테롤·중성지방 상승\n— Statin 계열 약물 복용 (-statin)\n— 근육통(myopathy) 부작용 주의", nuance:"혈중 지질 이상. -statin 약물 복용. 장기 복용 시 근육통 확인.",      en:"Secondary Dx: Hyperlipidemia — on Atorvastatin",   ko2:"고지혈증 → 스타틴 복용, 근육통 주의"},
+  {k:"community amb",   pos:"기능 목표",           warn:false, ko:"지역사회 보행\n— 집 밖 환경에서 독립 보행 능력\n— 외래 PT의 장기 목표\n— 불규칙한 지면·계단·횡단보도 포함", nuance:"실내 보행 → 가정 내 보행 → 지역사회 보행 순으로 목표 진행.",        en:"Community amb. with supervision",                  ko2:"지역사회 보행 → 외래 PT 장기 목표"},
+  {k:"stair negotiation", pos:"기능 목표",         warn:false, ko:"계단 오르내리기 훈련\n— 지역사회 복귀에 필수\n— 보조 기구·난간 사용 방법 포함\n— 보조 수준 기록 필수", nuance:"계단을 안전하게 오르내리는 능력. 자택 복귀 기준 중 하나.",           en:"Stair negotiation — for D/C to home",              ko2:"계단 훈련 → 자택 복귀 조건"},
+  {k:"mainstreamed",    pos:"교육 용어",           warn:false, ko:"일반 학급 통합 교육",               nuance:"장애 학생이 일반 교육 환경에 포함되는 것. 'mainstreamed in PE' = 일반 체육 수업 참여.",  en:"Mainstreamed in PE — inclusive physical education", ko2:"일반 체육 수업 통합 참여"},
+  {k:"Demographics",    pos:"섹션명",             warn:false, ko:"인구통계 / 환자 기본 정보\n• 나이·성별\n• 직업 (복귀 목표)\n• 거주 환경 (계단·독거)\n• 주 사용 언어", nuance:"맥락 설정 섹션. 나이+성별 → 위험 인자 자동 연상. 독거 → 퇴원 기준↑.", en:"Demographics — age, gender, living situation",      ko2:"환자 기본 정보 → 치료 목표 설정 기반"},
+  {k:"Diagnosis",       pos:"섹션명",             warn:false, ko:"진단명 / 의학적 기록\n• Primary Dx: 오늘 치료 대상\n• Secondary Dx: 동반 질환 (금기·주의사항 생성)\n• PMH: 과거 병력", nuance:"가장 중요한 섹션. 모든 임상 판단의 기반. Secondary Dx가 치료를 제한.", en:"Diagnosis: Primary Dx + Secondary Dx",              ko2:"진단 섹션 → Secondary Dx가 치료 방향 결정"},
+  {k:"Amb",             pos:"약어",               warn:false, ko:"Ambulation / 보행\nAmb 75 ft = 75피트 보행\n보조 수준과 항상 함께 기록\n진전 기준: 거리↑ or 보조 수준↓", nuance:"PT 노트에서 보행을 기록하는 약어. 보조 수준과 함께 기록.",             en:"Amb 75 ft with Supervision",                        ko2:"감독 하에 75피트 보행"},
+  {k:"CC",              pos:"약어",               warn:false, ko:"Chief Complaint / 주소(主訴)\n— 환자가 직접 말하는 주된 불편감\n— 주관적 정보 (S 섹션)\n— 'knee pain worse on stairs, 6 weeks'", nuance:"환자 자신의 언어로 기록. 진단명이 아닌 증상 표현. SOAP의 S에 해당.", en:"CC: knee pain worse with stairs, 6 weeks",          ko2:"주소: 계단에서 더 심해지는 무릎 통증 6주"},
+  {k:"Prec",            pos:"약어",               warn:false, ko:"Precautions / 주의사항 (약어)",    nuance:"Sternal Prec. = 흉골 주의사항. Hip Prec. = 고관절 주의사항. Orders 섹션에서 확인.", en:"Sternal Prec.: No push/pull >5 lbs",               ko2:"흉골 주의사항 → 5파운드 초과 금지"},
+  {k:"therapeutic",     pos:"형용사",             warn:false, ko:"치료 범위 내의 / 치료 목적의",     nuance:"'therapeutic range' = 치료 효과가 있는 안전한 범위. INR 2.0-3.0 = therapeutic range(항응고 치료 범위).", en:"INR 2.8 — therapeutic: 2.0-3.0",                  ko2:"INR 2.8 — 항응고 치료 범위 내"},
+  {k:"anticoagulant",   pos:"약물 분류",           warn:false, ko:"항응고제\n출혈 위험↑\n-warin: Warfarin\n-xaban: Apixaban, Rivaroxaban\n-parin: Heparin, Enoxaparin\nINR 모니터링 (Warfarin만)", nuance:"혈전 예방·치료. 출혈 위험. 도수 치료 주의. 끝글자로 계열 파악.",    en:"Anticoagulant: Warfarin / Apixaban / Heparin",     ko2:"항응고제 → 출혈 위험, 도수 치료 주의"},
+  {k:"independent",     pos:"형용사",             warn:false, ko:"독립적 / 보조 없이 스스로",        nuance:"Independent ambulation = 보조 없이 혼자 보행. 최고 수준의 기능. D/C 목표로 자주 등장.", en:"Target: independent amb with cane for D/C",        ko2:"목표: 지팡이로 독립 보행 후 퇴원"},
+  {k:"cane",            pos:"명사",               warn:false, ko:"지팡이 / 단거리 보조 기구\n안정성: walker > crutches > cane\n지팡이는 건측 손에 사용\n(건측=반대편 손)", nuance:"가장 낮은 단계의 보행 보조 기구. 건측(아프지 않은 쪽) 손에 사용.", en:"Independent amb with cane — final PT goal",        ko2:"지팡이로 독립 보행 → 최종 목표"},
+  {k:"Acute MI",        pos:"진단명",             warn:false, ko:"Acute Myocardial Infarction / 급성 심근경색\n— 관상동맥 폐색 → 심근 괴사\n— CABG 또는 PCI로 치료\n— Phase I 재활 즉시 시작", nuance:"심장 근육 혈액 공급 차단. CABG(우회술)로 치료. 이후 cardiac rehab.", en:"Acute MI — s/p CABG ×3",                           ko2:"급성 심근경색 → 관상동맥 우회술 3회"},
+  {k:"MCA",             pos:"약어",               warn:false, ko:"Middle Cerebral Artery / 중대뇌동맥\n— 가장 흔한 뇌졸중 부위\n— L MCA CVA → 우측 편마비 + 실어증\n— R MCA CVA → 좌측 편마비", nuance:"뇌 중간 부분 공급 동맥. L MCA 뇌졸중 = 반대쪽(우측) 편마비.",      en:"L MCA CVA — R hemiplegia, 3 weeks ago",            ko2:"좌측 중대뇌동맥 뇌졸중 → 우측 편마비"},
+  {k:"cerebral palsy",  pos:"진단명",             warn:false, ko:"뇌성마비 (CP)\n— 출생 전후 뇌 손상\n— Spastic diplegia: 양측 하지 경직\n— Scissor gait: 내전근 경직으로 다리 교차", nuance:"비진행성 뇌 손상. 운동·자세 장애. 유형: 경직형(가장 흔함), 무정위형, 혼합형.", en:"Spastic diplegic cerebral palsy",                  ko2:"경직형 양측 하지 뇌성마비"},
+  {k:"nasal cannula",   pos:"의료 기구",           warn:false, ko:"코 캐뉼라 (NC)\n— 코에 꽂아 산소 공급\n— 1-6 L/min 공급 가능\n— 6L 초과 시 마스크로 전환", nuance:"가장 흔한 산소 공급 방법. 2L via NC = 분당 2리터 공급.",            en:"Supplemental O₂ 2L via nasal cannula (NC)",       ko2:"코 캐뉼라 2L → 활동 시 산소 보충"},
+  {k:"plantar",         pos:"형용사",             warn:false, ko:"발바닥의 / 발바닥 쪽",             nuance:"R plantar DFU = 우측 발바닥 당뇨발 궤양. 체중 부하 부위 → 면압 제거 필수.",          en:"DFU — R plantar, Stage 3",                         ko2:"우측 발바닥 당뇨발 궤양 3단계"},
+  {k:"well-controlled", pos:"형용사구",            warn:false, ko:"잘 조절된 / 잘 관리된",            nuance:"Type 2 DM well-controlled = Blood glucose이 약물로 잘 조절 중. 운동 시 Blood glucose 모니터링은 여전히 필요.", en:"Type 2 DM (well-controlled)",                      ko2:"당뇨 잘 조절 중 → 그래도 Blood glucose 확인"},
+  {k:"Two-story",       pos:"형용사",             warn:false, ko:"2층 구조 주택",                    nuance:"계단이 있음 → 계단 훈련이 퇴원 조건. hip/knee 수술 후 중요한 퇴원 계획 요소.",        en:"Two-story home — stair training required for D/C",  ko2:"2층 집 → 퇴원 전 계단 훈련 필수"},
+  {k:"Inpatient",       pos:"형용사/명사",         warn:false, ko:"입원 환자 / 입원 환경",            nuance:"입원 환자 = 병원 내 치료. Outpatient(외래)와 반대. SNF, acute care, subacute 포함.", en:"Inpatient Orthopedic — acute care setting",         ko2:"입원 환자 → 병원 내 치료 환경"},
+  {k:"Referring physician", pos:"의료 정보",       warn:false, ko:"의뢰 Physician / 처방 Physician\n— 전문과가 진단 힌트\n— Orthopedic Surgery → 근골격계\n— Neurology → 신경계\n— Cardiology → 심혈관계", nuance:"어떤 전문의가 의뢰했는지 = 진단 방향 힌트. PT 의뢰서 기반.",       en:"Referring physician: Orthopedic Surgery",          ko2:"정형외과 의뢰 → 근골격계 문제"},
+  {k:"Primary Dx",      pos:"차트 항목",           warn:false, ko:"주 진단명 / 오늘의 치료 대상\n— 이번 PT 세션의 핵심 문제\n— 모든 중재의 기준\n— Secondary Dx와 구별 필수", nuance:"현재 PT 치료의 주된 이유. Secondary Dx(동반 질환)가 제한을 만들어냄.", en:"Primary Dx: R THA via posterolateral approach",    ko2:"주 진단: 우측 고관절 전치환술"},
+  {k:"Secondary Dx",    pos:"차트 항목 ⚠️",        warn:true,  ko:"동반 질환 / 이차 진단\n⚠️ 치료 금기·주의사항을 만듦\n예: Osteoporosis → 충격 운동 금지\n예: DVT Hx → 압박 스타킹\n예: Anticoagulant → 출혈 주의", nuance:"Primary Dx 외의 동반 질환. 이 섹션이 치료 방향을 제한함.",         en:"Secondary Dx: HTN, Osteoporosis — affects PT",    ko2:"동반 질환 → 치료 금기·주의사항 생성"},
+  {k:"PSH",             pos:"약어",               warn:false, ko:"Past Surgical History / 수술력\n— 수술 날짜 확인 → 경과 주수 계산\n— 이전 수술이 현재 기능에 영향\n— 내고정물·인공관절 확인", nuance:"과거 수술 기록. 날짜를 보고 몇 주 경과했는지 계산. 허용 중재 결정.",  en:"PSH: R knee arthroscopy (2 yrs ago)",              ko2:"수술력: 우측 무릎 관절경 (2년 전)"},
+  {k:"MOI",             pos:"약어",               warn:false, ko:"Mechanism of Injury / 손상 기전\n• FOOSH: 손 뻗어 낙상 → 주상골·RC\n• MVA: 교통사고 → 다발 손상\n• Fall: 낙상 → 골절·두부 손상\n• Overuse: 과사용 → 건병증", nuance:"어떻게 다쳤는지. 진단 추론의 핵심 단서.",                         en:"MOI: FOOSH — suspect scaphoid fracture",           ko2:"손상 기전 → 진단 추론 단서"},
+  {k:"Hyperlipidemia",  pos:"진단명",             warn:false, ko:"고지혈증\n— LDL·총 콜레스테롤 상승\n— Statin 계열 약물\n— 장기 복용 시 근육통·근병증",                  nuance:"혈중 지질 이상. -statin 약물 복용. Atorvastatin 40mg = 스타틴.",    en:"Hyperlipidemia — on Atorvastatin 40mg",           ko2:"고지혈증 → 스타틴 복용"},
+  {k:"room air",        pos:"의료 표현",           warn:false, ko:"실내 공기 / 산소 보충 없이\n— 정상인 = room air에서 SpO2 ≥95%\n— COPD 환자 = room air에서 SpO2 낮을 수 있음", nuance:"'90% on room air' = 보충 산소 없이 SpO2 90%. 정상 범위 미달.",    en:"SpO₂ 90% on room air — below normal",             ko2:"보충 산소 없이 SpO2 90% → 정상 미달"},
+  {k:"Acute",           pos:"형용사",             warn:false, ko:"급성 / 급격히 발생한\n• 급성기 (0-72h): RICE + 통증 관리\n• 아급성기 (3일-6주): 점진적 ROM\n• 만성기 (6주~): 근력·기능 훈련", nuance:"급성 = 갑자기 발생, 염증 최고조. Aggressive 운동 금기.",            en:"Acute MI / Acute phase — avoid aggressive exercise", ko2:"급성기 → 적극적 운동 금지"},
+  {k:"Eliquis",         pos:"약물명 (상품명)",     warn:false, ko:"엘리퀴스 — Apixaban의 상품명\n— 직접 경구 항응고제 (DOAC)\n— 심방세동·DVT·PE 예방\n— 출혈 위험 ↑", nuance:"Apixaban(성분명)의 상품명. 항응고제. 출혈 주의.",                    en:"Apixaban (Eliquis) 5mg BID",                       ko2:"엘리퀴스(아픽사반) → 항응고, 출혈 주의"},
+  {k:"prophylaxis",     pos:"명사",               warn:false, ko:"예방적 치료 / 예방 요법",           nuance:"DVT prophylaxis = DVT 예방. TED hose + SCDs + Heparin SC. 수술 후·SCI 환자에서 처방.", en:"Heparin SC BID (DVT prophylaxis)",                 ko2:"헤파린 — DVT 예방 목적"},
+  {k:"Supplemental O2", pos:"처방 항목",           warn:false, ko:"보충 산소 처방\n• 2L via NC = 코 캐뉼라 2리터\n• SpO2 <90% 시 운동 중단\n• 처방된 산소량 변경 불가", nuance:"처방된 산소 공급. 임의로 변경 불가. 활동 시 SpO2 모니터링.",       en:"Supplemental O₂ 2L via NC with activity",         ko2:"활동 시 산소 2L 처방 → 모니터링 필수"},
+  {k:"Vit D",           pos:"약어",               warn:false, ko:"Vitamin D / 비타민 D\n— Ca+Vit D = 칼슘+비타민 D\n— 골다공증 예방·치료 보충제\n— 뼈 강도 유지", nuance:"칼슘 흡수 촉진. 골다공증 환자에서 Ca+Vit D 보충이 표준.",           en:"Ca+Vit D — osteoporosis supplementation",          ko2:"칼슘+비타민D → 골다공증 보충"},
+  {k:"Ca",              pos:"약어",               warn:false, ko:"Calcium / 칼슘 보충제",             nuance:"Ca+Vit D = 칼슘+비타민D. 골다공증 환자의 기본 보충제.",                              en:"Ca+Vit D 500mg/400IU daily",                       ko2:"칼슘 → 골다공증 예방"},
+  {k:"irregular",       pos:"형용사",             warn:false, ko:"불규칙한 (심박)",                   nuance:"HR irregular = 심방세동(Atrial fibrillation) 시사. 맥박이 불규칙하게 촉지됨.",        en:"HR 84 bpm (irregular) — Atrial fibrillation",     ko2:"불규칙한 심박 → 심방세동 시사"},
+  {k:"Amb 50 ft",       pos:"기능 기록",           warn:false, ko:"50피트 보행",                       nuance:"50피트 = 약 15미터. PT 노트에서 보행 거리를 피트(ft)로 기록. 1ft ≈ 30cm.",           en:"Amb 50 ft with MinA → Amb 75 ft with Supervision", ko2:"50피트 보행 → 75피트 진전"},
+  {k:"dining room",     pos:"기능 목표",           warn:false, ko:"식당 / 식사 공간\n— '식당까지 혼자 걸어가고 싶다' = 환자 중심 목표\n— Short-term goal 설정 기준\n— 환자 동기 부여 표현", nuance:"환자가 직접 말한 기능 목표. 환자 중심 케어의 핵심.",               en:"States: wants to walk to dining room alone",       ko2:"식당 혼자 걷기 → 환자 중심 단기 목표"},
+  {k:"address biomechanics", pos:"치료 지시",      warn:false, ko:"생체역학적 문제 해결\n— 자세·정렬·움직임 패턴 개선\n— PFPS: Q-angle, VMO 약화, 보행 패턴\n— PT 평가·치료 방향 설정", nuance:"Physician의 PT 의뢰 지시. 생체역학 = 자세·정렬·움직임 패턴.",           en:"Evaluate and treat — address biomechanics",        ko2:"생체역학 문제 해결 → PFPS 치료 방향"},
+
+  // ── 추가 미등재 용어 ──
+  {k:"Obesity",         pos:"진단명",             warn:false, ko:"비만\nBMI ≥30 kg/m²\n→ 관절 부하 증가\n→ 수술 합병증 위험↑\n→ 심폐 기능 저하", nuance:"BMI 30 이상. 관절에 부하 가중 → 무릎·고관절 퇴행 위험. 운동 강도 조절 필요.",    en:"Secondary Dx: Obesity — increased joint load",     ko2:"비만 → 관절 부하, 심폐 기능 고려"},
+  {k:"appropriate",     pos:"형용사",             warn:false, ko:"적절한 / 알맞은\nMOST appropriate = 가장 적절한 → 정답 방향\nLEAST appropriate = 가장 부적절 ⚠️ 방향 반전", nuance:"NPTE 핵심 평가 기준어. most/least appropriate 형태로 출제됨.",        en:"Gait training with AD as appropriate",             ko2:"적절한 보조 기구로 보행 훈련"},
+  {k:"Ibuprofen",       pos:"약물명 (NSAID)",      warn:false, ko:"이부프로펜 — 비스테로이드 소염진통제\nNSAID 계열\n→ 통증·염증 억제\n→ 위장 장애 부작용\n→ PRN: 필요 시 복용", nuance:"NSAID. 통증·열·염증 억제. 위장 보호를 위해 식후 복용. 신장 기능 저하 시 주의.", en:"Ibuprofen 400mg PRN — last dose 1.5hr ago",       ko2:"이부프로펜 → NSAID 계열, PRN 복용"},
+  {k:"resolved",        pos:"형용사 (과거분사)",   warn:false, ko:"완전히 해소된 / 치유된\n↔ resolving: 회복 중\n↔ active: 현재 진행 중\n예: Grade II MCL sprain (resolved) = 완치됨", nuance:"과거에 있었지만 완전히 치유된 상태. PMH(과거력)에 기록.",              en:"Grade II L MCL sprain (resolved) — PMH",          ko2:"완치된 과거 병력 → 현재는 영향 없음"},
+  {k:"stairs worst",    pos:"임상 표현",           warn:false, ko:"계단에서 가장 심함\n— PFPS의 특이적 증상 패턴\n— 계단 하강 시 슬개대퇴 압력 최대\n— Theater sign과 함께 PFPS 강력 시사", nuance:"계단이 가장 악화 인자 = PFPS 전형적 패턴. 슬개대퇴 관절 압력이 계단에서 최대.", en:"CC: knee pain — stairs worst",                    ko2:"계단에서 최악 → PFPS 특이 패턴"},
+  {k:"CHF",             pos:"약어",               warn:false, ko:"Congestive Heart Failure / 울혈성 심부전\n• 좌심부전: 폐부종, 호흡곤란\n• 우심부전: 하지부종, 경정맥 확장\n• compensated: 약물로 안정된 상태", nuance:"심장이 충분한 혈액을 펌프하지 못하는 상태. 운동 시 SpO2·BP 모니터링 필수.", en:"CHF (compensated) — monitor SpO₂ during activity", ko2:"울혈성 심부전 (안정됨) → 운동 시 모니터링"},
+  {k:"compensated",     pos:"형용사",             warn:false, ko:"보상된 / 안정된 상태\nCHF compensated = 약물로 증상이 조절된 상태\n↔ decompensated = 증상 악화, 입원 필요", nuance:"질환이 있지만 약물·치료로 안정된 상태. 치료 가능하지만 모니터링 필요.",      en:"CHF (compensated) — stable on medications",       ko2:"보상된 상태 → 안정적이나 모니터링 필요"},
+  {k:"Responded well",  pos:"임상 표현",           warn:false, ko:"잘 반응했다 / 잘 회복됐다\n— 중재에 대한 긍정적 반응\n— 즉각적 처치의 효과 확인\n— PT 노트에 자주 사용", nuance:"응급 처치나 자세 변환 후 환자 상태가 개선됨을 기록.",                      en:"Responded well to returning to supine position",   ko2:"앙와위 복귀에 잘 반응함 → 기립성 저혈압 해소"},
+  {k:"Upright tolerance training", pos:"치료 프로그램", warn:false, ko:"기립 내성 훈련\n— SCI·장기 와상 후 기립성 저혈압 극복\n— 틸트 테이블로 점진적 각도 증가\n— 두통·어지러움·저혈압 모니터링", nuance:"수평에서 수직 자세로 점진적 적응. SCI 환자의 자율신경계 재훈련.",        en:"Upright tolerance training — tilt table protocol", ko2:"기립 내성 훈련 → 틸트 테이블로 점진적 기립"},
+  {k:"Levetiracetam",   pos:"약물명 (항경련제)",   warn:false, ko:"레베티라세탐 (Keppra) — 항경련제\n→ 발작 예방\n→ 부작용: 졸음, 어지러움, 행동 변화\n→ PT 시 균형·인지 영향 주의", nuance:"항경련제. 뇌성마비·외상성 뇌손상·간질에 사용. 졸음으로 PT 수행 능력 영향.",  en:"Levetiracetam (Keppra) — anticonvulsant",         ko2:"케프라 → 항경련제, 졸음·균형 주의"},
+  {k:"Keppra",          pos:"약물명 (상품명)",     warn:false, ko:"케프라 — Levetiracetam의 상품명\n항경련제\n→ 졸음, 어지러움 부작용\n→ PT 시 균형·안전 주의", nuance:"Levetiracetam의 상품명. 항경련제. 졸음으로 인한 낙상 위험 증가.",           en:"Keppra (Levetiracetam) — anticonvulsant",         ko2:"케프라 → 항경련제, 낙상 위험 주의"},
+  {k:"mild cognitive delay", pos:"진단명",        warn:false, ko:"경도 인지 지연\n— 연령에 비해 인지 발달 약간 느림\n— 학습·언어·기억 일부 제한\n— 교육 방식 단순화 필요", nuance:"mainstreamed in PE와 함께 등장. 지시 이해 능력 확인 필요. 단순·반복 교육.",  en:"Mild cognitive delay — simplify PT instructions",  ko2:"경도 인지 지연 → 단순화된 교육 필요"},
+  {k:"cognitive",       pos:"형용사",             warn:false, ko:"인지적 / 인지 기능과 관련된\n— cognitive delay: 인지 지연\n— cognitive impairment: 인지 장애\n— 지시 이해·기억·학습 능력", nuance:"인지 기능 = 지시 이해·기억·판단 능력. 저하 시 PT 교육 방식 변경.",        en:"Mild cognitive delay — adjust education approach", ko2:"인지 기능 → 지시 이해 능력 확인"},
+  {k:"SpO₂",            pos:"수치 — 산소포화도",  warn:false, ko:"산소포화도 (%)\n✅ 정상: ≥95%\n⚠️ 주의: 90-94% (모니터링 강화)\n🚨 즉시 중단: <90% → Physician 보고", nuance:"활동 전후 반드시 확인. <90% = 즉각 운동 중단. 보충 산소 처방 확인.",        en:"SpO₂ <90% = immediate exercise cessation",        ko2:"SpO2 90% 미만 → 즉시 중단"},
+  {k:"well controlled", pos:"형용사구",            warn:false, ko:"잘 조절된 / 안정적으로 관리된",  nuance:"질환이 약물·치료로 잘 관리되는 상태. 그래도 운동 중 모니터링은 필요.",       en:"Type 2 DM (well-controlled)",                     ko2:"당뇨 잘 조절됨 → 그래도 Blood glucose 확인"},
+  {k:"BG",              pos:"약어 — 수치 기준",    warn:false, ko:"Blood Glucose / Blood glucose (mg/dL)\n🚨 <70: 저Blood glucose → 운동 금지, 탄수화물 15-20g\n⚠️ 70-99: 정상\n⚠️ 100-125: 당뇨 전단계\n🚨 >250: 고Blood glucose → 운동 주의\n🚨 >300: 운동 금지", nuance:"<70 = 저Blood glucose → 즉시 운동 중단, 탄수화물 섭취. >250 = 고Blood glucose 주의.",      en:"BG 62 mg/dL — hypoglycemia, hold exercise",       ko2:"Blood glucose 62 → 저Blood glucose, 운동 금지"},
+  {k:"BG (AM)",         pos:"약어",               warn:false, ko:"아침 공복 Blood glucose (mg/dL)\n정상: 70-99\n당뇨 전단계: 100-125\n당뇨: ≥126\n운동 전 확인 필수", nuance:"AM = 아침. 공복 Blood glucose. 당뇨 환자에서 운동 전 반드시 확인.",                en:"BG (AM): 142 mg/dL — monitor during exercise",    ko2:"아침 공복 Blood glucose 142 → 운동 중 모니터링"},
+  {k:"tolerance",       pos:"명사",               warn:false, ko:"내성 / 견딤 / 허용 범위\n• tolerates treatment well = 이상 반응 없이 견딤\n• upright tolerance = 기립 허용 시간\n• activity tolerance = 활동 허용 능력", nuance:"tolerate = 견디다. 치료에 대한 신체적 반응 기술.",                     en:"Upright tolerance training — gradual progression",  ko2:"기립 내성 훈련 → 점진적 각도 증가"},
+  {k:"Phase I Cardiac Rehab", pos:"치료 프로그램",warn:false, ko:"Phase I 심장 재활 (입원)\n• MET 1-3 저강도\n• Borg RPE 11-13\n• 연속 보행 <200m\n• BP·HR·SpO2 모니터링\n• Sternal precautions 준수", nuance:"심장 수술·심근경색 후 입원 중 재활. Phase II = 외래 12주 프로그램.",    en:"Phase I Cardiac Rehab — low-level activity post-CABG", ko2:"입원 심장 재활 → Borg 11-13, 저강도"},
+  {k:"Responded",       pos:"동사 (과거형)",       warn:false, ko:"반응했다 / 호전됐다",             nuance:"'Responded well' = 처치 후 상태 호전. 기립성 저혈압 → 수평 자세로 복귀 후 BP 회복.", en:"Responded well to supine position",               ko2:"앙와위 복귀 후 호전 → 기립성 저혈압 해소"},
+  {k:"Upright",         pos:"형용사/명사",         warn:false, ko:"기립 / 직립 자세",                nuance:"Upright tolerance = 기립 내성. SCI 후 기립성 저혈압 극복 훈련.",              en:"Upright tolerance training — tilt table",          ko2:"기립 내성 훈련 → SCI 후 자율신경 재훈련"},
+  {k:"negotiation",     pos:"명사",               warn:false, ko:"협상 / (장애물) 극복\nstair negotiation = 계단 오르내리기\ncurb negotiation = 연석 극복\ndoorstep negotiation = 문턱 극복", nuance:"PT에서 '극복하다, 다루다'의 의미. stair negotiation = 계단을 안전히 다루기.", en:"Stair negotiation — essential for community amb",  ko2:"계단 극복 → 지역사회 복귀 필수 기술"},
+  {k:"mainstreamed in PE", pos:"교육 배치",       warn:false, ko:"일반 체육 수업 통합 참여\n— 장애 학생이 일반 학급 체육 참여\n— 인지·운동 능력이 일반 수준에 근접\n— 적응 프로그램 필요 가능", nuance:"특수교육 대상자가 일반 체육(PE=Physical Education) 수업에 참여하는 것.", en:"Mainstreamed in PE — inclusive education",         ko2:"일반 체육 수업 통합 → 경도 장애 학생"},
+  {k:"PE",              pos:"약어 (교육)",         warn:false, ko:"Physical Education / 체육 (교육)\n↔ PT: Physical Therapy (물리치료)\n— mainstreamed in PE = 일반 체육 수업 통합", nuance:"PE = 체육 교육. PT와 헷갈리지 않도록 주의.",                          en:"Mainstreamed in PE — Physical Education",         ko2:"체육 교육 → PT(물리치료)와 구별"},
+  {k:"pool activity",   pos:"활동 유형",           warn:false, ko:"수영장 활동\nSeizure 환자: 무감독 수영 금지\n→ 발작 시 익사 위험\n→ 항상 감독 필요", nuance:"발작 위험 환자 = 무감독 수영장 활동 절대 금지. 안전 감독 필수.",              en:"No unsupervised pool activity — seizure precaution", ko2:"발작 환자 → 무감독 수영 절대 금지"},
+  {k:"padded",          pos:"형용사",             warn:false, ko:"패드를 댄 / 쿠션 처리된\npadded environment = 발작 시 충격 완화\n→ 난간·모서리·바닥 보호\n→ 발작 주의사항의 핵심 환경", nuance:"발작(Seizure) 주의사항 환경. 발작 시 머리·몸을 충격으로부터 보호.",      en:"Padded environment — seizure precautions",        ko2:"패드 처리 환경 → 발작 시 충격 보호"},
+  {k:"quit",            pos:"동사 (과거형)",        warn:false, ko:"끊었다 / 중단했다\nquit smoking = 금연\n'quit 5 yrs ago' = 5년 전 금연\n→ COPD는 진행됐지만 악화 방지", nuance:"흡연력(Hx)과 함께 기록. 금연 후에도 이미 진행된 COPD는 지속.",          en:"35 pack-year smoking Hx (quit 5 yrs ago)",        ko2:"35갑년 흡연 후 5년 전 금연 → COPD 지속"},
+  {k:"PRN",             pos:"약어",               warn:false, ko:"Pro Re Nata / 필요 시 복용\n— 증상 있을 때만 복용\n— 마지막 복용 시간 확인\n— Albuterol PRN: 운동 전 사용 가능", nuance:"정기 복용이 아닌 필요 시 복용. 마지막 복용 후 경과 시간이 통증 수준에 영향.", en:"Ibuprofen 400mg PRN / Albuterol MDI PRN",         ko2:"필요 시 복용 → 마지막 복용 시간 확인"},
+  // ── 선택지 추가 용어 ──
+  {k:"Initiate stair training",  pos:"치료 지시",          warn:false, ko:"계단 훈련 시작\n— 보행 목표 달성 후 다음 단계\n— 2층 거주 시 퇴원 조건",                           nuance:"75ft Supervision 달성 후 설정하는 다음 단계. 2층 거주 환경이면 퇴원 기준.",              en:"Initiate stair training — next step after ambulation goal",    ko2:"계단 훈련 시작 → 자택 복귀 조건"},
+  {k:"stair training",           pos:"치료 프로그램",      warn:false, ko:"계단 훈련\n오를 때: 건측 먼저\n내릴 때: 환측 먼저\n기억법: 좋은 쪽이 천국, 나쁜 쪽이 지옥",        nuance:"'Good goes up to heaven, bad goes down to hell.' 건측 먼저 오르고 환측 먼저 내림.",    en:"Stair training — good side up, bad side down",                ko2:"계단 훈련 → 건측 먼저 오르고 환측 먼저 내림"},
+  {k:"SpO₂",                     pos:"수치 — 산소포화도",  warn:false, ko:"산소포화도 (%)\n✅ 정상: ≥95%\n⚠️ 주의: 90-94%\n🚨 즉시 중단: <90% → 의사 보고",              nuance:"활동 중 하강 여부 반드시 확인. <90% = 즉시 운동 중단 + 의사 보고.",                    en:"SpO₂ <90% = immediate exercise cessation + report",           ko2:"SpO2 90% 미만 → 즉시 중단"},
+  {k:"Borg RPE",                 pos:"측정 도구",          warn:false, ko:"자각 운동 강도 (6-20)\n6=완전 안정, 20=최대 운동\n12-14=중등도(적정)\nBeta-blocker 복용 시 HR 대신 사용", nuance:"Borg 6-20. Beta-blocker 복용 환자 → HR 기반 처방 불가 → RPE로 대체.",            en:"Borg RPE 12-14 = moderate intensity (use instead of HR)",      ko2:"Borg RPE → Beta-blocker 환자에서 HR 대신"},
+  {k:"Pulmonary hyperinflation", pos:"임상 소견",          warn:false, ko:"폐 과팽창 (Air Trapping)\n— COPD에서 공기가 갇혀 흉곽 팽창\n— 흉곽 AP 직경 증가 = Barrel chest",  nuance:"호기 시 공기 배출 불완전 → 폐에 공기 축적. COPD 대표 소견. Barrel chest 유발.",       en:"Pulmonary hyperinflation = air trapping = barrel chest",      ko2:"폐 과팽창 → COPD, Barrel chest"},
+  {k:"air trapping",             pos:"병태생리",           warn:false, ko:"공기 포획\n— 호기 시 공기 배출 불완전\n— COPD 특징\n→ Barrel chest 유발",                        nuance:"호기 폐쇄로 폐에 공기가 남음. COPD에서 흉곽 AP 직경 증가 → barrel chest.",             en:"Air trapping — causes barrel chest in COPD",                  ko2:"공기 포획 → Barrel chest 유발"},
+  {k:"Blood glucose",            pos:"수치 (mg/dL)",       warn:false, ko:"혈당\n🚨 <70: 저혈당 → 운동 금지, 탄수화물 15-20g\n✅ 70-180: 운동 가능\n⚠️ 250-300: 주의\n🚨 >300: 운동 금지", nuance:"운동 전 반드시 확인. <70 저혈당 → 즉시 중단, 탄수화물 섭취. >300 → 금지.",    en:"BG: <70=hold / 70-180=safe / >300=hold+report",               ko2:"혈당 → 운동 전 확인 필수"},
+  {k:"Gloves",                   pos:"PPE",                warn:false, ko:"장갑\n— Contact Precautions 필수\n— 가운(Gown)과 함께 착용\n대상: MRSA, C.diff, VRE",             nuance:"Contact Precautions = Gloves + Gown. 입실 전 착용, 퇴실 후 제거.",                     en:"Gloves + Gown = Contact Precautions",                         ko2:"장갑+가운 → Contact Precautions 필수"},
+  {k:"Gown",                     pos:"PPE",                warn:false, ko:"가운\n— Contact Precautions 필수\n— 장갑(Gloves)과 함께 착용",                                    nuance:"Contact Precautions 시 장갑과 함께 착용. 입실 전 착용.",                               en:"Gloves + Gown = Contact Precautions",                         ko2:"가운+장갑 → Contact Precautions"},
+  {k:"Surgical mask",            pos:"PPE",                warn:false, ko:"수술용 마스크\n— Droplet Precautions 시 착용\n대상: 독감, 폐렴구균\n↔ N95: Airborne용 (더 엄격)", nuance:"Droplet Precautions = 수술 마스크. Airborne은 N95 + 음압실.",                        en:"Surgical mask = Droplet Precautions (not Airborne)",          ko2:"수술 마스크 → Droplet Precautions"},
+  {k:"negative pressure",        pos:"격리 환경",           warn:false, ko:"음압 격리실\n— Airborne Precautions 필수\n— TB, COVID, 홍역, 수두\n— N95 마스크 착용",            nuance:"공기가 외부로 나가지 않도록 음압 유지. Airborne Precautions 격리실.",                   en:"Negative pressure room = Airborne Precautions",               ko2:"음압격리실 → Airborne Precautions"},
+  {k:"offloading",               pos:"치료 개념",           warn:false, ko:"면압 제거 / 체중 부하 제거\n— DFU 치료 핵심\n— 특수 신발, 캐스트 사용\n— NWB와 함께 처방",        nuance:"당뇨발 궤양(DFU) 치료 핵심. 상처 부위 압력 완전 제거.",                               en:"Offloading = remove all pressure from wound site",            ko2:"면압 제거 → DFU 치료 핵심"},
+  {k:"offloading device",        pos:"보조 기구",           warn:false, ko:"면압 제거 기구\n— Total Contact Cast\n— Removable Cast Walker\n— 특수 당뇨 신발",                 nuance:"DFU NWB 환자 이동 훈련 시 사용. 발에 체중 실리지 않도록.",                             en:"Offloading device — mobility training for DFU NWB",           ko2:"면압 제거 기구 → DFU 이동 훈련"},
+  {k:"Sternal precautions",      pos:"수술 후 주의사항",    warn:false, ko:"흉골 주의사항 (CABG 후)\n— Push/pull >5 lbs 금지\n— 6-8주간 적용\n— Walker 보행 시 상지 부하 주의", nuance:"CABG 후 흉골 절개 부위 보호. 양측 상지 push/pull/lift >5 lbs 금지.",                 en:"Sternal precautions: no push/pull >5 lbs (6-8 weeks)",        ko2:"흉골 주의사항 → 5파운드 초과 금지"},
+  {k:"scissor gait",             pos:"보행 패턴",           warn:false, ko:"가위 보행\n— 고관절 내전근 경직 → 다리 교차\n— 뇌성마비(Spastic diplegia) 특징\n치료: 내전근 스트레칭", nuance:"고관절 내전근 과활성 → 보행 시 다리 교차. Spastic diplegia 전형 패턴.",           en:"Scissor gait — hip adductor spasticity in CP",                ko2:"가위 보행 → 뇌성마비 내전근 경직"},
+  {k:"aquatic",                  pos:"형용사",              warn:false, ko:"수중의 / 수중 치료\nSeizure 환자: 무감독 수중 활동 절대 금지\n→ 발작 시 익사 위험",               nuance:"발작 위험 환자는 반드시 감독 하에서만 수중 활동 허용.",                                en:"No unsupervised aquatic activity — seizure risk",             ko2:"수중 활동 → 발작 환자 무감독 금지"},
+  {k:"Albuterol",                pos:"약물명 (기관지확장제)", warn:false, ko:"알부테롤 — 기관지 확장제\n— MDI (흡입기) 사용\n— 운동 15-20분 전 흡입\n— PRN: 필요 시 사용",    nuance:"속효성 기관지 확장제. 운동 전 흡입 → 기관지 확장 → 운동 능력 향상.",                 en:"Albuterol MDI — inhale 15-20 min before exercise",            ko2:"알부테롤 → 운동 전 흡입, 기관지 확장"},
+  {k:"supplemental",             pos:"형용사",              warn:false, ko:"보충의 / 추가적인\nSupplemental O₂ = 보충 산소\n— 처방된 용량 임의 변경 불가\n— 활동 전 반드시 적용", nuance:"처방된 보충 산소. 활동 전 반드시 적용. 임의 변경 불가.",                             en:"Supplemental O₂ — apply before activity as prescribed",       ko2:"보충 산소 → 활동 전 반드시 적용"},
+  {k:"Contact Precautions",      pos:"격리 유형",           warn:false, ko:"접촉 격리\n✅ PPE: 장갑 + 가운\n대상: MRSA, C.diff, VRE\n— 입실 전 착용, 퇴실 후 제거",         nuance:"직접 접촉으로 전파되는 균. 장갑+가운 착용 필수.",                                      en:"Contact Precautions: gloves + gown (MRSA, C.diff, VRE)",      ko2:"접촉 격리 → 장갑+가운"},
+  {k:"Airborne Precautions",     pos:"격리 유형",           warn:false, ko:"공기 격리\n✅ PPE: N95 마스크 + 음압격리실\n대상: TB, COVID, 홍역, 수두",                       nuance:"공기 중 미세 비말핵으로 전파. N95 마스크와 음압 격리실 필수.",                         en:"Airborne: N95 + negative pressure room (TB/COVID/measles)",   ko2:"공기 격리 → N95+음압실"},
+  {k:"Droplet Precautions",      pos:"격리 유형",           warn:false, ko:"비말 격리\n✅ PPE: 수술용 마스크\n대상: 독감, 폐렴구균\n1m 이내 접근 시 마스크",               nuance:"큰 비말로 전파(1m 이내). 수술 마스크로 충분. N95 불필요.",                            en:"Droplet: surgical mask (influenza, pneumococcus)",            ko2:"비말 격리 → 수술 마스크"},
+  {k:"bradycardia",              pos:"임상 소견",           warn:false, ko:"서맥 (HR <60 bpm)\n— Beta-blocker 복용 시 예상 소견\n— 비정상이 아닐 수 있음\n→ RPE로 운동 강도 측정", nuance:"HR <60. Beta-blocker(-lol) 복용 시 예상 반응. RPE 사용.",                       en:"Bradycardia on Beta-blocker = expected, use RPE",             ko2:"서맥 → Beta-blocker 복용 시 예상, RPE 사용"},
+  {k:"Knee pain",                pos:"임상 증상",           warn:false, ko:"무릎 통증\nPFPS: 계단·오래 앉기 후 악화\nACL: 외상, 불안정감\nMeniscus: 잠김(locking)",        nuance:"원인에 따라 패턴이 다름. 계단/앉기 후 악화 = PFPS 전형.",                            en:"Knee pain pattern → key to differential diagnosis",           ko2:"무릎 통증 패턴 → 감별 진단 단서"},
+  {k:"Cardiomegaly",             pos:"의학 용어",           warn:false, ko:"심비대 / 심장 비대\nCHF, 고혈압성 심장병에서 발생\nCOPD barrel chest와 무관",                    nuance:"심장이 비정상적으로 커진 상태. Barrel chest는 air trapping이 원인 (심비대 아님).",       en:"Cardiomegaly = enlarged heart — not the cause of barrel chest", ko2:"심비대 → Barrel chest와 다른 개념"},
+  {k:"Pectoral",                 pos:"해부학 용어",         warn:false, ko:"흉근 (대흉근/소흉근)\nPectoral hypertrophy ≠ Barrel chest\nBarrel chest = air trapping이 원인", nuance:"흉근 비대는 COPD barrel chest 원인이 아님. 오답 함정 선택지로 자주 등장.",             en:"Pectoral hypertrophy ≠ barrel chest (air trapping is cause)", ko2:"흉근 비대 → Barrel chest 원인 아님 (오답 함정)"},
+  {k:"Living situation",         pos:"차트 항목",           warn:false, ko:"거주 환경\n— 독거 여부\n— 계단 유무\n— 층수\n→ 퇴원 기준 결정에 핵심",                          nuance:"독거+계단 = 높은 기능 기준 요구. 1층 독거 vs 2층 가족 동거는 치료 목표가 다름.",        en:"Living situation → determines discharge functional criteria",  ko2:"거주 환경 → 퇴원 기준 결정"},
+  {k:"Physician",                pos:"의료 직종",           warn:false, ko:"의사 / 주치의\n— 이상 소견 발견 시 보고 대상\n— 처방(Orders) 발행자\n— PT는 처방 변경 불가",      nuance:"PT는 이상 소견 발견 시 반드시 Physician에게 보고 후 지시 대기.",                       en:"Report to Physician — await instructions",                    ko2:"의사 → 이상 소견 시 즉시 보고"},
+  {k:"Hold exercise",            pos:"임상 결정",           warn:true,  ko:"운동 보류\n🚨 BG >300 또는 <70\n🚨 SpO₂ <90%\n🚨 수축기 BP >180\n🚨 흉통/어지러움/청색증",    nuance:"이상 수치 발견 시 운동 일시 중단. 보류 후 반드시 Physician 보고.",                    en:"Hold exercise → report to physician when abnormal",           ko2:"운동 보류 → 이상 수치 시 중단 후 보고"},
+  {k:"Report to physician",      pos:"임상 행동",           warn:false, ko:"의사에게 보고\n— 이상 수치 발견 시\n— Red flag 증상 시\n— 보고 후 지시 대기",                    nuance:"PT의 의무. 이상 소견 → 즉시 보고 → 지시 대기. 처방 변경 불가.",                       en:"Report to physician → then await instructions",               ko2:"의사 보고 → 지시 대기"},
+  {k:"DVT prophylaxis",          pos:"치료 목적",           warn:false, ko:"DVT 예방\n— Heparin SC: 피하 주사\n— TED hose + SCDs\n— 부동 환자(SCI·수술 후) 필수",          nuance:"부동 환자에서 DVT 예방. 항응고제 → 출혈 위험 증가 → 도수 치료 주의.",                  en:"DVT prophylaxis — Heparin SC + TED hose + SCDs",              ko2:"DVT 예방 → 부동 환자 필수, 출혈 주의"},
+  {k:"functional progress",      pos:"임상 기록 표현",      warn:false, ko:"기능적 진전\n— 보조 수준 감소 or 거리/속도 증가\n— A 섹션에 기록\n↔ Plateau(정체기): 3회 연속 동일", nuance:"PT의 A 섹션 임상 판단. 측정 가능한 향상이 있어야 skilled PT 유지 가능.",            en:"Functional progress = measurable improvement documented in A",  ko2:"기능적 진전 → skilled PT 유지 근거"},
+  {k:"INR 2.8",                  pos:"수치 해석",           warn:false, ko:"INR 2.8 — 항응고 치료 범위 내\n정상 INR: 1.0\n치료 범위: 2.0-3.0\n>3.0 = 출혈 위험↑\n>4.0 = 즉시 보고", nuance:"Warfarin 항응고 치료 목표 INR 2.0-3.0. 2.8 = 범위 내 정상. >4.0 즉시 보고.", en:"INR 2.8 = within therapeutic range (2.0-3.0)",               ko2:"INR 2.8 → 치료 범위 내, 주의하며 진행"},
+];
+
+WT_DB.sort((a,b)=>b.k.length-a.k.length);
+
+function wtHTML(d,origKey){
+  const pc=d.warn?' class="wt-pos warn"':' class="wt-pos"';
+  const eK=origKey.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  // ko와 nuance의 \n을 <br>로 변환
+  const koHtml = escH(d.ko).replace(/\n/g,'<br>');
+  const nuanceHtml = escH(d.nuance).replace(/\n/g,'<br>');
+  return`<span class="wt" onclick="toggleWT(event,this)">${eK}<span class="wt-bubble"><span${pc}>${escH(d.pos)}</span><div class="wt-ko">${koHtml}</div><div class="wt-nuance">${nuanceHtml}</div><div class="wt-ex"><div class="wt-en">${escH(d.en)}</div><div class="wt-ko-ex">${escH(d.ko2)}</div></div></span></span>`;
+}
+
+function applyWT(input){
+  const tokens=input.split(/(<[^>]*>)/);
+  const reps=[];
+  const out=tokens.map(tok=>{
+    if(/^</.test(tok))return tok;
+    let s=tok;
+    WT_DB.forEach(d=>{
+      const esc=d.k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+      // \b는 유니코드(₂ 등) 앞뒤에서 작동 안 함 → lookahead/lookbehind로 대체
+      const pre=`(?<![A-Za-z0-9₀₁₂₃₄₅₆₇₈₉])`;
+      const suf=`(?![A-Za-z0-9₀₁₂₃₄₅₆₇₈₉])`;
+      const re=new RegExp(`${pre}(${esc})${suf}`,"gi");
+      let done=false;
+      s=s.replace(re,m=>{
+        if(done)return m;
+        done=true;
+        const idx=reps.length;
+        reps.push(wtHTML(d,m));
+        return`\x00${idx}\x00`;
+      });
+    });
+    return s;
+  });
+  return out.join("").replace(/\x00(\d+)\x00/g,(_,i)=>reps[+i]);
+}
+
+function toggleWT(e,el){
+  e.stopPropagation();
+  const was=el.classList.contains("open");
+  // 모든 열린 말풍선 닫기
+  document.querySelectorAll(".wt.open").forEach(w=>{
+    w.classList.remove("open");
+    const b=w.querySelector(".wt-bubble");
+    if(b){b.style.left="";b.style.top="";b.style.bottom="";}
+  });
+  if(was) return; // 같은 거 다시 누르면 닫힘
+
+  el.classList.add("open");
+
+  // position:fixed 이므로 el의 뷰포트 좌표를 기준으로 직접 배치
+  requestAnimationFrame(()=>{
+    const b=el.querySelector(".wt-bubble");
+    if(!b) return;
+
+    const elR=el.getBoundingClientRect();
+    const bW=290;
+    const pad=8;
+    const vw=window.innerWidth;
+    const vh=window.innerHeight;
+
+    // 수평: 단어 중앙 정렬, 뷰포트 경계 초과 방지
+    let left=elR.left + elR.width/2 - bW/2;
+    if(left < pad) left = pad;
+    if(left + bW > vw - pad) left = vw - bW - pad;
+
+    // 수직: 기본은 단어 위쪽. 위로 공간 부족하면 아래쪽
+    b.style.width = bW+"px";
+    b.style.left = left+"px";
+    b.style.top = ""; b.style.bottom = "";
+    // 임시 표시해서 높이 측정
+    b.style.visibility="hidden"; b.style.display="block";
+    const bH=b.offsetHeight;
+    b.style.display=""; b.style.visibility="";
+
+    const spaceAbove=elR.top - pad;
+    if(spaceAbove >= bH+12){
+      // 위쪽 배치
+      b.style.top=(elR.top - bH - 12)+"px";
+      // 화살표: 아래쪽 (기본 ::after)
+      b.dataset.dir="up";
+    } else {
+      // 아래쪽 배치
+      b.style.top=(elR.bottom + 12)+"px";
+      b.dataset.dir="down";
+    }
+
+    // 화살표 방향 반영
+    b.classList.toggle("bubble-down", b.dataset.dir==="down");
+  });
+}
+document.addEventListener("click",()=>document.querySelectorAll(".wt.open").forEach(w=>{
+  w.classList.remove("open");
+  const b=w.querySelector(".wt-bubble");
+  if(b){b.style.left="";b.style.top="";}
+}));
+
+</script>
+</body>
+</html>

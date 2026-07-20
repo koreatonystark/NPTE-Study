@@ -1,0 +1,3638 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0f1623">
+<title>NPTE English Mastery v2</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap');
+:root {
+  --bg:#0f1623; --sf:#1a2744; --sf2:#213057; --border:#2a3d66;
+  --accent:#4f8ef7; --accent2:#7eb8f7; --gold:#f5c842;
+  --green:#3ecf8e; --red:#f76f6f; --orange:#f7a54f;
+  --text:#e8edf8; --text2:#9aabcb; --r:14px; --rs:9px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* HEADER */
+header{background:var(--sf);border-bottom:1px solid var(--border);padding:13px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{font-size:15px;font-weight:700;color:var(--accent2);letter-spacing:.4px}
+.logo em{color:var(--gold);font-style:normal}
+.hstats{display:flex;gap:14px;font-size:12px;color:var(--text2)}
+.hstat{display:flex;align-items:center;gap:5px}
+.hstat b{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--text)}
+
+/* NAV */
+.nav{display:flex;background:var(--sf);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nb{flex:0 0 auto;padding:12px 18px;font-size:13px;font-weight:500;color:var(--text2);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s}
+.nb.on{color:var(--accent2);border-bottom-color:var(--accent)}
+.nb:hover{color:var(--text)}
+
+main{padding:18px;max-width:720px;margin:0 auto}
+.sc{display:none} .sc.on{display:block}
+
+/* ── CARDS ── */
+.card{background:var(--sf);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:14px}
+
+/* HOME */
+.hero{text-align:center;padding:28px 0 18px}
+.hero h1{font-size:22px;font-weight:700;margin-bottom:6px}
+.hero h1 em{color:var(--accent2);font-style:normal}
+.hero p{font-size:13px;color:var(--text2);line-height:1.7}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.pcard{background:var(--sf);border:1px solid var(--border);border-radius:var(--r);padding:15px 16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px}
+.pcard:hover{border-color:var(--accent);transform:translateY(-1px)}
+.pcard.all-card{grid-column:1/-1;border-color:rgba(79,142,247,.4);background:rgba(79,142,247,.06)}
+.pnum{font-size:18px;font-weight:800;color:var(--accent);font-family:'JetBrains Mono',monospace;min-width:38px}
+.pinfo h3{font-size:13px;font-weight:700;margin-bottom:2px}
+.pinfo p{font-size:11px;color:var(--text2);line-height:1.4}
+.pcnt{margin-left:auto;font-size:11px;color:var(--text2);font-family:'JetBrains Mono',monospace;white-space:nowrap}
+
+.streak-box{background:linear-gradient(135deg,rgba(245,200,66,.12),rgba(247,165,79,.08));border:1px solid rgba(245,200,66,.25);border-radius:var(--rs);padding:11px 15px;display:flex;align-items:center;gap:11px;margin-bottom:14px}
+.sb-icon{font-size:22px}
+.sb-text{font-size:13px}
+.sb-n{font-size:17px;font-weight:700;color:var(--gold);font-family:'JetBrains Mono',monospace}
+
+/* QUIZ SETUP */
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.mc{background:var(--sf);border:2px solid var(--border);border-radius:var(--r);padding:15px;cursor:pointer;transition:all .2s;text-align:center}
+.mc:hover{border-color:var(--accent)}
+.mc.sel{border-color:var(--accent);background:rgba(79,142,247,.08)}
+.mc-ico{font-size:24px;margin-bottom:7px}
+.mc-title{font-size:13px;font-weight:700;margin-bottom:3px}
+.mc-desc{font-size:11px;color:var(--text2);line-height:1.4}
+.sec-label{font-size:12px;color:var(--text2);margin-bottom:7px;font-weight:500}
+.pills{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.pill{padding:6px 13px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--sf2);color:var(--text2);transition:all .15s}
+.pill.on{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* PROGRESS */
+.prog-wrap{margin-bottom:18px}
+.prog-labels{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:5px}
+.prog-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;transition:width .4s}
+
+/* QUESTION CARD */
+.q-badge-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.q-badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;background:var(--sf2);color:var(--accent2);text-transform:uppercase;letter-spacing:.7px}
+.q-badge.trap{background:rgba(247,111,111,.12);color:var(--red)}
+.q-badge.fill{background:rgba(245,200,66,.1);color:var(--gold)}
+.q-num{font-size:12px;color:var(--text2);font-family:'JetBrains Mono',monospace}
+
+/* ── EXPRESSION BOX ── main display of the term being studied */
+.expr-box{
+  background:linear-gradient(135deg,rgba(79,142,247,.12),rgba(126,184,247,.06));
+  border:1px solid rgba(79,142,247,.35);
+  border-radius:var(--rs);
+  padding:18px 20px;
+  margin-bottom:6px;
+}
+.expr-term{font-size:22px;font-weight:800;color:var(--accent2);font-family:'JetBrains Mono',monospace;letter-spacing:.3px;margin-bottom:4px}
+.expr-sub{font-size:12px;color:var(--text2);margin-bottom:10px}
+.expr-context{font-size:13px;color:var(--text2);line-height:1.65;padding-top:10px;border-top:1px solid rgba(79,142,247,.2)}
+.expr-context .hi{color:var(--accent2);font-weight:700;font-family:'JetBrains Mono',monospace}
+
+/* ── QUESTION TEXT ── */
+.q-text{font-size:14px;font-weight:600;color:var(--text);line-height:1.6;padding:14px 0 16px}
+.q-note{font-size:12px;color:var(--orange);margin-bottom:4px;font-weight:600}
+
+/* CHOICES */
+.choices{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:14px}
+.cbtn{
+  padding:13px 16px;
+  background:var(--sf2);
+  border:1px solid var(--border);
+  border-radius:var(--rs);
+  color:var(--text);
+  font-size:15px;
+  font-weight:500;
+  cursor:pointer;
+  text-align:left;
+  transition:all .15s;
+  line-height:1.5;
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+}
+.cbtn:hover{border-color:var(--accent);color:var(--accent2)}
+.cbtn .cnum{font-size:14px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--text2);min-width:18px;margin-top:1px}
+.cbtn.correct{background:rgba(62,207,142,.12);border-color:var(--green);color:var(--green)}
+.cbtn.wrong{background:rgba(247,111,111,.1);border-color:var(--red);color:var(--red)}
+.cbtn.show-ans{background:rgba(62,207,142,.08);border-color:rgba(62,207,142,.5);color:var(--green)}
+.cbtn:disabled{cursor:not-allowed}
+
+/* FEEDBACK */
+.fb{display:none;border-radius:var(--rs);padding:15px;margin-bottom:12px;line-height:1.6}
+.fb.ok{background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.25)}
+.fb.ng{background:rgba(247,111,111,.07);border:1px solid rgba(247,111,111,.2)}
+.fb-head{font-size:15px;font-weight:700;margin-bottom:6px}
+.fb.ok .fb-head{color:var(--green)}
+.fb.ng .fb-head{color:var(--red)}
+.fb-body{font-size:15px;color:var(--text2)}
+.fb-body strong{color:var(--text)}
+
+/* NUANCE BOX — appears after answering */
+.nuance-box{margin-top:12px;padding:13px 15px;background:var(--sf);border-radius:var(--rs);border-left:3px solid var(--accent)}
+.nuance-title{font-size:11px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+.nuance-row{display:flex;gap:8px;margin-bottom:5px;align-items:flex-start}
+.nuance-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;white-space:nowrap;margin-top:2px}
+.tag-en{background:rgba(79,142,247,.2);color:var(--accent2)}
+.tag-ko{background:rgba(62,207,142,.15);color:var(--green)}
+.tag-tip{background:rgba(245,200,66,.15);color:var(--gold)}
+.tag-warn{background:rgba(247,111,111,.15);color:var(--red)}
+.nuance-val{font-size:12px;color:var(--text2);line-height:1.55;flex:1}
+.nuance-val em{color:var(--accent2);font-style:normal;font-weight:600}
+
+/* BUTTONS */
+.btnrow{display:flex;gap:9px}
+.btn{flex:1;padding:12px;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer;transition:opacity .15s}
+.btn:hover{opacity:.88}
+.btn-p{background:var(--accent);color:#fff}
+.btn-s{background:var(--sf2);color:var(--text2);border:1px solid var(--border)}
+.btn-g{background:var(--gold);color:#111}
+
+/* RESULT */
+.res-circle{width:115px;height:115px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;margin:0 auto 18px;border:4px solid var(--green);background:rgba(62,207,142,.07)}
+.res-score{font-size:34px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--green)}
+.res-lbl{font-size:11px;color:var(--text2)}
+.rgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:18px}
+.rstat{text-align:center;background:var(--sf2);border-radius:var(--rs);padding:13px}
+.rstat-v{font-size:20px;font-weight:800;font-family:'JetBrains Mono',monospace}
+.rstat-l{font-size:11px;color:var(--text2);margin-top:3px}
+.rv-g{color:var(--green)} .rv-r{color:var(--red)} .rv-gold{color:var(--gold)}
+
+/* REVIEW LIST */
+.review-item{background:var(--sf);border:1px solid var(--border);border-radius:var(--rs);padding:12px 14px;margin-bottom:8px}
+.ri-term{font-size:14px;font-weight:700;color:var(--red);font-family:'JetBrains Mono',monospace;margin-bottom:4px}
+.ri-ans{font-size:12px;color:var(--text2);margin-bottom:2px}
+.ri-ans strong{color:var(--text)}
+
+/* REFERENCE */
+.ref-section{margin-bottom:22px}
+.ref-stitle{font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1px;padding:9px 0 8px;border-bottom:1px solid var(--border);margin-bottom:10px}
+.ritem{background:var(--sf);border:1px solid var(--border);border-radius:var(--rs);padding:13px 15px;margin-bottom:7px;cursor:pointer;transition:all .15s}
+.ritem:hover{border-color:var(--accent)}
+.ritem.open{border-color:var(--accent2)}
+.ritem-head{display:flex;justify-content:space-between;align-items:center}
+.rterm{font-size:14px;font-weight:800;color:var(--accent2);font-family:'JetBrains Mono',monospace}
+.rko{font-size:12px;color:var(--text2);margin-top:2px}
+.rchev{color:var(--text2);font-size:11px;transition:transform .2s}
+.ritem.open .rchev{transform:rotate(180deg)}
+.rdetail{display:none;margin-top:11px;padding-top:11px;border-top:1px solid var(--border)}
+.ritem.open .rdetail{display:block}
+.rdl{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.7px;margin-bottom:3px}
+.rdv{font-size:12px;color:var(--text);line-height:1.6;margin-bottom:10px}
+.rexbox{background:var(--sf2);border-radius:6px;padding:9px 12px;border-left:3px solid var(--accent);margin-top:5px;margin-bottom:5px}
+.rexbox .en{font-size:12px;color:var(--accent2);font-weight:600;margin-bottom:2px}
+.rexbox .ko{font-size:11px;color:var(--text2)}
+
+/* ABBR GRID */
+.abgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.abcard{background:var(--sf2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px}
+.ab-term{font-size:14px;font-weight:800;color:var(--gold);font-family:'JetBrains Mono',monospace}
+.ab-full{font-size:11px;color:var(--accent2);margin:2px 0}
+.ab-ko{font-size:11px;color:var(--text2)}
+
+/* ── CHART TAB ── */
+.chart-nb{color:var(--gold)!important}
+.chart-nb.on{color:var(--gold)!important;border-bottom-color:var(--gold)!important}
+.chart-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px;overflow-x:auto;scrollbar-width:none}
+.chart-tabs::-webkit-scrollbar{display:none}
+.ctab{flex:0 0 auto;padding:10px 14px;font-size:12px;font-weight:600;color:var(--text2);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s}
+.ctab.on{color:var(--gold);border-bottom-color:var(--gold)}
+.ctab:hover{color:var(--text)}
+.ctab-panel{display:none}
+.ctab-panel.on{display:block}
+
+.chart-hero{background:linear-gradient(135deg,rgba(245,200,66,.1),rgba(247,165,79,.06));border:1px solid rgba(245,200,66,.25);border-radius:var(--r);padding:18px 20px;margin-bottom:16px}
+.chart-hero-title{font-size:16px;font-weight:800;color:var(--gold);margin-bottom:8px}
+.chart-hero-desc{font-size:13px;color:var(--text2);line-height:1.7}
+.chart-hero-desc strong{color:var(--text)}
+.chart-section-title{font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1px;padding:8px 0 7px;border-bottom:1px solid var(--border);margin-bottom:10px}
+
+/* chart structure blocks */
+.cs-block{background:var(--sf);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:8px;overflow:hidden}
+.cs-header{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;transition:background .15s}
+.cs-header:hover{background:var(--sf2)}
+.cs-icon{font-size:18px;min-width:28px}
+.cs-title{font-size:13px;font-weight:700;color:var(--accent2);flex:1}
+.cs-ko{font-size:11px;color:var(--text2)}
+.cs-chev{color:var(--text2);font-size:11px;transition:transform .2s}
+.cs-block.open .cs-chev{transform:rotate(180deg)}
+.cs-body{display:none;padding:0 14px 14px;border-top:1px solid var(--border);margin-top:0}
+.cs-block.open .cs-body{display:block}
+.cs-purpose{font-size:13px;color:var(--text2);line-height:1.6;padding:10px 0 6px}
+.cs-purpose strong{color:var(--text)}
+.cs-what{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.7px;margin:8px 0 5px}
+.term-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.term-chip{background:var(--sf2);border-radius:6px;padding:6px 9px}
+.tc-en{font-size:12px;font-weight:700;color:var(--accent2);font-family:'JetBrains Mono',monospace}
+.tc-ko{font-size:11px;color:var(--text2);margin-top:1px}
+.tc-note{font-size:10px;color:var(--orange);margin-top:2px}
+.cs-trap{background:rgba(247,111,111,.08);border:1px solid rgba(247,111,111,.2);border-radius:6px;padding:9px 11px;margin-top:10px;font-size:12px;color:var(--text2);line-height:1.55}
+.cs-trap strong{color:var(--red)}
+
+/* question type grid */
+.qtype-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.qtype-card{background:var(--sf);border:1px solid var(--border);border-radius:var(--rs);padding:13px}
+.qt-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;display:inline-block;margin-bottom:7px}
+.qt-b1{background:rgba(79,142,247,.15);color:var(--accent2)}
+.qt-b2{background:rgba(62,207,142,.12);color:var(--green)}
+.qt-b3{background:rgba(247,165,79,.12);color:var(--orange)}
+.qt-b4{background:rgba(247,111,111,.12);color:var(--red)}
+.qt-title{font-size:13px;font-weight:700;margin-bottom:5px}
+.qt-desc{font-size:11px;color:var(--text2);line-height:1.5}
+
+/* strategy */
+.strat-step{display:flex;gap:12px;margin-bottom:12px;align-items:flex-start}
+.strat-num{font-size:18px;font-weight:800;color:var(--gold);font-family:'JetBrains Mono',monospace;min-width:28px;line-height:1.3}
+.strat-body{flex:1}
+.strat-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px}
+.strat-desc{font-size:12px;color:var(--text2);line-height:1.6}
+.strat-desc em{color:var(--accent2);font-style:normal;font-weight:600}
+.strat-card{background:var(--sf);border:1px solid var(--border);border-radius:var(--rs);padding:14px;margin-bottom:10px}
+.strat-warn{background:rgba(247,111,111,.07);border:1px solid rgba(247,111,111,.2);border-radius:var(--rs);padding:12px 14px;margin-bottom:10px}
+.strat-warn-title{font-size:12px;font-weight:700;color:var(--red);margin-bottom:6px}
+.strat-warn-body{font-size:12px;color:var(--text2);line-height:1.55}
+
+/* sec pills */
+.sec-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+
+/* chart card (quiz) */
+.chart-card{background:var(--sf2);border:1px solid rgba(245,200,66,.3);border-radius:var(--r);padding:0;margin-bottom:12px;overflow:hidden}
+.chart-card-header{background:linear-gradient(90deg,rgba(245,200,66,.15),rgba(247,165,79,.08));padding:10px 14px;border-bottom:1px solid rgba(245,200,66,.2);display:flex;align-items:center;gap:8px}
+.chart-card-title{font-size:12px;font-weight:700;color:var(--gold)}
+.chart-card-body{padding:12px 14px}
+.chart-row{display:flex;gap:0;border-bottom:1px solid var(--border);padding:5px 0}
+.chart-row:last-child{border-bottom:none}
+.chart-row-label{font-size:11px;font-weight:700;color:var(--text2);min-width:110px;padding-right:10px;flex-shrink:0}
+.chart-row-val{font-size:12px;color:var(--text);line-height:1.5;flex:1}
+.chart-row-val .hi{color:var(--gold);font-weight:700}
+.chart-row-val .warn{color:var(--red);font-weight:700}
+.chart-row-val .ok{color:var(--green);font-weight:700}
+.chart-section-hdr{font-size:10px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.8px;padding:8px 0 3px;margin-top:4px}
+.cq-mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.cq-mode-card{background:var(--sf);border:2px solid var(--border);border-radius:var(--rs);padding:12px;cursor:pointer;transition:all .2s;text-align:center}
+.cq-mode-card.sel{border-color:var(--gold);background:rgba(245,200,66,.06)}
+.cq-mode-card:hover{border-color:var(--gold)}
+.cq-mc-ico{font-size:20px;margin-bottom:5px}
+.cq-mc-title{font-size:12px;font-weight:700;margin-bottom:2px}
+.cq-mc-desc{font-size:10px;color:var(--text2);line-height:1.4}
+
+/* MOBILE */
+@media(max-width:500px){
+  .pgrid{grid-template-columns:1fr}
+  .pcard.all-card{grid-column:auto}
+  .mgrid{grid-template-columns:1fr}
+  main{padding:13px}
+  .expr-term{font-size:18px}
+}
+
+/* ── TTS PLAY BUTTON ── */
+.tts-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:20px;height:20px;min-width:20px;
+  background:rgba(79,142,247,.18);
+  border:1px solid rgba(79,142,247,.4);
+  border-radius:50%;
+  cursor:pointer;
+  font-size:8px;
+  color:var(--accent2);
+  transition:all .15s;
+  vertical-align:middle;
+  margin-right:6px;
+  user-select:none;
+  position:relative;top:-1px;
+  flex-shrink:0;
+}
+.tts-btn:hover{background:rgba(79,142,247,.35);border-color:var(--accent);}
+.tts-btn.speaking{background:rgba(62,207,142,.22);border-color:var(--green);color:var(--green);animation:tts-pulse .65s infinite alternate;}
+@keyframes tts-pulse{from{opacity:.7;transform:scale(1)}to{opacity:1;transform:scale(1.12)}}
+
+/* ── WORD TOOLTIP (말풍선) ── */
+.wt{
+  display:inline;position:relative;
+  cursor:pointer;
+  color:var(--accent2);font-weight:700;
+  border-bottom:1px dashed rgba(79,142,247,.55);
+  transition:color .12s;
+}
+.wt:hover{color:#fff;}
+.wt-bubble{
+  display:none;
+  position:absolute;
+  bottom:calc(100% + 10px);
+  left:50%;transform:translateX(-50%);
+  width:262px;
+  background:#182840;
+  border:1px solid var(--accent);
+  border-radius:11px;
+  padding:13px 15px 12px;
+  z-index:99999;
+  box-shadow:0 10px 30px rgba(0,0,0,.6);
+  font-family:'Inter',sans-serif;font-weight:400;
+  pointer-events:none;
+  text-align:left;
+  white-space:normal;
+}
+.wt-bubble::after{
+  content:'';position:absolute;
+  top:100%;left:50%;transform:translateX(-50%);
+  border:7px solid transparent;
+  border-top-color:var(--accent);
+}
+.wt.open .wt-bubble{display:block;}
+.wt-pos{
+  font-size:10px;font-weight:700;
+  padding:2px 8px;border-radius:4px;
+  display:inline-block;margin-bottom:7px;
+  background:rgba(79,142,247,.2);color:var(--accent2);
+}
+.wt-pos.warn{background:rgba(247,111,111,.2);color:var(--red);}
+.wt-ko{font-size:13px;font-weight:700;color:#fff;margin-bottom:5px;}
+.wt-nuance{font-size:11px;color:var(--text2);line-height:1.55;margin-bottom:8px;}
+.wt-ex{font-size:11px;background:rgba(255,255,255,.05);border-left:2px solid var(--accent);padding:6px 9px;border-radius:3px;line-height:1.5;}
+.wt-ex .wt-en{color:var(--accent2);font-weight:600;margin-bottom:2px;font-size:11px;}
+.wt-ex .wt-ko-ex{color:var(--text2);}
+
+@media(max-width:500px){
+  .wt-bubble{width:220px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">NPTE <em>English</em> Mastery</div>
+  <div class="hstats">
+    <div class="hstat">🔥<b id="hS">0</b></div>
+    <div class="hstat">✅<b id="hT">0</b></div>
+    <div class="hstat">🎯<b id="hA">-</b></div>
+  </div>
+</header>
+
+<div class="nav">
+  <button class="nb on" onclick="go('home')">🏠 홈</button>
+  <button class="nb" onclick="go('quiz')">📝 퀴즈</button>
+  <button class="nb" onclick="go('ref')">📚 레퍼런스</button>
+  <button class="nb chart-nb" onclick="go('chart')">🗂️ 차트읽기</button>
+</div>
+
+<main>
+
+<!-- HOME -->
+<div id="sc-home" class="sc on">
+  <div class="hero">
+    <h1>NPTE <em>영어 표현</em> 완전 정복</h1>
+    <p>의학 지식은 있는데 영어 표현이 막힌다면 이 앱이 해결해 드립니다.<br>
+    각 표현의 <strong>뜻·뉘앙스·용법·함정</strong>을 반복 숙달!</p>
+  </div>
+  <div id="home-streak" class="streak-box" style="display:none">
+    <div class="sb-icon">🔥</div>
+    <div class="sb-text">연속 정답 <span class="sb-n" id="homeStreakN">0</span>개 진행 중!</div>
+  </div>
+  <div class="pgrid" id="home-parts"></div>
+</div>
+
+<!-- QUIZ -->
+<div id="sc-quiz" class="sc">
+  <!-- SETUP -->
+  <div id="q-setup">
+    <div class="card">
+      <div style="font-size:14px;font-weight:700;color:var(--accent2);margin-bottom:14px">학습 유형 선택</div>
+      <div class="mgrid">
+        <div class="mc sel" id="mc-nuance" onclick="pickMode('nuance')">
+          <div class="mc-ico">💡</div>
+          <div class="mc-title">뜻 · 뉘앙스</div>
+          <div class="mc-desc">표현의 정확한 의미와<br>뉘앙스 차이 익히기</div>
+        </div>
+        <div class="mc" id="mc-usage" onclick="pickMode('usage')">
+          <div class="mc-ico">📖</div>
+          <div class="mc-title">용법 · 상황</div>
+          <div class="mc-desc">이 상황에서 어떤 표현을<br>써야 하는가?</div>
+        </div>
+        <div class="mc" id="mc-compare" onclick="pickMode('compare')">
+          <div class="mc-ico">⚖️</div>
+          <div class="mc-title">표현 비교</div>
+          <div class="mc-desc">비슷한 표현들의<br>강도·차이 구분</div>
+        </div>
+        <div class="mc" id="mc-trap" onclick="pickMode('trap')">
+          <div class="mc-ico">⚠️</div>
+          <div class="mc-title">함정 탐지</div>
+          <div class="mc-desc">방향 반전·오해하기 쉬운<br>표현 즉시 식별</div>
+        </div>
+      </div>
+      <div class="sec-label">문제 수</div>
+      <div class="pills">
+        <div class="pill on" onclick="pickCnt(10,this)">10문제</div>
+        <div class="pill" onclick="pickCnt(20,this)">20문제</div>
+        <div class="pill" onclick="pickCnt(30,this)">30문제</div>
+        <div class="pill" onclick="pickCnt(999,this)">전체</div>
+      </div>
+      <button class="btn btn-p" onclick="launchQuiz()">시작하기 →</button>
+    </div>
+  </div>
+
+  <!-- QUESTION AREA -->
+  <div id="q-area" style="display:none">
+    <div class="prog-wrap">
+      <div class="prog-labels">
+        <span id="qPtxt">1 / 10</span>
+        <span id="qStxt">정답 0</span>
+      </div>
+      <div class="prog-bar"><div class="prog-fill" id="qPbar" style="width:0%"></div></div>
+    </div>
+    <div class="card" id="q-card">
+      <div class="q-badge-row">
+        <span class="q-badge" id="qBadge">뜻·뉘앙스</span>
+        <span class="q-num" id="qNum">#1</span>
+      </div>
+
+      <!-- Expression being studied -->
+      <div class="expr-box">
+        <div class="expr-term" id="qTerm"></div>
+        <div class="expr-sub" id="qSub"></div>
+        <div class="expr-context" id="qCtx" style="display:none"></div>
+      </div>
+
+      <!-- Question -->
+      <div class="q-note" id="qNote" style="display:none"></div>
+      <div class="q-text" id="qText"></div>
+
+      <!-- Choices -->
+      <div class="choices" id="qChoices"></div>
+
+      <!-- Feedback -->
+      <div class="fb" id="qFb">
+        <div class="fb-head" id="qFbHead"></div>
+        <div class="fb-body" id="qFbBody"></div>
+        <div class="nuance-box" id="qNuance" style="display:none">
+          <div class="nuance-title">📌 표현 핵심 정리</div>
+          <div id="qNuanceRows"></div>
+        </div>
+      </div>
+
+      <div class="btnrow">
+        <button class="btn btn-s" id="qSkip" onclick="next()">건너뛰기</button>
+        <button class="btn btn-p" id="qNext" onclick="next()" style="display:none">다음 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="q-result" style="display:none">
+    <div class="card" style="text-align:center">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:14px">퀴즈 완료! 🎉</div>
+      <div class="res-circle">
+        <div class="res-score" id="resPct">0%</div>
+        <div class="res-lbl">정답률</div>
+      </div>
+      <div class="rgrid">
+        <div class="rstat"><div class="rstat-v rv-g" id="resOk">0</div><div class="rstat-l">정답</div></div>
+        <div class="rstat"><div class="rstat-v rv-r" id="resNg">0</div><div class="rstat-l">오답</div></div>
+        <div class="rstat"><div class="rstat-v rv-gold" id="resBest">0</div><div class="rstat-l">최고연속</div></div>
+      </div>
+      <div id="res-review" style="display:none;text-align:left;margin-bottom:16px">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:8px">⚡ 다시 볼 표현</div>
+        <div id="res-review-list"></div>
+      </div>
+      <div class="btnrow">
+        <button class="btn btn-s" onclick="showSetup()">설정 변경</button>
+        <button class="btn btn-p" onclick="launchQuiz()">다시 풀기 →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REFERENCE -->
+<div id="sc-ref" class="sc">
+  <div class="pills" id="ref-pills">
+    <div class="pill on" onclick="filterRef('all',this)">전체</div>
+    <div class="pill" onclick="filterRef('modifier',this)">수식어</div>
+    <div class="pill" onclick="filterRef('verb',this)">동사</div>
+    <div class="pill" onclick="filterRef('phrase',this)">구 표현</div>
+    <div class="pill" onclick="filterRef('trap',this)">함정</div>
+    <div class="pill" onclick="filterRef('symptom',this)">🆕증상묘사</div>
+    <div class="pill" onclick="filterRef('clinical_verb',this)">🆕기능동사</div>
+    <div class="pill" onclick="filterRef('time_seq',this)">🆕시간순서</div>
+    <div class="pill" onclick="filterRef('comparison',this)">🆕비교대조</div>
+    <div class="pill" onclick="filterRef('contraindication',this)">🆕금기제한</div>
+    <div class="pill" onclick="filterRef('grading',this)">🆕등급표현</div>
+    <div class="pill" onclick="filterRef('abbr',this)">약어</div>
+  </div>
+  <div id="ref-content"></div>
+</div>
+
+<!-- CHART READING -->
+<div id="sc-chart" class="sc">
+
+  <!-- chart sub-nav -->
+  <div class="chart-tabs">
+    <button class="ctab on" onclick="showChartTab('overview')">📋 구조 개요</button>
+    <button class="ctab" onclick="showChartTab('sections')">📂 섹션별 용어</button>
+    <button class="ctab" onclick="showChartTab('strategy')">🎯 풀이 전략</button>
+    <button class="ctab" onclick="showChartTab('cquiz')">✏️ 차트 퀴즈</button>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div id="ctab-overview" class="ctab-panel">
+    <div class="chart-hero">
+      <div class="chart-hero-title">📋 NPTE 차트 문제란?</div>
+      <div class="chart-hero-desc">
+        최근 NPTE-PT에 도입된 <strong>Chart/Exhibit 문제</strong>는 실제 EMR(전자 의무기록)과 유사한 형태의 차트를 제시하고, 그 안에서 정보를 찾아 임상 판단을 하는 문제 유형입니다.<br><br>
+        <strong>핵심:</strong> 차트를 빠르게 스캔 → 필요한 정보만 추출 → 질문에 답하는 속도와 정확성이 관건
+      </div>
+    </div>
+
+    <div class="chart-section-title">🏗️ NPTE 차트의 기본 구성</div>
+    <div id="chart-structure-list"></div>
+
+    <div class="chart-section-title" style="margin-top:18px">⚡ 차트 문제 유형 4가지</div>
+    <div class="qtype-grid" id="chart-qtype-grid"></div>
+  </div>
+
+  <!-- SECTIONS -->
+  <div id="ctab-sections" class="ctab-panel" style="display:none">
+    <div class="chart-section-title">📂 섹션별 핵심 용어 & 표현</div>
+    <div class="sec-pills" id="sec-pills">
+      <div class="pill on" onclick="filterSec('all',this)">전체</div>
+      <div class="pill" onclick="filterSec('demographics',this)">Demographics</div>
+      <div class="pill" onclick="filterSec('dx',this)">Dx/PMH</div>
+      <div class="pill" onclick="filterSec('meds',this)">Medications</div>
+      <div class="pill" onclick="filterSec('vitals',this)">Vital Signs</div>
+      <div class="pill" onclick="filterSec('labs',this)">Lab Values</div>
+      <div class="pill" onclick="filterSec('orders',this)">Orders/Precautions</div>
+      <div class="pill" onclick="filterSec('notes',this)">PT Notes</div>
+    </div>
+    <div id="sec-content"></div>
+  </div>
+
+  <!-- STRATEGY -->
+  <div id="ctab-strategy" class="ctab-panel" style="display:none">
+    <div class="chart-section-title">🎯 차트 문제 풀이 전략</div>
+    <div id="strategy-content"></div>
+  </div>
+
+  <!-- CHART QUIZ -->
+  <div id="ctab-cquiz" class="ctab-panel" style="display:none">
+    <div id="cq-intro">
+      <div class="chart-hero">
+        <div class="chart-hero-title">✏️ 차트 읽기 퀴즈</div>
+        <div class="chart-hero-desc">실제 NPTE 스타일 차트를 읽고 질문에 답하는 연습입니다.<br>차트의 어느 섹션에서 정보를 찾아야 하는지 파악하는 것이 핵심!</div>
+      </div>
+      <div class="cq-mode-grid" id="cq-mode-grid"></div>
+      <button class="btn btn-p" style="width:100%;margin-top:4px" onclick="startChartQuiz()">차트 퀴즈 시작 →</button>
+    </div>
+    <div id="cq-area" style="display:none">
+      <div class="prog-wrap">
+        <div class="prog-labels"><span id="cqPtxt">1/10</span><span id="cqStxt">정답 0</span></div>
+        <div class="prog-bar"><div class="prog-fill" id="cqPbar" style="width:0%"></div></div>
+      </div>
+      <!-- chart display -->
+      <div class="chart-card" id="cq-chart-display"></div>
+      <!-- question -->
+      <div class="card" id="cq-qcard">
+        <div class="q-badge-row">
+          <span class="q-badge" id="cqBadge">차트 읽기</span>
+          <span class="q-num" id="cqNum">#1</span>
+        </div>
+        <div class="q-note" id="cqNote" style="display:none"></div>
+        <div class="q-text" id="cqText"></div>
+        <div class="choices" id="cqChoices"></div>
+        <div class="fb" id="cqFb">
+          <div class="fb-head" id="cqFbHead"></div>
+          <div class="fb-body" id="cqFbBody"></div>
+          <div class="nuance-box" id="cqNuance" style="display:none">
+            <div class="nuance-title">📌 차트 읽기 핵심</div>
+            <div id="cqNuanceRows"></div>
+          </div>
+        </div>
+        <div class="btnrow">
+          <button class="btn btn-s" id="cqSkip" onclick="cqNext()">건너뛰기</button>
+          <button class="btn btn-p" id="cqNextBtn" onclick="cqNext()" style="display:none">다음 →</button>
+        </div>
+      </div>
+    </div>
+    <div id="cq-result" style="display:none">
+      <div class="card" style="text-align:center">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:14px">차트 퀴즈 완료! 🗂️</div>
+        <div class="res-circle" id="cqResCircle">
+          <div class="res-score" id="cqResPct">0%</div>
+          <div class="res-lbl">정답률</div>
+        </div>
+        <div class="rgrid">
+          <div class="rstat"><div class="rstat-v rv-g" id="cqResOk">0</div><div class="rstat-l">정답</div></div>
+          <div class="rstat"><div class="rstat-v rv-r" id="cqResNg">0</div><div class="rstat-l">오답</div></div>
+          <div class="rstat"><div class="rstat-v rv-gold" id="cqResBest">0</div><div class="rstat-l">최고연속</div></div>
+        </div>
+        <div class="btnrow">
+          <button class="btn btn-s" onclick="resetChartQuiz()">처음으로</button>
+          <button class="btn btn-p" onclick="startChartQuiz()">다시 풀기 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /sc-chart -->
+
+</main>
+
+<script>
+// ============================================================
+// DATA — EXPRESSIONS
+// ============================================================
+const EXPRS = {
+modifier:[
+  {
+    id:'most_appropriate', term:'MOST appropriate', ko:'가장 적절한',
+    type:'modifier',
+    nuance:'여러 선택지 모두 틀리지 않을 수 있는 상황에서 이 환자·이 상황·이 시기에 가장 맞는 것을 고른다. 단순 암기가 아닌 임상 판단력(clinical reasoning) 테스트.',
+    diff_from:'BEST와 구별: MOST appropriate는 맥락 의존적 / BEST는 교과서적 단 하나의 최선',
+    context:'Which of the following is MOST appropriate for this patient at this time?',
+    examples:[
+      {en:'Which wheelchair transfer technique is MOST appropriate to facilitate generalization?', ko:'학습 일반화를 촉진하기 위해 가장 적절한 이동 기술은?'},
+      {en:'Which mobilization is MOST appropriate for decreasing pain in acute elbow?', ko:'급성 팔꿈치 통증 감소를 위해 가장 적절한 가동술은?'}
+    ]
+  },
+  {
+    id:'most_likely', term:'MOST likely', ko:'가장 가능성이 높은 (감별진단)',
+    type:'modifier',
+    nuance:'유일하게 가능한 것이 아니라 확률적으로 가장 높은 것. 증상 조합 → 하나의 진단으로 수렴하는 패턴 인식 능력 테스트.',
+    diff_from:'MOST appropriate(중재 선택)와 혼동 금지. MOST likely는 항상 진단/원인/결과를 묻는 맥락.',
+    context:'Patient MOST likely has / The condition MOST likely causing...',
+    examples:[
+      {en:'Bilateral stocking-glove numbness + diminished ankle reflex → MOST likely: peripheral neuropathy', ko:'양측 장갑-양말 분포 이상 + 발목반사 감소 → 가장 가능성 높은 진단: 말초신경병증'},
+      {en:'Bradycardia + cold intolerance + constipation → MOST likely: hypothyroidism', ko:'서맥 + 추위 불내성 + 변비 → 갑상선 기능 저하증'}
+    ]
+  },
+  {
+    id:'best', term:'BEST', ko:'교과서적·근거 기반의 단 하나의 최선',
+    type:'modifier',
+    nuance:'MOST appropriate보다 더 객관적이고 근거 기반. 치료 목적·측정 방법·검사 선택 문제에서 "단 하나의 정답"이 있을 때 사용.',
+    diff_from:'MOST appropriate = 여러 타당한 것 중 맥락 의존적 최선 / BEST = 근거로 정해진 단 하나',
+    context:'Which intervention would BEST produce... / Which is the BEST measure of...',
+    examples:[
+      {en:'Which intervention would BEST produce rapid, lasting changes in tissue length?', ko:'조직 길이에 빠르고 지속적 변화를 가장 잘 만드는 중재?'},
+      {en:'Which dressing is BEST for Stage 3 pressure injury with minimal drainage?', ko:'삼출물이 적은 3단계 압박궤양에 가장 좋은 드레싱?'}
+    ]
+  },
+  {
+    id:'least', term:'LEAST / LEAST appropriate / LEAST likely', ko:'⚠️ 방향 반전! 가장 나쁜/적절하지 않은/가능성 낮은',
+    type:'modifier',
+    nuance:'⚠️ 방향이 완전히 반대! 나머지 3개는 모두 타당하고 딱 하나만 가장 나쁜 것을 고른다. 빠른 독해 시 놓치기 쉬운 함정.',
+    diff_from:'MOST와 반대 방향. 대문자 강조됨 → 문제 읽기 전 MOST인지 LEAST인지 먼저 확인하는 습관 필수!',
+    context:'Which is LEAST appropriate? / Which is LEAST likely to occur?',
+    examples:[
+      {en:'Which intervention is LEAST appropriate 2 weeks post rotator cuff repair?', ko:'회전근개 수술 2주 후 가장 부적절한 중재? → 적극적 저항 운동'},
+      {en:'Which gait deviation is LEAST likely with peroneal nerve palsy?', ko:'비골신경 마비에서 가장 나타나기 어려운 보행 이상?'}
+    ]
+  },
+  {
+    id:'first', term:'FIRST / INITIALLY / NEXT', ko:'가장 먼저 / 초기에 / 그 다음에 — 순서·우선순위',
+    type:'modifier',
+    nuance:'우선순위와 응급 대처 능력 테스트. "바로 치료를 시작한다"는 FIRST 문제에서 거의 항상 오답.',
+    diff_from:'FIRST = 초기 대응 원칙 / NEXT = 현 정보 바탕의 다음 논리적 단계 / INITIALLY = 치료 초기에',
+    context:'What should the therapist do FIRST? / The INITIAL response should be:',
+    examples:[
+      {en:'Before dressing change, therapist should FIRST: perform hand washing', ko:'드레싱 교환 전 치료사가 먼저 할 것: 손 씻기 (기본 중의 기본)'},
+      {en:'Unresponsive adult in staircase → NEXT: activate emergency response system', ko:'계단에서 무반응 성인 발견 → 다음 조치: 응급시스템 활성화'}
+    ]
+  },
+  {
+    id:'primary', term:'PRIMARY / GREATEST / MOST IMPORTANT', ko:'핵심·최우선 — 여러 것 중 가장 본질적인 하나',
+    type:'modifier',
+    nuance:'PRIMARY = 핵심 작용/목적 (부수적 효과 아님) / GREATEST = 위험도·영향도 최고 / MOST IMPORTANT = 우선순위 1위.',
+    diff_from:'secondary benefit(부수적 효과)를 primary purpose로 고르는 함정을 조심. 핵심 메커니즘을 묻는다.',
+    context:'What is the PRIMARY purpose of...? / Which has the GREATEST risk for...?',
+    examples:[
+      {en:'PRIMARY restraint to anteroinferior GH translation: inferior glenohumeral ligament', ko:'전하방 GH 전위의 주된 억제 구조: 하부 관절와상완 인대'},
+      {en:'GREATEST risk for stress urinary incontinence: post multiparous delivery', ko:'복압성 요실금의 가장 큰 위험 인자: 다산 분만 후'}
+    ]
+  }
+],
+verb:[
+  {
+    id:'suspect', term:'suspect', ko:'의심하다 / ~일 것이라고 추론하다',
+    type:'verb',
+    nuance:'아직 확진이 아님. 증상 조합으로 가장 유력한 진단을 추론하는 표현. red flag 발견, 내장 통증 의뢰 여부, 비기계적 통증 판별 문제에서 사용.',
+    diff_from:'indicates(확정적 연결)와 달리 suspect는 추론·가능성 단계. diagnose(진단한다)와도 구별.',
+    context:'The physical therapist should suspect the presence of...',
+    examples:[
+      {en:'Fatigue + blurred vision + excessive thirst → suspect: diabetes mellitus', ko:'피로 + 시야 흐림 + 과도한 갈증 → 당뇨병 의심'},
+      {en:'Pain in anatomical snuffbox after FOOSH → suspect: scaphoid fracture', ko:'손 뻗어 낙상 후 해부학적 코담배갑 통증 → 주상골 골절 의심'}
+    ]
+  },
+  {
+    id:'reports', term:'reports ★', ko:'환자가 호소하다 / 말하다 — 주관적 증상',
+    type:'verb',
+    nuance:'★ 환자가 직접 말하는 주관적 증상에만 사용. PT가 관찰하는 것과 구별. symptoms(주관) vs signs(객관)와 직결.',
+    diff_from:'demonstrates/exhibits/displays = PT가 관찰한 객관적 소견 / reports = 환자가 말한 주관적 호소. 이 구분은 매우 중요!',
+    context:'Patient reports [증상] → 환자가 말함. Therapist notes [소견] → PT가 관찰함.',
+    examples:[
+      {en:'Patient reports bilateral stocking-glove numbness and burning', ko:'환자는 양측 장갑-양말 분포의 저림과 작열감을 호소한다'},
+      {en:'Patient reports fatigue, proximal UE weakness, and double vision', ko:'환자는 피로, 근위부 상지 약화, 복시를 호소한다'}
+    ]
+  },
+  {
+    id:'demonstrate', term:'demonstrate / exhibit / display', ko:'소견을 보이다 / 나타내다 — 객관적 관찰',
+    type:'verb',
+    nuance:'PT 또는 검사자가 관찰할 수 있는 객관적 소견·행동·패턴을 묘사. 환자가 주어일 때도 "관찰 가능한 것"에 사용.',
+    diff_from:'reports(환자가 말하는 주관적 증상)와 반드시 구별. demonstrate > exhibit(격식체) > display(눈에 보이는 행동).',
+    context:'Patient demonstrates limited ROM / Patient exhibits freezing episodes',
+    examples:[
+      {en:'Patient with Parkinson disease exhibits freezing episodes when negotiating turns', ko:'파킨슨 환자가 회전 시 동결 삽화를 나타낸다 — 관찰 가능한 객관적 소견'},
+      {en:'Patient displays apprehension with abduction and full ER', ko:'환자는 외전 및 완전 외회전 시 불안 반응을 보인다'}
+    ]
+  },
+  {
+    id:'indicates', term:'indicates / suggests / is consistent with', ko:'시사한다 / 암시한다 / ~에 부합한다 (강도 차이 있음)',
+    type:'verb',
+    nuance:'소견이 진단을 연결하는 강도: indicates(직접적·강함) > suggests(간접적) > is consistent with(부합·약함). NOT consistent with = LEAST likely와 같은 방향!',
+    diff_from:'indicates = 강한 연결 / consistent with = 이 질환에서 볼 수 있음(보장은 아님). 강도 차이가 선택지 구별의 핵심.',
+    context:'ST displacement indicates MI / Finding consistent with metabolic syndrome',
+    examples:[
+      {en:'ST-segment displacement indicates acute myocardial infarction', ko:'ST분절 변위 → 급성 심근경색을 직접적으로 나타냄 (indicates = 강한 연결)'},
+      {en:'Triglyceride 135 mg/dL is consistent with low risk for metabolic syndrome', ko:'중성지방 135mg/dL는 대사증후군 저위험에 부합함 (consistent with = 부합, 가능)'}
+    ]
+  },
+  {
+    id:'refer', term:'refer / refer back to physician', ko:'의뢰하다 / 의사에게 재의뢰하다',
+    type:'verb',
+    nuance:'refer back to physician = red flag 발견 시 정답으로 자주 등장. PT 범위를 벗어난 상황에서 의사에게 돌려보내는 것. contact physician보다 더 공식적.',
+    diff_from:'contact the physician(연락) < refer back(재의뢰) 순으로 심각도 높음. activate ERS(응급시스템)은 즉각 생명위협 상황.',
+    context:'Therapist should refer the patient back to the physician for...',
+    examples:[
+      {en:'New neurological symptoms not previously noted → refer back to physician', ko:'이전에 없던 새로운 신경학적 증상 → 의사에게 재의뢰'},
+      {en:'Findings suggest systemic disease → contact the physician before continuing', ko:'전신 질환 시사 소견 → 치료 계속 전 의사에게 연락'}
+    ]
+  },
+  {
+    id:'note', term:'note / notice / observe', ko:'치료사가 발견하다 / 관찰하다',
+    type:'verb',
+    nuance:'therapist가 주어일 때 사용하는 관찰 동사. 검사 중 PT가 능동적으로 발견·관찰하는 객관적 소견 묘사.',
+    diff_from:'patient reports(환자 말함) vs therapist notes(PT 관찰). 주어가 누구인지에 따라 동사가 달라짐.',
+    context:'During examination, the therapist notes / notices...',
+    examples:[
+      {en:'Therapist notices severe clubbing of the fingernails → investigate for lung pathology', ko:'치료사가 심한 손가락 곤봉 변형을 발견 → 폐 병변 조사'},
+      {en:'During gait training, therapist notes abnormal hip drop on the left side', ko:'보행 훈련 중 치료사가 왼쪽 고관절 하강을 관찰'}
+    ]
+  }
+],
+phrase:[
+  {
+    id:'at_risk', term:'at risk for ~', ko:'~의 위험에 처해 있다 / ~의 위험 인자를 가진다',
+    type:'phrase',
+    nuance:'위험 인자(risk factor) 지식을 테스트하는 표현. 주로 "at GREATEST risk for X" 형태로 출제. 어떤 환자군이 특정 질환에 가장 취약한지 묻는다.',
+    diff_from:'associated with risk와 유사하지만 at risk for가 더 직접적. GREATEST와 함께 쓰이면 위험도 1위를 묻는 것.',
+    context:'Which patient is at GREATEST risk for developing...?',
+    examples:[
+      {en:'Post multiparous delivery → GREATEST risk for stress urinary incontinence', ko:'다산 분만 후 → 복압성 요실금 발생 위험이 가장 높음'},
+      {en:'Long-term corticosteroid use → at risk for osteoporosis', ko:'장기 스테로이드 사용 → 골다공증 위험'}
+    ]
+  },
+  {
+    id:'absence_of', term:'in the absence of ~', ko:'~이 없는 상황에서 / ~이 없을 때',
+    type:'phrase',
+    nuance:'특정 조건이 없는 상태를 전제하는 표현. 의미를 반대로 읽을 수 있어 함정이 됨. "in the absence of pain" = 통증 없이.',
+    diff_from:'with X(X가 있는 상태)와 정반대. "in the absence of ischemic changes" = 허혈 변화 없을 때 → 적응증이 달라짐.',
+    context:'A drop in BP in the absence of symptoms is a relative indication',
+    examples:[
+      {en:'BP drop of 10 mmHg in the absence of ischemic changes = relative (not absolute) indication', ko:'허혈 변화 없이 BP 10mmHg 하강 = 상대적 (절대적X) 적응증'},
+      {en:'Improvement in strength in the absence of pain = good prognosis', ko:'통증 없이 근력 향상 = 좋은 예후'}
+    ]
+  },
+  {
+    id:'status_post', term:'status post ~ (s/p)', ko:'~ 이후의 상태 / ~을 받은 후',
+    type:'phrase',
+    nuance:'의무기록 필수 표현. "s/p THA" = THA를 시행받은 후의 환자. 과거 시술/수술을 간결하게 표현.',
+    diff_from:'post- 접두사(post-op, post-surgical)와 같은 맥락. 면허 시험에서 배경 정보로 자주 등장.',
+    context:'Patient is s/p total hip arthroplasty with posterolateral approach',
+    examples:[
+      {en:'Patient is status post THA via posterolateral approach — 2 weeks post-op', ko:'환자는 후외측 접근 THA 시술 2주 후 상태'},
+      {en:'s/p CVA with left hemiplegia — referred for gait training', ko:'좌측 편마비를 동반한 뇌졸중 후 상태 — 보행 훈련으로 의뢰'}
+    ]
+  },
+  {
+    id:'secondary_to', term:'secondary to ~', ko:'~ 때문에 / ~로 인한 / ~의 결과로 (원인 표현)',
+    type:'phrase',
+    nuance:'인과관계를 표현하는 의료 문서 필수 표현. "weakness secondary to femoral nerve injury" = 대퇴신경 손상으로 인한 근력 약화.',
+    diff_from:'due to와 동일한 의미지만 의무기록에서는 secondary to가 더 공식적. 원인이 뒤에 온다는 어순 주의.',
+    context:'Weakness secondary to nerve lesion / Decreased ROM secondary to joint effusion',
+    examples:[
+      {en:'Quadriceps weakness secondary to femoral nerve lesion', ko:'대퇴신경 병변으로 인한 사두근 약화'},
+      {en:'Limited cervical ROM secondary to muscle guarding', ko:'근육 보호 반응으로 인한 경추 ROM 제한'}
+    ]
+  },
+  {
+    id:'signs_symptoms', term:'signs and symptoms', ko:'징후(객관) + 증상(주관) = 전체 임상 양상',
+    type:'phrase',
+    nuance:'signs = 객관적 소견(PT가 관찰·측정하는 것) / symptoms = 주관적 호소(환자가 말하는 것). 함께 쓰이면 전체 임상 양상.',
+    diff_from:'signs만 = objective(객관) / symptoms만 = subjective(주관). "patient reports" → symptom / "therapist notes" → sign.',
+    context:'Signs and symptoms of exertional intolerance / cardiac decompensation',
+    examples:[
+      {en:'Signs: elevated BP, visible edema, cyanosis / Symptoms: dyspnea, chest pain, fatigue', ko:'징후: 혈압 상승, 부종, 청색증 / 증상: 호흡 곤란, 흉통, 피로'},
+      {en:'Educate on signs and symptoms of DVT: unilateral swelling + pain + warmth', ko:'DVT 징후와 증상 교육: 편측 부종 + 통증 + 열감'}
+    ]
+  },
+  {
+    id:'insidious', term:'insidious onset vs. sudden onset', ko:'서서히 발병(외상 없음) vs 갑자기 발병',
+    type:'phrase',
+    nuance:'insidious = 점진적·외상 없음 → 과사용/퇴행/전신 원인. sudden = 갑작스럽게 → 외상/혈관/응급 원인. 발병 양식이 감별진단의 핵심 단서.',
+    diff_from:'acute onset(갑자기)과 insidious onset(서서히)은 완전히 다른 원인군을 가리킴. onset 방식이 선택지를 좁히는 첫 번째 단서.',
+    context:'Patient reports shoulder pain of insidious onset → non-traumatic cause',
+    examples:[
+      {en:'14-year-old baseball pitcher, insidious onset shoulder pain + apprehension → atraumatic instability', ko:'14세 야구 투수, 서서히 생긴 어깨 통증 + 불안 반응 → 비외상성 불안정성'},
+      {en:'Sudden onset severe headache = "thunderclap headache" → subarachnoid hemorrhage until proven otherwise', ko:'갑작스러운 심한 두통 = 번개두통 → 거미막하 출혈 배제 필요'}
+    ]
+  },
+  {
+    id:'radiating', term:'radiating vs. nonradiating pain', ko:'방사통 vs. 국소통',
+    type:'phrase',
+    nuance:'radiating = 한 곳에서 다른 부위로 뻗치는 통증 → 신경근 자극 시사. nonradiating = 국소에 머무는 통증 → 국소 조직 병변. 방향이 병변 레벨 추론의 핵심.',
+    diff_from:'referred pain(연관통 — 내장 병변)과 radicular pain(신경근통)도 구별 필요. radiating의 방향이 어떤 신경인지 단서.',
+    context:'Patient reports radiating pain down the lateral leg to the dorsum of foot → L4-L5',
+    examples:[
+      {en:'Nonradiating low back pain + step-off on palpation → spondylolisthesis (local, not neural)', ko:'방사통 없는 요통 + 계단 변형 → 척추전방전위증 (신경 아님, 구조적)'},
+      {en:'Radiating pain from neck to thumb side → C6 radiculopathy likely', ko:'목에서 엄지 방향으로 방사통 → C6 신경근병증 가능성'}
+    ]
+  }
+],
+trap:[
+  {
+    id:'least_not', term:'LEAST / NOT appropriate / AVOID / EXCEPT', ko:'⚠️ 방향 반전 함정 — 나쁜 것, 틀린 것을 고른다',
+    type:'trap',
+    nuance:'⚠️ 방향이 반대! LEAST appropriate = 나쁜 하나 / NOT appropriate = 해서는 안 됨 / EXCEPT = 나머지 3개는 맞고 하나만 틀림. 빠른 독해 시 놓치기 쉬운 최대 함정.',
+    diff_from:'MOST/BEST와 방향이 정반대. 대문자로 강조되므로 문제 읽기 전 반드시 방향 확인 습관!',
+    context:'All EXCEPT / Which is NOT indicated / Which should be AVOIDED',
+    examples:[
+      {en:'Which intervention is LEAST appropriate 2 wks post-op? → aggressive resistive exercise', ko:'수술 2주 후 가장 부적절한 것? → 적극적 저항 운동 (LEAST = 나쁜 것 선택)'},
+      {en:'All of the following are TRUE, EXCEPT: → find the false one', ko:'다음 중 옳은 것은 모두 고르시오, 단 하나 제외하고 → 틀린 하나 찾기'}
+    ]
+  },
+  {
+    id:'positive_test', term:'positive test result ★', ko:'⚠️ 검사 양성 = 병변이 있음 (좋은 것이 아님!)',
+    type:'trap',
+    nuance:'의학에서 positive ≠ 좋은 것! positive test = 의심 병변이 있음을 시사. negative = 병변 없음(정상). 일상 영어와 반대 의미여서 함정이 됨.',
+    diff_from:'일상 영어: positive = 좋은 것 / 의학: positive test = 비정상 소견 발견. "radiograph is negative" = 골절 없음(정상).',
+    context:'Positive Lachman test / Positive Hawkins-Kennedy / Radiograph negative',
+    examples:[
+      {en:'Positive Lachman test → ACL integrity compromised (병변 있음)', ko:'라크만 검사 양성 → ACL 손상 의심 (positive = 이상 소견)'},
+      {en:'Radiograph is negative for fracture = no fracture found (정상)', ko:'방사선 검사 골절 음성 = 골절 없음 (negative = 정상)'}
+    ]
+  },
+  {
+    id:'phase', term:'acute / subacute / chronic phase', ko:'급성기 / 아급성기 / 만성기 — 단계별 허용 중재가 다름',
+    type:'trap',
+    nuance:'acute(48-72h) = 염증 최고조, aggressive exercise 금지 / subacute(수일-수주) = 점진적 시작 / chronic(수주+) = 최대 부하 허용. 시기를 잘못 읽으면 오답.',
+    diff_from:'post-op 날짜 표현(2 weeks post, 4 weeks post)도 같은 맥락. 언제인지가 허용 중재를 결정.',
+    context:'Patient is in the acute phase / 2 weeks post rotator cuff repair',
+    examples:[
+      {en:'Acute phase: RICE, gentle PROM — aggressive stretching CONTRAINDICATED', ko:'급성기: 냉찜질, 가벼운 수동 ROM — 적극적 신장 금기'},
+      {en:'Chronic phase: progressive strengthening, full loading permitted', ko:'만성기: 점진적 강화 운동, 완전 부하 허용'}
+    ]
+  },
+  {
+    id:'assist_level', term:'independent / MinA / ModA / MaxA / dependent', ko:'자립도 단계 — 도움의 정도를 정확히 구분',
+    type:'trap',
+    nuance:'MinA = 25% 이하 도움 / ModA = 25-75% / MaxA = 75% 이상 / dependent = 100%. supervision(S) = 신체 도움 없이 옆에서 감독만.',
+    diff_from:'supervision ≠ assistance. 감독만 하는 것과 신체적 도움을 주는 것은 다름. 숫자 기준 암기 필요.',
+    context:'Patient requires MinA for transfers / ModA for ambulation',
+    examples:[
+      {en:'MinA for sit-to-stand: therapist provides <25% of effort', ko:'일어서기 최소 도움: 치료사가 25% 미만 노력 제공'},
+      {en:'Supervision only: patient can perform independently, therapist just watches', ko:'감독만: 환자 혼자 수행 가능, 치료사는 지켜보기만'}
+    ]
+  },
+  {
+    id:'wbstatus', term:'NWB / PWB / WBAT / FWB', ko:'체중 부하 단계 — 발에 얼마나 체중을 실을 수 있는가',
+    type:'trap',
+    nuance:'NWB = 발 닿지 않음 / PWB = 부분 허용 / WBAT = 참을 수 있는 만큼 / FWB = 완전. 수술 후 의사 처방에 따라 결정. 단계별 허용 운동이 달라짐.',
+    diff_from:'WBAT는 얼마나 실을지 환자 반응 따라 조절. PWB는 보통 % 또는 kg으로 지정. 혼동하기 쉬움.',
+    context:'Post-op orders: NWB on surgical extremity for 6 weeks',
+    examples:[
+      {en:'NWB: crutches required, foot never touches ground', ko:'NWB: 목발 필요, 발이 절대 바닥에 닿으면 안 됨'},
+      {en:'WBAT: patient puts as much weight as comfortable — PT monitors for pain', ko:'WBAT: 편안한 만큼 체중 허용 — PT가 통증 모니터링'}
+    ]
+  },
+  {
+    id:'reflex', term:'hyperreflexia vs. diminished/absent reflex', ko:'항진된 반사 vs. 감소/소실된 반사 — UMN vs LMN 구별의 핵심',
+    type:'trap',
+    nuance:'hyperreflexia = UMN 병변(뇌, 척수) / diminished or absent reflex = LMN 또는 말초신경 병변. DTR 방향이 병변 위치를 가리킴.',
+    diff_from:'UMN: hyperreflexia + spasticity + Babinski+ / LMN: hyporeflexia + flaccidity + fasciculation. 두 패턴이 반드시 구분되어야.',
+    context:'Diminished DTR at ankle + weakness in foot = LMN / peripheral nerve lesion',
+    examples:[
+      {en:'Hyperreflexia + spasticity + positive Babinski → UMN lesion (brain or spinal cord)', ko:'과반사 + 경직 + 바빈스키 양성 → UMN 병변 (뇌 또는 척수)'},
+      {en:'Diminished ankle reflex + foot drop + stocking distribution → LMN/peripheral nerve', ko:'발목반사 감소 + 발처짐 + 양말 분포 이상 → LMN/말초신경'}
+    ]
+  }
+],
+
+// ============================================================
+// NEW GROUP A — 증상 묘사 동사 (presents with / reveals / complains of)
+// ============================================================
+symptom:[
+  {
+    id:'presents_with', term:'presents with', ko:'~을 주소로 내원하다 / ~증상을 보이다',
+    type:'symptom',
+    nuance:'환자가 처음 나타날 때의 주된 증상·상태를 묘사. "병원에 왔을 때 어떤 상태였나"를 설정하는 표현. 문제 지문 첫 줄에 자주 등장.',
+    diff_from:'reports(환자가 말하는 주관적 증상)와 달리 presents with는 전체적인 임상 양상 설정. demonstrates(관찰 소견)보다 포괄적.',
+    context:'A patient presents with limited wrist extension / presents with bilateral lower extremity edema',
+    siblings:[
+      {term:'comes in with', ko:'~을 가지고 내원하다 (구어적)'},
+      {term:'is referred with', ko:'~로 의뢰되다'},
+      {term:'is seen for', ko:'~로 진료를 받다'},
+      {term:'has a chief complaint of', ko:'주소(主訴)가 ~이다'},
+      {term:'is admitted with', ko:'~로 입원하다'},
+    ],
+    examples:[
+      {en:'A patient presents with limited wrist extension ROM following a Colles fracture.', ko:'환자는 Colles 골절 후 손목 신전 ROM 제한을 주소로 내원한다.'},
+      {en:'A patient presents with bilateral lower extremity edema and dyspnea on exertion.', ko:'환자는 양측 하지 부종과 운동 시 호흡 곤란을 주소로 내원한다.'}
+    ]
+  },
+  {
+    id:'reveals', term:'reveals', ko:'(검사/영상이) 소견을 보여주다 / 밝혀주다',
+    type:'symptom',
+    nuance:'검사(examination)·영상(imaging)·결과(result)가 주어일 때 사용. 사람이 주어가 아님! "reveals" = 검사가 정보를 드러내 준다.',
+    diff_from:'reports(환자가 말함) / notes(PT가 관찰) / reveals(검사·영상·결과가 보여줌). 주어에 따라 동사가 달라짐.',
+    context:'Radiograph reveals / Assessment reveals / MRI reveals / Examination reveals',
+    siblings:[
+      {term:'shows', ko:'보여주다 (reveals보다 구어적, 영상에 자주)'},
+      {term:'demonstrates', ko:'(검사가) 나타내다'},
+      {term:'indicates', ko:'(소견이) ~을 나타내다 / 시사하다'},
+      {term:'is positive for', ko:'~에 대해 양성이다 (검사 결과)'},
+      {term:'is negative for', ko:'~에 대해 음성이다 (검사 결과)'},
+      {term:'is suggestive of', ko:'~을 시사한다 (간접적·약한 연결)'},
+      {term:'is diagnostic of', ko:'~에 진단적이다 (강한 확진 연결)'},
+    ],
+    examples:[
+      {en:'Radiograph reveals no fracture. (= is negative for fracture)', ko:'방사선 검사 결과 골절 없음.'},
+      {en:'Examination reveals increased lumbar lordosis and shortened hip flexors.', ko:'검사 결과 요추 전만 증가 및 단축된 고관절 굴곡근이 나타남.'},
+      {en:'MRI reveals a partial thickness rotator cuff tear.', ko:'MRI 결과 부분 두께 회전근개 파열이 보임.'}
+    ]
+  },
+  {
+    id:'complains_of', term:'complains of', ko:'호소하다 / 불편감을 말하다',
+    type:'symptom',
+    nuance:'"reports"와 거의 같은 뜻이지만 뉘앙스 차이가 있음. complains of = 불편감·고통을 강조. reports = 중립적 서술. 시험에서는 두 표현 모두 "주관적 증상"으로 처리.',
+    diff_from:'reports(중립적 서술) vs complains of(불편·고통 강조). 의미는 거의 같지만 complains of가 더 감정적 뉘앙스. 둘 다 환자가 말하는 주관적 증상.',
+    context:'Patient complains of numbness and burning in both feet',
+    siblings:[
+      {term:'reports', ko:'(중립적) 환자가 말하다 / 호소하다'},
+      {term:'describes', ko:'(증상을) 묘사하다'},
+      {term:'states', ko:'(직접) 말하다 / 진술하다'},
+      {term:'denies', ko:'부정하다 — "환자는 ~이 없다고 함" (중요!)'},
+      {term:'endorses', ko:'(증상을) 인정하다 / 그렇다고 하다'},
+    ],
+    examples:[
+      {en:'Patient complains of numbness, burning, and paresthesias in both feet.', ko:'환자는 양발의 저림, 작열감, 이상감각을 호소한다.'},
+      {en:'Patient complains of increased pain with prolonged sitting.', ko:'환자는 장시간 앉아 있을 때 통증 증가를 호소한다.'},
+      {en:'Patient denies any numbness or tingling. (부정 표현!)', ko:'환자는 저림이나 따끔거림이 없다고 부정한다.'}
+    ]
+  }
+],
+
+// ============================================================
+// NEW GROUP B — 임상 기능 동사 (facilitate / inhibit / exacerbate / compensate)
+// ============================================================
+clinical_verb:[
+  {
+    id:'facilitate', term:'facilitate', ko:'촉진하다 / 쉽게 하다 / 가능하게 하다',
+    type:'clinical_verb',
+    nuance:'일상 영어에서도 쓰이지만 PT에서는 특히 "신경근 촉진" 또는 "기능 향상을 돕는다"는 의미로 자주. "facilitate movement" = 움직임을 촉진하다.',
+    diff_from:'enable(가능하게 하다) / promote(증진하다) / enhance(향상하다) / assist(돕다). facilitate = 과정을 쉽게 만들어주는 것.',
+    context:'Which technique will BEST facilitate active terminal knee extension?',
+    siblings:[
+      {term:'promote', ko:'촉진하다 / 증진하다 (더 일반적)'},
+      {term:'enhance', ko:'향상시키다 (질적 향상 강조)'},
+      {term:'improve', ko:'개선하다 (가장 일반적)'},
+      {term:'enable', ko:'가능하게 하다 (능력 부여)'},
+      {term:'assist', ko:'돕다 (외부의 도움)'},
+      {term:'optimize', ko:'최적화하다'},
+    ],
+    examples:[
+      {en:'Which mobilization will BEST facilitate patellar glide?', ko:'어떤 가동술이 슬개골 활주를 가장 잘 촉진하는가?'},
+      {en:'Visual cues facilitate movement initiation in Parkinson disease.', ko:'시각적 단서는 파킨슨병에서 움직임 시작을 촉진한다.'}
+    ]
+  },
+  {
+    id:'inhibit', term:'inhibit', ko:'억제하다 / 방해하다',
+    type:'clinical_verb',
+    nuance:'신경학적으로 "억제"하거나 기능을 "저하"시키는 것. "inhibit spasticity" = 경직을 억제. 약리학에서도 자주: "ACE inhibitor" = ACE를 억제하는 약물.',
+    diff_from:'prevent(예방하다) / restrict(제한하다) / limit(한정하다) / suppress(억누르다). inhibit = 활성을 줄이거나 막는 것.',
+    context:'Which technique inhibits muscle tone? / ACE inhibitor medication',
+    siblings:[
+      {term:'suppress', ko:'억누르다 / 억제하다 (더 강한 억제)'},
+      {term:'restrict', ko:'제한하다 (범위를 좁히다)'},
+      {term:'limit', ko:'한정하다 / 제한하다'},
+      {term:'prevent', ko:'예방하다 / 막다'},
+      {term:'reduce', ko:'감소시키다'},
+      {term:'decrease', ko:'줄이다 (수치 감소)'},
+    ],
+    examples:[
+      {en:'Weight bearing inhibits spasticity in the lower extremity.', ko:'체중 부하는 하지 경직을 억제한다.'},
+      {en:'Patient is taking an ACE inhibitor for hypertension.', ko:'환자는 고혈압으로 ACE 억제제를 복용 중이다.'}
+    ]
+  },
+  {
+    id:'exacerbate', term:'exacerbate', ko:'악화시키다 / 심화시키다',
+    type:'clinical_verb',
+    nuance:'증상이나 상태를 더 나쁘게 만드는 것. "exacerbated by activity" = 활동으로 악화됨. "aggravate"와 거의 동의어지만 exacerbate가 더 격식체.',
+    diff_from:'aggravate(악화시키다, 구어적) / worsen(나빠지다) / intensify(심해지다) / increase(증가하다). exacerbate = 이미 있는 상태를 더 나쁘게.',
+    context:'Pain is exacerbated with activity / What exacerbates the symptoms?',
+    siblings:[
+      {term:'aggravate', ko:'악화시키다 (exacerbate의 구어적 표현)'},
+      {term:'worsen', ko:'나빠지다 / 악화되다 (자동사)'},
+      {term:'intensify', ko:'심해지다 / 강해지다'},
+      {term:'provoke', ko:'유발하다 / 촉발하다'},
+      {term:'precipitate', ko:'촉발하다 (갑작스러운 악화)'},
+      {term:'increase', ko:'증가하다 (수치적 증가)'},
+    ],
+    examples:[
+      {en:'Pain is exacerbated over the styloid process when closing the fist.', ko:'주먹을 쥘 때 경상돌기 부위의 통증이 악화된다.'},
+      {en:'Which positions exacerbate the patient\'s symptoms?', ko:'어떤 자세가 환자의 증상을 악화시키는가?'}
+    ]
+  },
+  {
+    id:'compensate', term:'compensate (for)', ko:'보상하다 / 대신하다 / 대체 움직임을 쓰다',
+    type:'clinical_verb',
+    nuance:'PT에서 특히 중요: 약한 근육이나 제한된 ROM을 다른 동작으로 "대체"하는 것. "compensatory gait pattern" = 보상성 보행 패턴. compensation = 보상 동작.',
+    diff_from:'substitute(대체하다, 다른 근육이 대신 수축) / accommodate(적응하다) / adapt(적응하다). compensate = 결손을 메우기 위한 대체 전략.',
+    context:'Patient compensates for hip abductor weakness with Trendelenburg gait',
+    siblings:[
+      {term:'substitute', ko:'대체하다 — 다른 근육이 약한 근육 대신 수축 (MMT에서 중요)'},
+      {term:'accommodate', ko:'수용하다 / 맞추다'},
+      {term:'adapt', ko:'적응하다'},
+      {term:'modify', ko:'수정하다 / 변형하다'},
+      {term:'recruit', ko:'동원하다 (근육을 동원)'},
+    ],
+    examples:[
+      {en:'Patient compensates for gluteus medius weakness with lateral trunk lean (Trendelenburg).', ko:'환자는 중둔근 약화를 외측 체간 기울기(트렌델렌버그)로 보상한다.'},
+      {en:'Therapist observes substitution by the tibialis posterior during MMT.', ko:'MMT 중 치료사는 후경골근에 의한 대체를 관찰한다.'}
+    ]
+  },
+  {
+    id:'alleviate', term:'alleviate', ko:'완화하다 / 줄이다',
+    type:'clinical_verb',
+    nuance:'증상(통증, 부종, 불편감)을 일부 줄이는 것. "완전히 없애다(eliminate/resolve)"가 아니라 "줄이다"의 뉘앙스. 부분적 경감.',
+    diff_from:'relieve(완화하다, alleviate와 거의 동의어) / reduce(줄이다) / eliminate(완전히 없애다) / resolve(해결하다, 완전히). alleviate = 부분적 경감.',
+    context:'Which position would BEST alleviate the patient\'s symptoms?',
+    siblings:[
+      {term:'relieve', ko:'완화하다 / 경감하다 (alleviate와 동의어)'},
+      {term:'reduce', ko:'감소시키다 (수치적)'},
+      {term:'minimize', ko:'최소화하다'},
+      {term:'eliminate', ko:'완전히 없애다 (alleviate보다 강함)'},
+      {term:'resolve', ko:'해결하다 / 완전히 사라지다'},
+      {term:'manage', ko:'관리하다 (완전 제거보다 조절)'},
+    ],
+    examples:[
+      {en:'Which intervention would BEST alleviate the patient\'s low back pain?', ko:'어떤 중재가 환자의 요통을 가장 잘 완화하는가?'},
+      {en:'Ice application helps alleviate acute inflammation.', ko:'냉찜질은 급성 염증을 완화하는 데 도움이 된다.'}
+    ]
+  }
+],
+
+// ============================================================
+// NEW GROUP C — 시간·순서 표현 (prior to / in order to / at this time / weeks post)
+// ============================================================
+time_seq:[
+  {
+    id:'prior_to', term:'prior to', ko:'~ 이전에 / ~ 하기 전에',
+    type:'time_seq',
+    nuance:'"before"와 같은 뜻이지만 의료·법률 문서에서는 prior to가 더 격식적·공식적. 시험에서는 "prior to initiating treatment" = 치료 시작 전에.',
+    diff_from:'before(구어적, 격식 낮음) / preceding(앞서는, 형용사적) / previous to(드물게 사용). prior to = 공식적 표현.',
+    context:'Prior to initiating / Prior to discharge / Prior to beginning the session',
+    siblings:[
+      {term:'before', ko:'~ 전에 (가장 일반적, 구어적)'},
+      {term:'preceding', ko:'~ 앞서는 (형용사: the preceding session)'},
+      {term:'previous to', ko:'~ 이전에 (드물게 사용)'},
+      {term:'in advance of', ko:'~ 에 앞서서'},
+      {term:'ahead of', ko:'~ 보다 먼저'},
+    ],
+    examples:[
+      {en:'Prior to initiating treatment, the therapist must obtain informed consent.', ko:'치료 시작 전에 치료사는 사전 동의를 받아야 한다.'},
+      {en:'Which assessment is MOST critical prior to the home visit?', ko:'가정 방문 전 가장 중요한 평가는?'}
+    ]
+  },
+  {
+    id:'subsequent_to', term:'subsequent to', ko:'~ 이후에 / ~ 다음에',
+    type:'time_seq',
+    nuance:'"after"의 격식 표현. 원인-결과 관계보다는 순서·시간적 선후 관계를 표현. "secondary to"(원인)와 혼동하지 말 것.',
+    diff_from:'after(구어적) / following(공식적, subsequent to와 유사) / secondary to(원인 표현, 혼동 주의!). subsequent to = 시간 순서만 표현.',
+    context:'Subsequent to the procedure / Subsequent to discharge',
+    siblings:[
+      {term:'after', ko:'~ 후에 (가장 일반적)'},
+      {term:'following', ko:'~ 다음에 (공식적, subsequent to와 유사)'},
+      {term:'upon', ko:'~ 직후에 (upon completion = 완료 직후)'},
+      {term:'post-', ko:'~ 후 (접두사: post-op, post-surgical)'},
+      {term:'secondary to ⚠️', ko:'혼동 주의! secondary to = 원인 표현 (~ 때문에)'},
+    ],
+    examples:[
+      {en:'Subsequent to the glenohumeral dislocation, the patient reports weakness.', ko:'관절와상완 탈구 이후 환자는 약화를 호소한다.'},
+      {en:'Patient is to be discharged subsequent to achieving functional ambulation.', ko:'환자는 기능적 보행 달성 후 퇴원 예정이다.'}
+    ]
+  },
+  {
+    id:'in_order_to', term:'in order to', ko:'~하기 위해 / ~을 위한 목적으로',
+    type:'time_seq',
+    nuance:'목적을 나타내는 표현. "to" 단독보다 목적을 더 명확히 강조. 문제 지문에서 치료사의 의도나 목적을 설명할 때 자주 등장.',
+    diff_from:'to(단순 부정사) / so as to(격식, 드물게) / so that(주어가 달라질 때) / for the purpose of(가장 격식). in order to = 목적 강조.',
+    context:'In order to unlock the knee / In order to BEST achieve...',
+    siblings:[
+      {term:'to (V)', ko:'~하기 위해 (가장 간결)'},
+      {term:'so as to', ko:'~하기 위해 (격식체)'},
+      {term:'for the purpose of', ko:'~의 목적으로 (가장 격식적)'},
+      {term:'with the goal of', ko:'~를 목표로'},
+      {term:'in an effort to', ko:'~하려는 노력으로'},
+      {term:'so that', ko:'~할 수 있도록 (뒤에 주어+동사)'},
+    ],
+    examples:[
+      {en:'In order to unlock the knee from terminal extension, the popliteus must externally rotate the tibia.', ko:'무릎을 종말 신전에서 잠금 해제하기 위해 슬와근이 경골을 외회전해야 한다.'},
+      {en:'Which intervention is MOST appropriate in order to improve hip abductor strength?', ko:'고관절 외전근 근력 향상을 위해 가장 적절한 중재는?'}
+    ]
+  },
+  {
+    id:'at_this_time', term:'at this time', ko:'현 시점에서 / 지금 이 단계에서',
+    type:'time_seq',
+    nuance:'NPTE 시험에서 매우 중요! "LEAST appropriate AT THIS TIME" = 지금 이 단계에서 가장 부적절한 것. "at this time"이 있으면 시기(수술 후 몇 주인지, 급성기인지)가 정답을 결정.',
+    diff_from:'currently(현재) / at present(현재) / now(지금). at this time은 특히 "치료 단계·시기"를 강조.',
+    context:'LEAST appropriate at this time / MOST appropriate at this time',
+    siblings:[
+      {term:'currently', ko:'현재 (상태 설명)'},
+      {term:'at present', ko:'현재로서는'},
+      {term:'at this stage', ko:'이 단계에서 (at this time과 동의어)'},
+      {term:'at this point', ko:'이 시점에서'},
+      {term:'now', ko:'지금 (구어적)'},
+    ],
+    examples:[
+      {en:'Which intervention is LEAST appropriate at this time? (2 weeks post-op)', ko:'현 시점(수술 2주 후)에서 가장 부적절한 중재는?'},
+      {en:'At this time, the patient is ready to progress to gait training.', ko:'현 시점에서 환자는 보행 훈련으로 진행할 준비가 되었다.'}
+    ]
+  },
+  {
+    id:'weeks_post', term:'N weeks post / post-op day N', ko:'수술/처치 후 N주 / 수술 후 N일',
+    type:'time_seq',
+    nuance:'수술·처치 후 경과 시간 표현. 이 시기가 허용 가능한 중재를 결정하는 핵심 단서. "12 weeks post fracture" = 골절 후 12주 상태.',
+    diff_from:'s/p (status post): 수술 후 상태 자체를 나타냄. N weeks post: 시간 경과를 구체적으로 명시. 두 표현이 함께 쓰이기도 함.',
+    context:'Patient is 2 weeks post rotator cuff repair / Post-op day 3',
+    siblings:[
+      {term:'postoperative day N', ko:'수술 후 N일째 (POD N)'},
+      {term:'N weeks following surgery', ko:'수술 후 N주 뒤'},
+      {term:'N weeks after the procedure', ko:'시술 후 N주 뒤'},
+      {term:'s/p surgery by N weeks', ko:'수술 후 N주 경과 상태'},
+      {term:'immediate post-op', ko:'수술 직후'},
+    ],
+    examples:[
+      {en:'Patient is 2 weeks post rotator cuff repair. Which intervention is LEAST appropriate?', ko:'환자는 회전근개 복원술 후 2주 경과. 가장 부적절한 중재는?'},
+      {en:'A patient is 12 weeks post talus fracture and has a chief complaint of catching.', ko:'환자는 거골 골절 후 12주 경과, 주소는 걸림 증상.'}
+    ]
+  }
+],
+
+// ============================================================
+// NEW GROUP D — 비교·대조 표현 (compared to / rather than / as opposed to)
+// ============================================================
+comparison:[
+  {
+    id:'compared_to', term:'compared to / compared with', ko:'~에 비해 / ~와 비교하면',
+    type:'comparison',
+    nuance:'두 대상을 비교할 때 사용. "compared to"는 유사한 것끼리 비교할 때, "compared with"는 차이를 강조할 때라는 구분이 있으나 시험에서는 혼용.',
+    diff_from:'in comparison to(더 격식) / relative to(~에 상대적으로) / versus / vs.(약자). 모두 "~에 비해"의 의미.',
+    context:'Improved outcomes compared to standard treatment / Compared to the contralateral side',
+    siblings:[
+      {term:'in comparison to', ko:'~와 비교하여 (더 격식적)'},
+      {term:'relative to', ko:'~에 상대적으로'},
+      {term:'versus (vs.)', ko:'~대(對) ~'},
+      {term:'in contrast to', ko:'~와 대조적으로 (차이 강조)'},
+      {term:'as opposed to', ko:'~와는 반대로 / ~에 비해 (대립 강조)'},
+    ],
+    examples:[
+      {en:'Patients showed improved outcomes compared to those who received standard care only.', ko:'환자들은 표준 치료만 받은 환자들에 비해 향상된 결과를 보였다.'},
+      {en:'Compared to the contralateral limb, strength is reduced by 30%.', ko:'반대편 사지에 비해 근력이 30% 감소했다.'}
+    ]
+  },
+  {
+    id:'rather_than', term:'rather than', ko:'~보다는 / ~ 대신에 (선호 표현)',
+    type:'comparison',
+    nuance:'두 옵션 중 하나를 선택할 때 사용. "A rather than B" = B 대신 A를 선택. 치료 선택 이유나 임상 결정의 근거를 설명할 때 자주.',
+    diff_from:'instead of(단순 대체) / as opposed to(대립 강조) / over(~보다 선호). rather than = 더 나은 것을 선택하는 뉘앙스.',
+    context:'Use isotonic exercise rather than isometric / Refer rather than treat',
+    siblings:[
+      {term:'instead of', ko:'~ 대신에 (단순 대체, rather than보다 중립적)'},
+      {term:'as opposed to', ko:'~와는 반대로 (대립·대조 강조)'},
+      {term:'in place of', ko:'~ 대신에 (대체)'},
+      {term:'over', ko:'~보다 (선호: prefer A over B)'},
+      {term:'in lieu of', ko:'~ 대신에 (격식체)'},
+    ],
+    examples:[
+      {en:'Therapist recommends lifestyle modifications rather than prescribing medication.', ko:'치료사는 약물 처방보다 생활 습관 개선을 권고한다.'},
+      {en:'Use an arm ergometer rather than a treadmill due to lower extremity injury.', ko:'하지 손상으로 인해 트레드밀 대신 팔 에르고미터를 사용한다.'}
+    ]
+  },
+  {
+    id:'as_opposed_to', term:'as opposed to', ko:'~와는 반대로 / ~와 대조적으로',
+    type:'comparison',
+    nuance:'"rather than"보다 대립·대조를 더 강하게 강조. 두 선택지가 서로 반대되거나 대조적인 상황을 부각. 왜 다른 것이 아닌 이것인지 이유 설명에 사용.',
+    diff_from:'rather than(선호 표현) / instead of(단순 대체) / in contrast to(중립적 대조). as opposed to = 반대·대조 가장 강하게 강조.',
+    context:'Total shoulder arthroplasty as opposed to hemi-arthroplasty',
+    siblings:[
+      {term:'in contrast to', ko:'~와 대조적으로 (중립적)'},
+      {term:'unlike', ko:'~와 달리'},
+      {term:'whereas', ko:'~인 반면에 (접속사)'},
+      {term:'while', ko:'~인 반면에 (접속사, 구어적)'},
+      {term:'on the contrary', ko:'그와 반대로 (문장 전환)'},
+    ],
+    examples:[
+      {en:'Why did the patient have a hemi-arthroplasty as opposed to a total shoulder arthroplasty?', ko:'환자는 왜 전치환술이 아닌 반치환술을 받았는가?'},
+      {en:'Isometric exercise as opposed to isotonic exercise is safer in the acute phase.', ko:'급성기에는 등장성 운동과 반대로 등척성 운동이 더 안전하다.'}
+    ]
+  },
+  {
+    id:'regardless_of', term:'regardless of / despite', ko:'~에 관계없이 / ~임에도 불구하고',
+    type:'comparison',
+    nuance:'regardless of = ~와 상관없이(조건 무시). despite = ~에도 불구하고(역접·예상 외 결과). 두 표현 모두 예외적 상황이나 조건과 무관함을 나타냄.',
+    diff_from:'despite vs in spite of(동의어, 둘 다 ~에도 불구하고) / regardless of vs irrespective of(동의어). despite + 명사, although + 절.',
+    context:'Regardless of age / Despite treatment / Despite precautions',
+    siblings:[
+      {term:'despite', ko:'~에도 불구하고 (역접)'},
+      {term:'in spite of', ko:'~에도 불구하고 (despite와 동의어)'},
+      {term:'irrespective of', ko:'~에 관계없이 (regardless of와 동의어)'},
+      {term:'notwithstanding', ko:'~에도 불구하고 (격식체)'},
+      {term:'even though', ko:'비록 ~이지만 (접속사)'},
+      {term:'although', ko:'비록 ~이지만 (접속사)'},
+    ],
+    examples:[
+      {en:'Regardless of the patient\'s age, functional goals should be established.', ko:'환자의 나이에 관계없이 기능적 목표를 설정해야 한다.'},
+      {en:'Despite conservative treatment, the patient\'s symptoms persisted.', ko:'보존적 치료에도 불구하고 환자의 증상이 지속되었다.'}
+    ]
+  }
+],
+
+// ============================================================
+// NEW GROUP E — 금기·제한 표현 (contraindicated / is indicated / restricted to)
+// ============================================================
+contraindication:[
+  {
+    id:'contraindicated', term:'contraindicated / is a contraindication', ko:'금기인 / 해서는 안 되는',
+    type:'contraindication',
+    nuance:'절대 해서는 안 되는 것(absolute)과 상황에 따라 조심해야 하는 것(relative)이 있음. contraindicated = 이 상황에서 하면 안 되는 중재. 시험에서 절대 금기 vs 상대 금기 구분도 출제.',
+    diff_from:'is not indicated(적응증이 아님) / should be avoided(피해야 함) / is inappropriate(부적절함). contraindicated = 가장 강한 표현, 하면 해가 됨.',
+    context:'Is CONTRAINDICATED in / Which exercise is CONTRAINDICATED during pregnancy?',
+    siblings:[
+      {term:'is not indicated', ko:'적응증이 아니다 (contraindicated보다 약함)'},
+      {term:'should be avoided', ko:'피해야 한다'},
+      {term:'is inappropriate', ko:'부적절하다'},
+      {term:'is precautionary', ko:'주의가 필요하다'},
+      {term:'is a relative contraindication', ko:'상대적 금기이다 (상황에 따라 가능)'},
+      {term:'is an absolute contraindication', ko:'절대적 금기이다 (어떤 상황에서도 불가)'},
+    ],
+    examples:[
+      {en:'Which exercise is CONTRAINDICATED during the first trimester of pregnancy?', ko:'임신 초기에 금기인 운동은?'},
+      {en:'Cervical traction is contraindicated with rheumatoid arthritis (atlantoaxial instability risk).', ko:'경추 견인은 류마티스 관절염에서 금기(환축추 불안정성 위험).'}
+    ]
+  },
+  {
+    id:'is_indicated', term:'is indicated / is not indicated', ko:'적응증이다 / 적응증이 아니다',
+    type:'contraindication',
+    nuance:'"indicated" = 이 상황에서 적절하고 권고되는 중재. "not indicated" = 해당 상황에 맞지 않음(금기보다는 약한 개념). "What does the arrow indicate?" = 화살표가 가리키는 것 (전혀 다른 의미!).',
+    diff_from:'contraindicated(금기, 하면 해가 됨) vs not indicated(맞지 않음, 해가 될 수도 있고 아닐 수도). indicated = 적절히 권고됨.',
+    context:'Which procedure is indicated? / This exercise is not indicated at this stage.',
+    siblings:[
+      {term:'is appropriate', ko:'적절하다'},
+      {term:'is recommended', ko:'권고된다'},
+      {term:'is warranted', ko:'필요하다 / 정당하다'},
+      {term:'is justified', ko:'정당화된다'},
+      {term:'is suitable', ko:'적합하다'},
+    ],
+    examples:[
+      {en:'Manual therapy is indicated for patients with joint hypomobility.', ko:'도수 치료는 관절 과소가동성 환자에게 적응증이다.'},
+      {en:'Which structure is indicated by the arrow in the radiograph?', ko:'방사선 사진에서 화살표가 가리키는 구조물은? (전혀 다른 의미!)'}
+    ]
+  },
+  {
+    id:'restricted_to', term:'restricted to / is limited to', ko:'~로 제한되다 / ~만 허용되다',
+    type:'contraindication',
+    nuance:'"restricted to NWB" = NWB(비체중부하) 상태만 허용됨. 허용 범위를 좁히는 표현. "limited to" = 같은 의미지만 좀 더 일반적.',
+    diff_from:'limited to(~에 한정된) / confined to(~에 국한된) / prohibited from(~이 금지된). restricted to = 허용 범위를 특정함.',
+    context:'Is restricted to non-weight-bearing / Is limited to pain-free ROM',
+    siblings:[
+      {term:'limited to', ko:'~에 한정된 / ~으로 제한된'},
+      {term:'confined to', ko:'~에 국한된 (더 제한적)'},
+      {term:'permitted only', ko:'오직 ~만 허용된'},
+      {term:'allowed only', ko:'~만 허용된'},
+      {term:'prohibited from', ko:'~이 금지된 (반대 방향)'},
+    ],
+    examples:[
+      {en:'Patient with advanced osteoporosis is restricted to NWB status on the right LE.', ko:'진행된 골다공증 환자는 우측 하지에 비체중부하 상태로 제한된다.'},
+      {en:'ROM exercises are limited to pain-free range in the acute phase.', ko:'급성기에는 ROM 운동이 무통 범위로 제한된다.'}
+    ]
+  }
+],
+
+// ============================================================
+// NEW GROUP F — Grade/Stage/Level 등급 표현
+// ============================================================
+grading:[
+  {
+    id:'grade_injury', term:'Grade I / II / III (injury)', ko:'손상 등급 I~III — 인대·근육 손상 분류',
+    type:'grading',
+    nuance:'인대·근육 등 연부조직 손상의 심각도 분류. Grade I = 미세 파열(통증, 불안정성 없음) / Grade II = 부분 파열(통증, 약간의 불안정성) / Grade III = 완전 파열(심한 불안정성).',
+    diff_from:'Grade(손상·반사·근력 등 여러 용도) / Stage(압박궤양, 암 등 진행 단계) / Level(SCI 신경 레벨, 기능 레벨). 용도에 따라 Grade vs Stage vs Level이 다름.',
+    context:'Grade II MCL sprain / Grade III ligament tear',
+    siblings:[
+      {term:'Stage (pressure injury)', ko:'압박궤양 단계 — Stage 1~4 (표면→뼈 노출)'},
+      {term:'Grade (muscle strength MMT)', ko:'근력 등급 — 0~5 (근수축 없음→정상)'},
+      {term:'Grade (mobilization)', ko:'가동술 등급 — Grade I~IV (통증 감소~ROM 증가)'},
+      {term:'Level (SCI)', ko:'척수 손상 신경 레벨 — C1~S5'},
+      {term:'Class (functional capacity)', ko:'기능 분류 — NYHA Class I~IV (심부전 등)'},
+    ],
+    examples:[
+      {en:'Patient sustained a Grade II MCL sprain — partial tear, mild instability.', ko:'환자는 Grade II 내측 측부인대 염좌(부분 파열, 경미한 불안정성)를 입었다.'},
+      {en:'Grade III ligament tear — complete rupture, significant instability, requires surgical consideration.', ko:'Grade III 인대 파열 — 완전 파열, 심한 불안정성, 수술 고려 필요.'}
+    ]
+  },
+  {
+    id:'stage_pressure', term:'Stage 1 / 2 / 3 / 4 (pressure injury)', ko:'압박궤양 단계 1~4',
+    type:'grading',
+    nuance:'Stage 1 = 피부 발적(비창백성) / Stage 2 = 표피·진피 손상(수포) / Stage 3 = 피하조직까지 손상 / Stage 4 = 근육·뼈·힘줄 노출. 숫자가 클수록 심각.',
+    diff_from:'Unstageable = 괴사 조직으로 단계 결정 불가 / Deep Tissue Injury(DTI) = 심부 조직 손상. 단계에 따라 드레싱 선택이 달라짐.',
+    context:'Stage 3 pressure injury over the sacrum / Stage 2 ischial pressure injury',
+    siblings:[
+      {term:'Unstageable', ko:'단계 결정 불가 — 가피(eschar)로 덮여 깊이 확인 불가'},
+      {term:'Deep Tissue Injury (DTI)', ko:'심부 조직 손상 — 피부는 온전하나 심부 손상'},
+      {term:'partial thickness', ko:'부분 두께 손상 — Stage 2까지'},
+      {term:'full thickness', ko:'전 두께 손상 — Stage 3~4'},
+      {term:'eschar', ko:'가피 — 괴사 조직이 굳은 것 (제거 = debridement)'},
+      {term:'granulation tissue', ko:'육아 조직 — 치유 중인 분홍빛 조직'},
+    ],
+    examples:[
+      {en:'Stage 3 pressure injury: full-thickness skin loss, subcutaneous tissue visible, no bone/tendon exposed.', ko:'Stage 3 압박궤양: 전층 피부 손실, 피하조직 노출, 뼈/힘줄 미노출.'},
+      {en:'Stage 2 ischial pressure injury has not improved — debridement and moist wound care indicated.', ko:'Stage 2 좌골 압박궤양 개선 없음 — 괴사 조직 제거 및 습윤 드레싱 적응증.'}
+    ]
+  }
+]
+};
+
+const ABBREVS=[
+  {t:'ROM',f:'Range of Motion',k:'관절 가동 범위'},
+  {t:'AROM',f:'Active ROM',k:'능동 ROM'},
+  {t:'PROM',f:'Passive ROM',k:'수동 ROM'},
+  {t:'AAROM',f:'Active-Assisted ROM',k:'능동보조 ROM'},
+  {t:'MMT',f:'Manual Muscle Testing',k:'도수 근력 검사'},
+  {t:'DTR',f:'Deep Tendon Reflex',k:'심부건 반사'},
+  {t:'HEP',f:'Home Exercise Program',k:'가정 운동 프로그램'},
+  {t:'SCI',f:'Spinal Cord Injury',k:'척수 손상'},
+  {t:'TBI',f:'Traumatic Brain Injury',k:'외상성 뇌 손상'},
+  {t:'CVA',f:'Cerebrovascular Accident',k:'뇌졸중'},
+  {t:'THA',f:'Total Hip Arthroplasty',k:'전고관절치환술'},
+  {t:'TKA',f:'Total Knee Arthroplasty',k:'전슬관절치환술'},
+  {t:'SOB',f:'Shortness of Breath',k:'호흡 곤란'},
+  {t:'ADL',f:'Activities of Daily Living',k:'일상생활 활동'},
+  {t:'UMN',f:'Upper Motor Neuron',k:'상위 운동 뉴런'},
+  {t:'LMN',f:'Lower Motor Neuron',k:'하위 운동 뉴런'},
+  {t:'ERS',f:'Emergency Response System',k:'응급 대응 시스템'},
+  {t:'s/p',f:'status post',k:'~ 이후 상태'},
+  {t:'NWB',f:'Non-Weight-Bearing',k:'비체중부하'},
+  {t:'PWB',f:'Partial Weight-Bearing',k:'부분 체중부하'},
+  {t:'WBAT',f:'Weight-Bearing As Tolerated',k:'허용 체중부하'},
+  {t:'FWB',f:'Full Weight-Bearing',k:'완전 체중부하'},
+  {t:'MinA',f:'Minimal Assistance',k:'최소 도움 (<25%)'},
+  {t:'ModA',f:'Moderate Assistance',k:'중등도 도움 (25-75%)'},
+  {t:'MaxA',f:'Maximum Assistance',k:'최대 도움 (>75%)'},
+  {t:'MCA',f:'Middle Cerebral Artery',k:'중간 대뇌 동맥'},
+  {t:'FOOSH',f:'Fall On OutStretched Hand',k:'손 뻗어 낙상'},
+  {t:'ASIA',f:'American Spinal Injury Association',k:'미국 척수손상학회'}
+];
+
+// ============================================================
+// QUESTION BANK
+// 모든 문제의 정답은 "영어 표현의 뜻·뉘앙스·용법"에 관한 것
+// ============================================================
+const QB = [
+
+// ===== NUANCE (뜻·뉘앙스) =====
+{cat:'modifier', mode:'nuance',
+ term:'MOST appropriate', termSub:'핵심 수식어 — 가장 많이 출제되는 표현',
+ ctx: null,
+ note: null,
+ q:'「MOST appropriate」가 출제되는 이유와 핵심 의도는?',
+ ans:'여러 선택지 모두 부분적으로 옳을 수 있음',
+ choices:[
+   '단 하나만 정답이고 나머지는 완전히 틀린 경우에 사용',
+   '여러 선택지 모두 부분적으로 옳을 수 있음',
+   '교과서에 명시된 근거 기반의 유일한 최선을 고르는 문제',
+   '가장 위험한 선택지를 고르는 문제'
+ ],
+ exp:'MOST appropriate = 모두 틀리지 않을 수 있는 선택지 중 이 맥락의 최선. 단순 지식 암기로는 풀 수 없고, 환자·시기·상황을 종합한 임상 추론 필요.',
+ nuanceRows:[
+   {tag:'뜻', cls:'tag-en', val:'가장 적절한 — 최선의 선택 (맥락 의존적)'},
+   {tag:'특징', cls:'tag-ko', val:'나머지 선택지도 <em>완전히 틀린 것이 아닐 수 있음</em>. 이 환자·이 시기에 가장 맞는 것이 정답'},
+   {tag:'전략', cls:'tag-tip', val:'\"모두 맞는 말\" 중 이 상황에서만 최선인 것을 고른다'},
+ ]
+},
+{cat:'modifier', mode:'nuance',
+ term:'MOST likely', termSub:'핵심 수식어 — 감별진단 패턴',
+ ctx: null, note: null,
+ q:'「MOST likely」 문제에서 정답 전략으로 옳은 것은?',
+ ans:'증상 조합이 가리키는 하나의 진단으로 수렴',
+ choices:[
+   '가장 드문 질환을 고른다',
+   '증상 조합이 가리키는 하나의 진단으로 수렴',
+   '환자 나이에 가장 흔한 질환을 고른다',
+   '치료가 가장 간단한 질환을 고른다'
+ ],
+ exp:'MOST likely = 패턴 인식. 증상들을 조합하면 하나의 진단으로 수렴하도록 설계된 문제. "유일한 가능성"이 아니라 "확률적 최고"를 고른다.',
+ nuanceRows:[
+   {tag:'뜻', cls:'tag-en', val:'가장 가능성이 높은 — 확률 1위의 진단/원인'},
+   {tag:'맥락', cls:'tag-ko', val:'주로 <em>진단·원인·결과</em>를 묻는 문제에 사용 (중재 선택과 구별)'},
+   {tag:'전략', cls:'tag-tip', val:'증상 조합 패턴을 외운다: 서맥+추위불내성+변비 = 갑상선 저하증'}
+ ]
+},
+{cat:'modifier', mode:'nuance',
+ term:'BEST vs. MOST appropriate', termSub:'핵심 수식어 — 뉘앙스 차이',
+ ctx: null, note: null,
+ q:'「BEST」와 「MOST appropriate」의 차이로 옳은 것은?',
+ ans:'BEST = 교과서적·근거 기반의 단 하나의 객관적 최선 / MOST appropriate = 맥락에 따른 임상 판단적 최선',
+ choices:[
+   '둘은 완전히 동일한 의미로 혼용 가능하다',
+   'MOST appropriate = 교과서적 단 하나의 최선 / BEST = 맥락 의존적 최선',
+   'BEST = 교과서적·근거 기반의 단 하나의 객관적 최선 / MOST appropriate = 맥락에 따른 임상 판단적 최선',
+   'BEST는 가장 안전한 것 / MOST appropriate는 가장 효과적인 것을 의미'
+ ],
+ exp:'BEST = 객관적 기준이 있는 "교과서 정답" (예: 측정 도구 선택, 근거 기반 중재). MOST appropriate = "모두 맞을 수 있는 것 중 이 맥락에서 최선".',
+ nuanceRows:[
+   {tag:'MOST appropriate', cls:'tag-en', val:'맥락 의존적 / 여러 타당한 선택지 중 최선 / 임상 판단력'},
+   {tag:'BEST', cls:'tag-ko', val:'근거 기반 / 객관적 기준 있음 / 치료 목적·측정 선택에 자주'},
+   {tag:'팁', cls:'tag-tip', val:'둘 다 "최선을 고르는" 문제지만 기준이 다름. 맥락 vs 근거.'}
+ ]
+},
+{cat:'modifier', mode:'nuance',
+ term:'FIRST / INITIALLY', termSub:'핵심 수식어 — 순서·우선순위',
+ ctx: null, note: null,
+ q:'「FIRST」 또는 「INITIALLY」 문제에서 거의 항상 오답인 선택지 유형은?',
+ ans:'"즉시 치료를 시작한다" 또는 "즉각 중재를 제공한다" 유형',
+ choices:[
+   '"환자 상태를 평가한다" 유형',
+   '"손을 씻는다" 유형',
+   '"즉시 치료를 시작한다" 또는 "즉각 중재를 제공한다" 유형',
+   '"응급시스템을 활성화한다" 유형'
+ ],
+ exp:'FIRST/INITIALLY = 안전 먼저, 치료 나중. 황금 순서: 안전 확인 → 평가 → 연락 → 치료. "바로 치료 시작"은 평가 없이 시작한다는 의미이므로 오답.',
+ nuanceRows:[
+   {tag:'황금 순서', cls:'tag-en', val:'① 안전 확인 → ② 환자 평가 → ③ 의사 연락 → ④ 치료 시작'},
+   {tag:'오답 패턴', cls:'tag-warn', val:'\"즉시 치료 시작\"은 <em>거의 항상 오답</em>'},
+   {tag:'정답 단서', cls:'tag-tip', val:'손 씻기, ERS 활성화, 자세 변경 = 가장 기본적인 안전 단계 = 정답'}
+ ]
+},
+{cat:'modifier', mode:'nuance',
+ term:'PRIMARY purpose / GREATEST risk', termSub:'핵심 수식어 — 핵심 목적 식별',
+ ctx: null, note: null,
+ q:'「PRIMARY purpose」 문제에서 가장 흔한 오답 함정은?',
+ ans:'부수적 효과(secondary benefit)를 핵심 목적(primary purpose)으로 고르는 것',
+ choices:[
+   '선택지가 너무 많아서 혼란을 준다',
+   '부수적 효과(secondary benefit)를 핵심 목적(primary purpose)으로 고르는 것',
+   '정답이 두 개인 경우가 많다',
+   '의학 용어가 너무 어렵다'
+ ],
+ exp:'예: pursed-lip breathing의 PRIMARY purpose = 호기 시 기도 허탈 방지. 이완이나 호흡 패턴 훈련은 secondary benefit. 핵심 작용 메커니즘을 알아야 함.',
+ nuanceRows:[
+   {tag:'PRIMARY', cls:'tag-en', val:'여러 효과 중 <em>핵심 작용/목적 하나</em> — 부수 효과가 아님'},
+   {tag:'GREATEST', cls:'tag-ko', val:'위험도·영향도에서 가장 큰 것 — 최대 위험인자 지식'},
+   {tag:'함정', cls:'tag-warn', val:'secondary benefit ≠ primary purpose. 핵심 메커니즘 이해가 핵심'}
+ ]
+},
+
+// ===== VERB NUANCE =====
+{cat:'verb', mode:'nuance',
+ term:'reports vs. demonstrates', termSub:'핵심 동사 — 주관 vs 객관 구별',
+ ctx: null, note: null,
+ q:'「patient reports」와 「patient demonstrates」의 핵심 차이는?',
+ ans:'reports = 환자가 말하는 주관적 증상 / demonstrates = 치료사가 관찰하는 객관적 소견',
+ choices:[
+   '둘 다 치료사가 관찰한 객관적 소견을 표현한다',
+   '둘 다 환자가 말하는 주관적 증상을 표현한다',
+   'reports = 환자가 말하는 주관적 증상 / demonstrates = 치료사가 관찰하는 객관적 소견',
+   'reports = 검사 결과 / demonstrates = 주관적 증상'
+ ],
+ exp:'★ reports = subjective(주관) — 환자 입으로 말하는 것. demonstrates/exhibits = objective(객관) — PT가 눈으로 보거나 측정하는 것. 시험에서 이 구분이 자주 중요.',
+ nuanceRows:[
+   {tag:'reports', cls:'tag-warn', val:'환자가 <em>말하는</em> 것 = 주관적 증상 (통증, 피로, 두통 등)'},
+   {tag:'demonstrates', cls:'tag-en', val:'PT가 <em>관찰하는</em> 것 = 객관적 소견 (ROM 제한, 보행 패턴 등)'},
+   {tag:'기억법', cls:'tag-tip', val:'Patient <em>reports</em> pain → 환자 말 / Patient <em>demonstrates</em> guarding → PT 관찰'}
+ ]
+},
+{cat:'verb', mode:'nuance',
+ term:'suspect', termSub:'핵심 동사 — 추론/의심',
+ ctx: null, note: null,
+ q:'「The therapist should suspect」에서 suspect가 의미하는 것은?',
+ ans:'아직 확진이 아님',
+ choices:[
+   '이미 진단이 확정된 상태를 표현한다',
+   '아직 확진이 아님',
+   '치료 효과가 없을 것으로 예상된다는 의미',
+   '검사 결과가 비정상임을 나타낸다'
+ ],
+ exp:'suspect = 의심하다/추론하다. diagnose(확진)와 달리 아직 확정이 아님. Red flag 발견 → "therapist should suspect systemic cause → refer back to physician" 흐름.',
+ nuanceRows:[
+   {tag:'뜻', cls:'tag-en', val:'의심하다 / 추론하다 — <em>확진이 아닌</em> 가능성 단계'},
+   {tag:'맥락', cls:'tag-ko', val:'red flag 발견, 내장 통증 가능성, 비기계적 통증 판별 문제에서 사용'},
+   {tag:'다음 단계', cls:'tag-tip', val:'suspect → refer back to physician. 의심 → 의뢰가 논리적 흐름'}
+ ]
+},
+{cat:'verb', mode:'nuance',
+ term:'indicates vs. consistent with', termSub:'핵심 동사 — 진단 연결 강도',
+ ctx: null, note: null,
+ q:'「indicates」와 「is consistent with」의 강도 차이로 옳은 것은?',
+ ans:'indicates > suggests > is consistent with 순으로 진단 연결 강도가 강함',
+ choices:[
+   'is consistent with > suggests > indicates 순으로 강함',
+   'indicates와 is consistent with는 동일한 강도',
+   'indicates > suggests > is consistent with 순으로 진단 연결 강도가 강함',
+   'suggests가 가장 강한 연결을 나타냄'
+ ],
+ exp:'indicates = 직접적·확정적 연결 (강함) / suggests = 간접적 암시 / consistent with = 이 질환에서 볼 수 있음(가능성, 약함). NOT consistent with = LEAST likely와 같은 방향!',
+ nuanceRows:[
+   {tag:'강함', cls:'tag-warn', val:'<em>indicates</em> — 직접적 연결. ST displacement indicates MI'},
+   {tag:'중간', cls:'tag-en', val:'<em>suggests</em> — 간접적 암시. Pattern suggests overuse'},
+   {tag:'약함', cls:'tag-ko', val:'<em>consistent with</em> — 이 소견은 이 질환에서 볼 수 있음'}
+ ]
+},
+{cat:'verb', mode:'nuance',
+ term:'refer back to physician', termSub:'핵심 동사 — 의뢰 표현',
+ ctx: null, note: null,
+ q:'「refer back to physician」이 정답이 되는 상황은?',
+ ans:'Red flag 소견 발견 시 의사에게 재의뢰',
+ choices:[
+   '치료 효과가 좋아서 더 이상 PT가 필요 없을 때',
+   '환자가 치료를 거부할 때',
+   'Red flag 소견 발견 시 의사에게 재의뢰',
+   '새로운 운동 프로그램을 시작할 때'
+ ],
+ exp:'refer back to physician = red flag 발견 시 정답. 새로운 신경학적 증상, 전신 질환 시사, 비기계적 통증 등 PT가 단독으로 처리할 수 없는 상황. contact physician보다 공식적.',
+ nuanceRows:[
+   {tag:'상황', cls:'tag-warn', val:'Red flag: 새 신경증상, 전신 질환 시사, 비기계적 통증, 종양 의심'},
+   {tag:'순서', cls:'tag-en', val:'심각도: activate ERS(생명위협) > refer back(PT범위초과) > contact(확인필요)'},
+   {tag:'팁', cls:'tag-tip', val:'refer <em>back</em> = 기존 의사에게 돌려보내는 것 (재의뢰)'}
+ ]
+},
+
+// ===== PHRASE NUANCE =====
+{cat:'phrase', mode:'nuance',
+ term:'secondary to ~', termSub:'구 표현 — 원인 표현',
+ ctx: null, note: null,
+ q:'「secondary to」의 정확한 의미와 용법은?',
+ ans:'원인 표현',
+ choices:[
+   '"~보다 덜 중요한"이라는 비교 표현',
+   '"~에 추가적으로"라는 부가 표현',
+   '원인 표현',
+   '"~의 다음으로"라는 순서 표현'
+ ],
+ exp:'"weakness secondary to femoral nerve injury" = 대퇴신경 손상으로 인한 근력 약화. 의무기록에서 원인을 명시할 때 사용. secondary의 일상적 의미(부차적)와 혼동하지 말 것!',
+ nuanceRows:[
+   {tag:'의미', cls:'tag-en', val:'~ <em>때문에 / ~로 인한</em> — 원인을 나타내는 의료 문서 표현'},
+   {tag:'구조', cls:'tag-ko', val:'결과 + secondary to + <em>원인</em>. 원인이 뒤에 옴'},
+   {tag:'주의', cls:'tag-warn', val:'일상 영어 secondary(부차적)와 혼동 금지! 여기서는 "때문에"'}
+ ]
+},
+{cat:'phrase', mode:'nuance',
+ term:'in the absence of ~', termSub:'구 표현 — 조건 부정 표현',
+ ctx: null, note: null,
+ q:'「in the absence of ischemic changes」의 의미는?',
+ ans:'허혈성 변화가 없는 상황에서',
+ choices:[
+   '허혈성 변화가 있는 상황에서',
+   '허혈성 변화가 없는 상황에서',
+   '허혈성 변화에 관계없이',
+   '허혈성 변화가 심각한 상황에서'
+ ],
+ exp:'"in the absence of X" = X가 없는 상태에서. "BP drop in the absence of ischemic changes" = 허혈 변화 없이 BP만 하강 → 다른 의미를 가짐. 조건을 반대로 읽는 함정!',
+ nuanceRows:[
+   {tag:'의미', cls:'tag-en', val:'<em>~이 없는 상황에서</em> — absence = 부재, 없음'},
+   {tag:'반대', cls:'tag-ko', val:'in the presence of X = X가 있는 상황에서 (반대 표현)'},
+   {tag:'함정', cls:'tag-warn', val:'빠른 독해 시 "absence" 놓치면 의미가 완전히 반전됨!'}
+ ]
+},
+{cat:'phrase', mode:'nuance',
+ term:'signs and symptoms', termSub:'구 표현 — 주관 vs 객관',
+ ctx: null, note: null,
+ q:'「signs」와 「symptoms」의 차이로 옳은 것은?',
+ ans:'signs = 치료사가 관찰·측정하는 객관적 소견 / symptoms = 환자가 직접 호소하는 주관적 증상',
+ choices:[
+   'signs = 주관적 증상 / symptoms = 객관적 소견',
+   '둘 다 환자가 말하는 주관적 증상',
+   '둘 다 치료사가 관찰하는 객관적 소견',
+   'signs = 치료사가 관찰·측정하는 객관적 소견 / symptoms = 환자가 직접 호소하는 주관적 증상'
+ ],
+ exp:'signs = 혈압, 부종, 발열, 비정상 반사 등 측정 가능한 객관적 소견. symptoms = 통증, 피로, 두통, 어지러움 등 환자가 말하는 주관적 호소. 두 가지 합치면 전체 임상 양상.',
+ nuanceRows:[
+   {tag:'signs', cls:'tag-en', val:'객관적 — 혈압, 부종, ROM, 반사 등 PT가 <em>측정·관찰</em>'},
+   {tag:'symptoms', cls:'tag-ko', val:'주관적 — 통증, 피로, 어지러움 등 환자가 <em>말하는</em> 것'},
+   {tag:'기억법', cls:'tag-tip', val:'S for Subjective(환자 말) = symptoms / O for Objective(PT 측정) = signs'}
+ ]
+},
+{cat:'phrase', mode:'nuance',
+ term:'insidious onset', termSub:'구 표현 — 발병 양식',
+ ctx: null, note: null,
+ q:'「insidious onset」의 임상적 의미와 시사하는 원인은?',
+ ans:'외상 없이 서서히 발병',
+ choices:[
+   '갑작스러운 외상 후 발병',
+   '수술 후 발생',
+   '야간에만 나타나는 발병',
+   '외상 없이 서서히 발병'
+ ],
+ exp:'insidious = 점진적, 서서히, 외상 없음. → 과사용 증후군, 퇴행성 변화, 전신 질환 원인 고려. 반대로 sudden/acute onset → 외상, 혈관 원인, 응급 상황.',
+ nuanceRows:[
+   {tag:'insidious', cls:'tag-en', val:'서서히, 외상 없음 → <em>과사용·퇴행·전신</em> 원인 시사'},
+   {tag:'sudden', cls:'tag-warn', val:'갑자기 → <em>외상·혈관·응급</em> 원인 시사'},
+   {tag:'임상 예', cls:'tag-tip', val:'야구 투수 insidious 어깨 통증 → 과사용/만성 불안정성 (외상X)'}
+ ]
+},
+
+// ===== USAGE (용법·상황) =====
+{cat:'verb', mode:'usage',
+ term:'reports / demonstrates / notes', termSub:'핵심 동사 — 상황별 선택',
+ ctx:'"환자가 통증을 호소하고, 치료사가 부종을 발견했다"를 영어로 표현한다면?',
+ note:'어떤 동사 조합이 맞는가?',
+ q:'두 상황을 정확히 표현하는 동사 조합은?',
+ ans:'Patient reports pain / Therapist notes edema',
+ choices:[
+   'Patient notes pain / Therapist reports edema',
+   'Patient demonstrates pain / Therapist demonstrates edema',
+   'Patient reports pain / Therapist notes edema',
+   'Patient exhibits pain / Therapist suspects edema'
+ ],
+ exp:'통증은 환자가 말하는 주관적 증상 → reports. 부종은 치료사가 관찰하는 객관적 소견 → therapist notes. 주어(환자 vs PT)와 동사가 항상 일치해야 함.',
+ nuanceRows:[
+   {tag:'환자 주어', cls:'tag-en', val:'Patient <em>reports</em> = 주관적 증상. Patient <em>demonstrates</em> = 관찰 가능한 행동'},
+   {tag:'PT 주어', cls:'tag-ko', val:'Therapist <em>notes/notices</em> = 객관적 소견 관찰'},
+   {tag:'팁', cls:'tag-tip', val:'통증, 피로, 어지러움 → reports / ROM 감소, 부종, 보행이상 → demonstrates'}
+ ]
+},
+{cat:'modifier', mode:'usage',
+ term:'LEAST appropriate', termSub:'함정 수식어 — 상황 적용',
+ ctx:'"2주 전 회전근개 봉합술을 받은 환자" — 이 상황에서 LEAST appropriate한 것을 고르는 문제라면?',
+ note:'⚠️ LEAST = 가장 하면 안 되는 것을 고른다',
+ q:'이 문제 유형에서 정답(= 가장 하면 안 되는 것)은 어떤 선택지인가?',
+ ans:'적극적 저항 운동 / 최대 부하 운동',
+ choices:[
+   '가벼운 수동 ROM 운동',
+   '통증 없는 범위의 진자 운동',
+   '적극적 저항 운동 / 최대 부하 운동',
+   '냉치료와 통증 관리'
+ ],
+ exp:'LEAST appropriate = 가장 하면 안 되는 것. 수술 2주 후 급성-아급성기: 봉합 조직 취약 → 저항 운동·최대 부하 금지. MOST appropriate(좋은 것)와 정반대 방향!',
+ nuanceRows:[
+   {tag:'⚠️ 방향', cls:'tag-warn', val:'LEAST = 나쁜 것 선택! 나머지 3개는 OK, 딱 하나만 가장 나쁜 것'},
+   {tag:'적용', cls:'tag-en', val:'봉합 초기 = 조직 취약 → 과부하 = LEAST appropriate'},
+   {tag:'습관', cls:'tag-tip', val:'문제 읽기 전 MOST인지 LEAST인지 먼저 확인하는 습관 필수!'}
+ ]
+},
+{cat:'phrase', mode:'usage',
+ term:'status post (s/p)', termSub:'구 표현 — 의무기록 용어',
+ ctx:'"전고관절치환술(THA)을 시행받은 환자"를 의무기록 표현으로 쓴다면?',
+ note:null,
+ q:'가장 적절한 의무기록 표현은?',
+ ans:'Patient is s/p total hip arthroplasty (status post THA)',
+ choices:[
+   'Patient suffered total hip arthroplasty',
+   'Patient after-effect of total hip arthroplasty',
+   'Patient was damaged by total hip arthroplasty',
+   'Patient is s/p total hip arthroplasty (status post THA)'
+ ],
+ exp:'status post (s/p) = ~ 이후의 상태. "s/p THA" = THA를 받은 후 상태. 의무기록에서 가장 표준적인 표현. 단순히 "after surgery"보다 공식적.',
+ nuanceRows:[
+   {tag:'표현', cls:'tag-en', val:'s/p = status post = <em>~ 이후 상태</em> (의무기록 표준 표현)'},
+   {tag:'예시', cls:'tag-ko', val:'s/p CVA, s/p TKA, s/p rotator cuff repair'},
+   {tag:'팁', cls:'tag-tip', val:'시험 지문에서 환자 배경 설명에 항상 등장하는 표현'}
+ ]
+},
+{cat:'phrase', mode:'usage',
+ term:'secondary to ~', termSub:'구 표현 — 상황 적용',
+ ctx:'"대퇴신경 손상으로 인해 사두근이 약해진 상태"를 한 문장으로 표현한다면?',
+ note:null,
+ q:'가장 정확한 표현은?',
+ ans:'Quadriceps weakness secondary to femoral nerve lesion',
+ choices:[
+   'Quadriceps weakness despite femoral nerve lesion',
+   'Quadriceps weakness after femoral nerve lesion only',
+   'Quadriceps weakness secondary to femoral nerve lesion',
+   'Femoral nerve lesion secondary to quadriceps weakness'
+ ],
+ exp:'"secondary to" = ~로 인한. 결과가 먼저, 원인이 secondary to 뒤에 옴. 어순 주의: [결과] secondary to [원인].',
+ nuanceRows:[
+   {tag:'구조', cls:'tag-en', val:'<em>[결과]</em> secondary to <em>[원인]</em> — 원인이 뒤에 옴'},
+   {tag:'예', cls:'tag-ko', val:'weakness s/t nerve lesion / ROM 제한 s/t joint effusion'},
+   {tag:'주의', cls:'tag-warn', val:'어순 반전 금지: 원인 secondary to 결과 → 틀린 표현'}
+ ]
+},
+
+// ===== COMPARE (표현 비교) =====
+{cat:'modifier', mode:'compare',
+ term:'LEAST vs. EXCEPT vs. NOT appropriate', termSub:'표현 비교 — 방향 반전 표현들',
+ ctx:null, note:null,
+ q:'다음 방향 반전 표현 중 "나머지 3개는 모두 맞고 딱 하나만 틀린 것을 고른다"는 뜻인 표현은?',
+ ans:'EXCEPT',
+ choices:[
+   'LEAST appropriate',
+   'NOT appropriate',
+   'AVOID',
+   'EXCEPT'
+ ],
+ exp:'"All of the following are TRUE, EXCEPT..." = 나머지 모두 참, 하나만 거짓. LEAST appropriate = 여러 나쁜 것 중 가장 나쁜 하나. EXCEPT는 "하나만 다르다"는 논리.',
+ nuanceRows:[
+   {tag:'LEAST', cls:'tag-warn', val:'여러 선택지 중 <em>가장 나쁜 하나</em>'},
+   {tag:'NOT/AVOID', cls:'tag-en', val:'해서는 안 되는 것 — LEAST와 비슷한 방향'},
+   {tag:'EXCEPT', cls:'tag-ko', val:'나머지 3개 모두 참, <em>딱 하나만 거짓</em>인 것을 고른다'}
+ ]
+},
+{cat:'verb', mode:'compare',
+ term:'indicates / suggests / consistent with', termSub:'표현 비교 — 진단 연결 강도',
+ ctx:'다음 세 문장의 "소견-진단 연결" 강도가 강한 것부터 순서대로 배열하면?',
+ note:null,
+ q:'"A indicates B" / "A suggests B" / "A is consistent with B" — 강한 것부터 순서는?',
+ ans:'indicates > suggests > consistent with',
+ choices:[
+   'consistent with > suggests > indicates',
+   'suggests > indicates > consistent with',
+   'indicates > suggests > consistent with',
+   '세 표현 모두 동일한 강도'
+ ],
+ exp:'indicates = 직접·확정적 연결(강함) / suggests = 간접 암시 / consistent with = 이 질환에서 볼 수 있음(약함). "NOT consistent with" = LEAST likely와 같은 방향!',
+ nuanceRows:[
+   {tag:'강 →', cls:'tag-en', val:'<em>indicates</em> (확정) > <em>suggests</em> (암시) > <em>consistent with</em> (부합)'},
+   {tag:'응용', cls:'tag-ko', val:'NOT consistent with X = X에서 볼 수 없는 소견 = LEAST likely와 동일 방향'},
+   {tag:'팁', cls:'tag-tip', val:'선택지에서 강도 차이가 있으면 = 표현 강도로 구별하는 문제'}
+ ]
+},
+{cat:'phrase', mode:'compare',
+ term:'radiating vs. nonradiating', termSub:'표현 비교 — 통증 성질',
+ ctx:null, note:null,
+ q:'「radiating pain」과 「nonradiating pain」이 시사하는 원인의 차이는?',
+ ans:'radiating = 신경근 자극 또는 신경 압박 시사 / nonradiating = 국소 조직 병변 시사',
+ choices:[
+   'radiating = 국소 조직 병변 / nonradiating = 신경근 자극',
+   'radiating = 혈관 원인 / nonradiating = 근육 원인',
+   'radiating = 신경근 자극 또는 신경 압박 시사 / nonradiating = 국소 조직 병변 시사',
+   '둘 다 동일한 원인을 시사'
+ ],
+ exp:'radiating pain = 한 곳에서 다른 부위로 뻗치는 통증 → 신경근 압박, 추간판 탈출, 좌골신경통 등. 방향이 병변 레벨 추론의 핵심 단서. nonradiating = 국소에 머무름.',
+ nuanceRows:[
+   {tag:'radiating', cls:'tag-warn', val:'뻗치는 통증 → <em>신경근 자극</em>. 방향이 어떤 신경인지 단서'},
+   {tag:'nonradiating', cls:'tag-en', val:'국소 통증 → 근육, 인대, 관절 등 <em>국소 조직</em> 병변'},
+   {tag:'예', cls:'tag-tip', val:'L4-L5 disc herniation → radiating pain to lateral leg & dorsum of foot'}
+ ]
+},
+{cat:'trap', mode:'compare',
+ term:'NWB / PWB / WBAT / FWB', termSub:'표현 비교 — 체중 부하 단계',
+ ctx:null, note:null,
+ q:'체중 부하 허용량이 적은 것부터 많은 것으로 올바르게 나열한 것은?',
+ ans:'NWB → PWB → WBAT → FWB',
+ choices:[
+   'FWB → WBAT → PWB → NWB',
+   'PWB → NWB → WBAT → FWB',
+   'NWB → WBAT → PWB → FWB',
+   'NWB → PWB → WBAT → FWB'
+ ],
+ exp:'NWB(0%) → PWB(부분%) → WBAT(참는 만큼, 가변적) → FWB(100%). WBAT은 환자 반응에 따라 조절하므로 PWB보다 더 많은 부하를 허용하는 단계.',
+ nuanceRows:[
+   {tag:'NWB', cls:'tag-warn', val:'발이 바닥에 닿으면 안 됨 — 목발/휠체어 필요'},
+   {tag:'WBAT', cls:'tag-en', val:'참을 수 있는 만큼 — 환자 반응에 따라 <em>PT가 조절</em>'},
+   {tag:'FWB', cls:'tag-ko', val:'완전 체중 부하 — 일반 보행 허용'}
+ ]
+},
+{cat:'trap', mode:'compare',
+ term:'MinA / ModA / MaxA / dependent', termSub:'표현 비교 — 자립도 단계',
+ ctx:null, note:null,
+ q:'「minimal assistance(MinA)」의 정확한 도움 비율은?',
+ ans:'치료사가 25% 이하의 신체적 도움을 제공',
+ choices:[
+   '치료사가 25-75%의 신체적 도움을 제공',
+   '치료사가 75% 이상의 신체적 도움을 제공',
+   '신체 도움 없이 옆에서 감독만 하는 것',
+   '치료사가 25% 이하의 신체적 도움을 제공'
+ ],
+ exp:'MinA = <25% / ModA = 25-75% / MaxA = >75% / Dependent = 100%. Supervision = 신체 도움 없이 지켜봄(0%). 숫자 기준이 정확해야 문서화에서 오류가 없음.',
+ nuanceRows:[
+   {tag:'Min A', cls:'tag-ko', val:'치료사 <em><25%</em> 도움 — 환자가 대부분 스스로'},
+   {tag:'Mod A', cls:'tag-en', val:'치료사 <em>25-75%</em> 도움 — 절반 정도 도움'},
+   {tag:'Max A', cls:'tag-warn', val:'치료사 <em>>75%</em> 도움 — 치료사가 대부분 수행'}
+ ]
+},
+
+// ===== TRAP (함정 탐지) =====
+{cat:'trap', mode:'trap',
+ term:'positive vs. negative (검사 결과)', termSub:'함정 탐지 — 의학 vs 일상 영어',
+ ctx:null,
+ note:'⚠️ 의학에서 positive ≠ 좋은 것!',
+ q:'「Lachman test is positive」의 정확한 의미는?',
+ ans:'ACL 손상이 의심됨',
+ choices:[
+   'ACL 기능이 정상임을 확인',
+   'ACL 손상이 의심됨',
+   '검사 자체가 성공적으로 수행됨',
+   '환자의 기분이 좋다는 것을 의미'
+ ],
+ exp:'의학에서 positive test = 해당 병변/이상이 있음을 시사. positive Lachman = ACL 손상 의심. 일상 영어의 positive(긍정적)와 반대 의미! "radiograph negative" = 골절 없음(정상).',
+ nuanceRows:[
+   {tag:'⚠️ 핵심', cls:'tag-warn', val:'의학 positive = <em>이상 소견</em> (일상 영어와 반대!)'},
+   {tag:'positive', cls:'tag-en', val:'특수 검사 양성 = 의심 병변 있음 → 추가 검사/의뢰 필요'},
+   {tag:'negative', cls:'tag-ko', val:'검사 음성 = 해당 병변 없음 / radiograph negative = 골절 없음'}
+ ]
+},
+{cat:'trap', mode:'trap',
+ term:'hyperreflexia vs. diminished reflex', termSub:'함정 탐지 — UMN vs LMN',
+ ctx:null,
+ note:'⚠️ 반사 변화 방향이 병변 위치를 가리킨다',
+ q:'「hyperreflexia + spasticity + positive Babinski」가 시사하는 병변 위치는?',
+ ans:'상위 운동 뉴런(UMN) 병변',
+ choices:[
+   '말초 신경 병변',
+   '하위 운동 뉴런(LMN) 병변',
+   '상위 운동 뉴런(UMN) 병변',
+   '근육 자체의 병변'
+ ],
+ exp:'UMN 병변(뇌/척수): hyperreflexia + spasticity + Babinski+ / LMN·말초신경 병변: hyporeflexia/absent reflex + flaccidity + fasciculation. 반사 방향이 핵심 단서.',
+ nuanceRows:[
+   {tag:'UMN', cls:'tag-warn', val:'과반사 + 경직 + Babinski+ → <em>뇌·척수</em> 병변 (CVA, SCI, MS 등)'},
+   {tag:'LMN', cls:'tag-en', val:'감소/소실 반사 + 이완성 마비 + 근위축 → <em>말초신경</em> 병변'},
+   {tag:'기억법', cls:'tag-tip', val:'UMN = 위에서 억제가 안 됨 → 반사 과활성(hyperreflexia)'}
+ ]
+},
+{cat:'trap', mode:'trap',
+ term:'LEAST 문제 방향 반전', termSub:'함정 탐지 — 즉각 인식 훈련',
+ ctx:null,
+ note:'⚠️ 문제를 읽기 전에 방향을 먼저 확인하는 습관!',
+ q:'「Which of the following is LEAST likely to be associated with peroneal nerve palsy?」에서 정답은?',
+ ans:'이 진단에서 나타나기 어려운 소견',
+ choices:[
+   '이 진단에서 가장 흔하게 나타나는 소견',
+   '이 진단의 주된 원인',
+   '이 진단을 확진하는 검사',
+   '이 진단에서 나타나기 어려운 소견'
+ ],
+ exp:'LEAST likely = 가장 관련성 낮은 것. 비골신경 마비에서 나타나기 "어려운" 소견이 정답. 예: 발등 굴곡 증가는 비골신경 마비에서 LEAST likely (오히려 감소함).',
+ nuanceRows:[
+   {tag:'⚠️ 방향', cls:'tag-warn', val:'LEAST likely = <em>가장 나타나기 어려운 것</em> — 방향 반전!'},
+   {tag:'습관', cls:'tag-en', val:'문제 읽기 전 MOST/BEST인지 LEAST/NOT인지 먼저 확인'},
+   {tag:'팁', cls:'tag-tip', val:'대문자 강조(LEAST, NOT, AVOID, EXCEPT)를 먼저 스캔하는 습관'}
+ ]
+},
+{cat:'trap', mode:'trap',
+ term:'acute phase 금기', termSub:'함정 탐지 — 시기별 허용 중재',
+ ctx:'"환자는 급성기(acute phase, 48시간 이내)에 있다"',
+ note:'⚠️ 이 시기에 CONTRAINDICATED인 것을 즉시 식별하라',
+ q:'급성기에 금기(contraindicated)인 것은?',
+ ans:'적극적 저항 운동 / aggressive stretching',
+ choices:[
+   'RICE(휴식, 냉치료, 압박, 거상)',
+   '통증 없는 범위의 가벼운 능동 운동',
+   '적극적 저항 운동 / aggressive stretching',
+   '부종 관리와 통증 조절'
+ ],
+ exp:'acute phase = 염증 최고조(48-72h). 조직이 취약한 시기 → 과부하 금지. RICE + 통증 관리 + 가벼운 ROM이 우선. "Aggressive" = 급성기에는 항상 조심.',
+ nuanceRows:[
+   {tag:'acute 원칙', cls:'tag-warn', val:'통증·부종 관리 우선 / aggressive exercise = <em>금기</em>'},
+   {tag:'허용', cls:'tag-ko', val:'가벼운 PROM, RICE, 전기치료, 통증 관리'},
+   {tag:'단계별', cls:'tag-tip', val:'acute → subacute → chronic 순으로 점진적 부하 증가'}
+ ]
+},
+{cat:'trap', mode:'trap',
+ term:'in the absence of — 함정 탐지', termSub:'함정 탐지 — 조건 부정 표현',
+ ctx:'"A drop in systolic BP of 10 mmHg in the absence of ischemic changes is a RELATIVE indication to terminate exercise"',
+ note:'⚠️ absence = "없을 때" — 반대로 읽으면 의미가 완전히 달라짐',
+ q:'이 문장의 정확한 해석은?',
+ ans:'허혈성 변화 없이 수축기 혈압만 10mmHg 하강하면 상대적(relative) 적응증',
+ choices:[
+   '허혈성 변화가 있을 때 수축기 혈압 10mmHg 하강 = 절대적 적응증',
+   '허혈성 변화 없이 수축기 혈압만 10mmHg 하강하면 상대적(relative) 적응증',
+   '허혈성 변화와 함께 수축기 혈압 10mmHg 하강 = 운동 계속해도 됨',
+   '수축기 혈압 변화와 관계없이 허혈성 변화만 있으면 중단'
+ ],
+ exp:'"in the absence of ischemic changes" = 허혈 변화 없을 때. BP만 10mmHg 하강 = relative indication(상대적, 판단 필요). 허혈 변화가 있으면 absolute indication(즉시 중단).',
+ nuanceRows:[
+   {tag:'핵심', cls:'tag-warn', val:'"absence of X" = <em>X가 없을 때</em>. 빠른 독해 시 가장 놓치기 쉬운 표현'},
+   {tag:'적용', cls:'tag-en', val:'허혈 없이 BP만 하강 = relative / 허혈 있으면 = absolute (즉시 중단)'},
+   {tag:'습관', cls:'tag-tip', val:'"absence" 단어를 만나면 반드시 멈추고 조건을 반대로 확인'}
+ ]
+}
+,
+
+// ============================================================
+// NEW QB — symptom 동사 그룹
+// ============================================================
+{cat:'symptom', mode:'nuance',
+ term:'presents with', termSub:'증상 묘사 동사 — 임상 지문 첫 줄 표현',
+ ctx:null, note:null,
+ q:'「A patient presents with bilateral lower extremity edema」에서 presents with의 의미는?',
+ ans:'환자가 ~을 주된 증상·상태로 나타내며 내원하다',
+ choices:[
+  '환자가 ~를 스스로 말하다',
+  '치료사가 ~를 관찰하다',
+  '환자가 ~을 주된 증상·상태로 나타내며 내원하다',
+  '검사 결과가 ~를 보여주다'
+ ],
+ exp:'"presents with" = 환자가 이 상태로 왔다. 주관·객관 구분 없이 전체 임상 양상을 포괄적으로 설정. 시험 지문 첫 문장에 거의 항상 등장.',
+ nuanceRows:[
+  {tag:'뜻', cls:'tag-en', val:'~을 주소로 내원하다 / ~을 가지고 온다'},
+  {tag:'비교', cls:'tag-ko', val:'reports(주관) / demonstrates(객관) / presents with(포괄적 임상 양상)'},
+  {tag:'유사', cls:'tag-tip', val:'comes in with / has a chief complaint of / is referred with — 모두 같은 맥락'}
+ ]
+},
+{cat:'symptom', mode:'nuance',
+ term:'reveals', termSub:'증상 묘사 동사 — 검사·영상이 주어',
+ ctx:null, note:null,
+ q:'「Radiograph reveals no fracture」와 「Patient reports no pain」의 차이는?',
+ ans:'reveals = 검사·영상이 주어 / reports = 환자가 주어',
+ choices:[
+  '둘 다 환자가 주어인 주관적 표현',
+  'reveals = 검사·영상이 주어 / reports = 환자가 주어',
+  'reveals = 치료사가 주어 / reports = 검사가 주어',
+  '두 표현은 완전히 동일한 의미'
+ ],
+ exp:'reveals의 주어 = 검사·영상·결과. "Examination reveals / MRI reveals / Assessment reveals". 사람이 주어가 되면 reveals 대신 notes/notices를 쓴다.',
+ nuanceRows:[
+  {tag:'주어 법칙', cls:'tag-en', val:'검사/영상 → <em>reveals/shows</em> / 환자 → <em>reports</em> / PT → <em>notes/notices</em>'},
+  {tag:'강도', cls:'tag-ko', val:'is diagnostic of > indicates > reveals > suggests > is consistent with'},
+  {tag:'유사', cls:'tag-tip', val:'shows(구어) / demonstrates(공식) / indicates(시사) — 모두 검사가 주어일 때 가능'}
+ ]
+},
+{cat:'symptom', mode:'compare',
+ term:'complains of vs. reports vs. denies', termSub:'주관적 증상 표현 3총사',
+ ctx:null, note:null,
+ q:'「Patient denies any numbness or tingling」의 의미는?',
+ ans:'환자는 저림이나 따끔거림이 없다고 부정한다',
+ choices:[
+  '환자는 저림과 따끔거림을 숨기고 있다',
+  '환자는 저림이나 따끔거림이 없다고 부정한다',
+  '환자는 저림과 따끔거림을 처음 경험한다',
+  '환자는 저림이나 따끔거림이 심하다고 한다'
+ ],
+ exp:'"denies" = 해당 증상이 없다고 함. reports(있다고 말함)의 반대 방향. "Patient denies chest pain" = 흉통 없음. 빠른 독해 시 denies를 놓치면 의미가 반전!',
+ nuanceRows:[
+  {tag:'reports', cls:'tag-en', val:'환자가 증상 <em>있음</em>을 말함'},
+  {tag:'denies ⚠️', cls:'tag-warn', val:'환자가 증상 <em>없음</em>을 말함 — 방향 반전!'},
+  {tag:'complains of', cls:'tag-ko', val:'불편·고통 <em>있음</em>을 강조해서 말함'},
+  {tag:'endorses', cls:'tag-tip', val:'(증상을) 그렇다고 인정함 — reports와 유사'}
+ ]
+},
+
+// ============================================================
+// NEW QB — 임상 기능 동사
+// ============================================================
+{cat:'clinical_verb', mode:'nuance',
+ term:'facilitate vs. inhibit', termSub:'임상 기능 동사 — 반대 쌍',
+ ctx:null, note:null,
+ q:'「facilitate」와 「inhibit」의 관계와 의미로 옳은 것은?',
+ ans:'서로 반대 관계: facilitate = 촉진 / inhibit = 억제',
+ choices:[
+  '둘 다 근육 활성을 증가시키는 의미',
+  '둘 다 치료 효과를 높이는 의미',
+  '서로 반대 관계: facilitate = 촉진 / inhibit = 억제',
+  'facilitate = 금지하다 / inhibit = 허용하다'
+ ],
+ exp:'PNF, NDT 등에서 핵심 개념 쌍. facilitate movement = 움직임을 촉진 / inhibit spasticity = 경직을 억제. ACE inhibitor = ACE를 억제하는 약물.',
+ nuanceRows:[
+  {tag:'facilitate', cls:'tag-en', val:'촉진 / 활성화 / 쉽게 함 → promote / enhance / enable'},
+  {tag:'inhibit', cls:'tag-warn', val:'억제 / 감소 / 방해 → suppress / restrict / reduce'},
+  {tag:'임상 예', cls:'tag-tip', val:'Weight bearing <em>inhibits</em> spasticity / Visual cue <em>facilitates</em> movement'}
+ ]
+},
+{cat:'clinical_verb', mode:'nuance',
+ term:'exacerbate', termSub:'임상 기능 동사 — 악화',
+ ctx:null, note:null,
+ q:'「Pain is exacerbated with activity」를 올바르게 해석한 것은?',
+ ans:'활동으로 통증이 악화된다',
+ choices:[
+  '활동으로 통증이 완화된다',
+  '통증이 활동과 무관하다',
+  '활동으로 통증이 악화된다',
+  '통증이 활동 중에만 처음 나타난다'
+ ],
+ exp:'exacerbate = 이미 있는 문제를 더 악화. aggravate와 동의어(구어적). "What exacerbates/aggravates your symptoms?" = 증상을 악화시키는 것이 무엇입니까?',
+ nuanceRows:[
+  {tag:'뜻', cls:'tag-en', val:'악화시키다 / 심화시키다 — 이미 있는 것을 <em>더 나쁘게</em>'},
+  {tag:'유사어', cls:'tag-ko', val:'aggravate(구어) / worsen / intensify / provoke'},
+  {tag:'반대어', cls:'tag-tip', val:'alleviate / relieve / reduce / improve — 완화 방향'}
+ ]
+},
+{cat:'clinical_verb', mode:'compare',
+ term:'compensate vs. substitute', termSub:'임상 기능 동사 — 대체 움직임',
+ ctx:null, note:null,
+ q:'MMT에서 「substitution by the tibialis posterior」의 의미는?',
+ ans:'목표 근육이 약해서 후경골근이 대신 수축하는 대체 동작이 관찰됨',
+ choices:[
+  '후경골근이 정상적으로 수축함',
+  '목표 근육이 약해서 후경골근이 대신 수축하는 대체 동작이 관찰됨',
+  '후경골근이 완전히 마비됨',
+  '후경골근을 테스트하는 문제'
+ ],
+ exp:'substitute = MMT에서 특히 사용 — 약한 근육 대신 다른 근육이 수축하는 것. compensate = 더 넓은 개념으로 기능적 결손을 대체 전략으로 메우는 것.',
+ nuanceRows:[
+  {tag:'substitute', cls:'tag-warn', val:'MMT 특화 — 다른 <em>근육이 대신</em> 수축 (검사 무효화)'},
+  {tag:'compensate', cls:'tag-en', val:'넓은 개념 — 결손을 <em>대체 전략</em>으로 메움 (보상 보행 등)'},
+  {tag:'임상 예', cls:'tag-tip', val:'Trendelenburg = 중둔근 약화를 <em>체간 기울기로 compensate</em>'}
+ ]
+},
+{cat:'clinical_verb', mode:'nuance',
+ term:'alleviate vs. eliminate vs. resolve', termSub:'임상 기능 동사 — 증상 경감 정도',
+ ctx:null, note:null,
+ q:'「alleviate」, 「eliminate」, 「resolve」의 강도 순서로 옳은 것은?',
+ ans:'alleviate(부분 경감) < eliminate(완전 제거) ≒ resolve(완전히 해결)',
+ choices:[
+  'resolve(부분) < alleviate(중간) < eliminate(완전)',
+  'eliminate(가장 약함) < alleviate < resolve(가장 강함)',
+  'alleviate(부분 경감) < eliminate(완전 제거) ≒ resolve(완전히 해결)',
+  '세 표현은 동일한 강도'
+ ],
+ exp:'alleviate/relieve = 부분적 경감(줄이다) / eliminate = 완전히 없애다 / resolve = 문제가 완전히 해결되다. 치료 목표 기술 시 어느 수준을 목표로 하는지 구분.',
+ nuanceRows:[
+  {tag:'alleviate', cls:'tag-ko', val:'<em>부분적</em> 경감 — reduce / relieve / minimize와 유사'},
+  {tag:'eliminate', cls:'tag-en', val:'<em>완전히</em> 없애다 — 더 강한 표현'},
+  {tag:'resolve', cls:'tag-tip', val:'<em>완전히</em> 해결되다 — "symptoms resolved" = 증상 완전히 사라짐'}
+ ]
+},
+
+// ============================================================
+// NEW QB — 시간·순서
+// ============================================================
+{cat:'time_seq', mode:'nuance',
+ term:'prior to vs. subsequent to', termSub:'시간·순서 표현 — 반대 쌍',
+ ctx:null, note:null,
+ q:'「prior to」와 「subsequent to」의 관계는?',
+ ans:'서로 반대: prior to = 이전 / subsequent to = 이후',
+ choices:[
+  '둘 다 "~ 이후에"를 의미',
+  '둘 다 "~ 이전에"를 의미',
+  '서로 반대: prior to = 이전 / subsequent to = 이후',
+  'prior to = 원인 / subsequent to = 결과를 나타냄'
+ ],
+ exp:'prior to = before의 격식 표현. subsequent to = after/following의 격식 표현. 둘 다 공식 문서에서 자주. "secondary to"(원인 표현)와 "subsequent to"(시간 순서)는 완전히 다름!',
+ nuanceRows:[
+  {tag:'prior to', cls:'tag-en', val:'~ <em>이전에</em> = before (격식체)'},
+  {tag:'subsequent to', cls:'tag-ko', val:'~ <em>이후에</em> = after / following (격식체)'},
+  {tag:'⚠️ 혼동', cls:'tag-warn', val:'secondary to(원인) ≠ subsequent to(시간 순서) — 완전히 다름!'}
+ ]
+},
+{cat:'time_seq', mode:'trap',
+ term:'at this time', termSub:'시간 표현 — 시기가 정답을 결정',
+ ctx:'"Patient is 2 weeks post rotator cuff repair"',
+ note:'⚠️ "at this time" = 지금 이 단계에서 — 시기가 허용 중재를 결정!',
+ q:'위 상황에서 「LEAST appropriate at this time」의 핵심 해석은?',
+ ans:'수술 2주 후 이 시기에 가장 하면 안 되는 것',
+ choices:[
+  '일반적으로 가장 좋지 않은 운동을 고른다',
+  '수술 2주 후 이 시기에 가장 하면 안 되는 것',
+  '이 환자에게 영원히 금지된 것을 고른다',
+  '모든 환자에게 항상 부적절한 것을 고른다'
+ ],
+ exp:'"at this time" = 이 시점 한정. 2주 후에는 봉합 조직이 취약 → 저항 운동 금지. 6주 후에는 동일 운동이 적절할 수 있음. 시기 표현을 놓치면 완전히 다른 답이 나옴.',
+ nuanceRows:[
+  {tag:'핵심', cls:'tag-warn', val:'"at this time" = <em>지금 이 단계에서만</em> 적용 — 영구 금지 아님'},
+  {tag:'유사어', cls:'tag-en', val:'at this stage / at this point / currently / at present'},
+  {tag:'전략', cls:'tag-tip', val:'시기 표현(2 weeks post / acute phase)이 있으면 → 그 단계 프로토콜 적용'}
+ ]
+},
+{cat:'time_seq', mode:'usage',
+ term:'N weeks post / in order to', termSub:'시간·목적 표현 — 실제 적용',
+ ctx:'"Patient is 12 weeks post talus fracture — chief complaint: catching sensation"',
+ note:null,
+ q:'이 지문에서 「12 weeks post」가 의미하는 임상적 중요성은?',
+ ans:'골절 후 12주 경과 = 뼈 유합이 상당히 진행된 단계 → 적극적 재활 진행 가능한 시기',
+ choices:[
+  '골절 후 12주 = 아직 급성기이므로 모든 운동 금지',
+  '골절 후 12주 = 수술 직후이므로 NWB 유지',
+  '골절 후 12주 경과 = 뼈 유합이 상당히 진행된 단계 → 적극적 재활 진행 가능한 시기',
+  '골절 후 12주 = 최초 검사 날짜를 의미'
+ ],
+ exp:'"N weeks post [procedure]" = 수술/처치 후 N주 경과 상태. 시간 경과가 허용 중재 수준을 결정. 12주 = 뼈 유합 거의 완성 → ROM, 근력 강화, 기능 훈련 진행 시기.',
+ nuanceRows:[
+  {tag:'구조', cls:'tag-en', val:'[N weeks] post [procedure] = [시술] 후 [N주] 경과'},
+  {tag:'임상 의미', cls:'tag-ko', val:'경과 주수가 → 허용 부하·운동 강도를 결정'},
+  {tag:'유사 표현', cls:'tag-tip', val:'postoperative day N / N weeks following surgery / N weeks after the procedure'}
+ ]
+},
+
+// ============================================================
+// NEW QB — 비교·대조
+// ============================================================
+{cat:'comparison', mode:'nuance',
+ term:'rather than vs. instead of vs. as opposed to', termSub:'비교·대조 표현 — 강도 차이',
+ ctx:null, note:null,
+ q:'「A rather than B」, 「A instead of B」, 「A as opposed to B」 중 대립·대조를 가장 강하게 강조하는 것은?',
+ ans:'as opposed to',
+ choices:[
+  'rather than',
+  'instead of',
+  'as opposed to',
+  '세 표현 모두 동일한 강도'
+ ],
+ exp:'instead of = 단순 대체(중립적) / rather than = 선호하는 것을 선택(약한 대립) / as opposed to = 반대·대조를 강하게 부각. 선택 이유나 차이점을 강조할 때 as opposed to.',
+ nuanceRows:[
+  {tag:'중립', cls:'tag-ko', val:'<em>instead of</em> — 단순히 A 대신 B'},
+  {tag:'선호', cls:'tag-en', val:'<em>rather than</em> — B보다 A를 선호'},
+  {tag:'대립', cls:'tag-warn', val:'<em>as opposed to</em> — A와 B가 반대적 관계임을 강조'}
+ ]
+},
+{cat:'comparison', mode:'trap',
+ term:'despite / regardless of', termSub:'비교·대조 — 역접 표현',
+ ctx:null, note:null,
+ q:'「Despite conservative treatment, symptoms persisted」의 의미는?',
+ ans:'보존적 치료를 했음에도 불구하고 증상이 지속됨',
+ choices:[
+  '보존적 치료로 인해 증상이 생겼다',
+  '보존적 치료를 하지 않아서 증상이 지속됐다',
+  '보존적 치료를 했음에도 불구하고 증상이 지속됨',
+  '보존적 치료와 증상은 관계가 없다'
+ ],
+ exp:'"despite" = ~에도 불구하고(역접). 예상되는 결과와 반대되는 결과를 연결. "in spite of"와 동의어. "regardless of" = ~에 관계없이(조건 무관).',
+ nuanceRows:[
+  {tag:'despite', cls:'tag-warn', val:'~에도 불구하고 — 예상과 <em>반대</em> 결과 (in spite of와 동의어)'},
+  {tag:'regardless of', cls:'tag-en', val:'~에 관계없이 — 조건을 <em>무시</em>하고'},
+  {tag:'although/even though', cls:'tag-tip', val:'비록 ~이지만 — 접속사 버전 (뒤에 주어+동사)'}
+ ]
+},
+
+// ============================================================
+// NEW QB — 금기·제한
+// ============================================================
+{cat:'contraindication', mode:'nuance',
+ term:'contraindicated vs. is not indicated', termSub:'금기 표현 — 강도 차이',
+ ctx:null, note:null,
+ q:'「contraindicated」와 「is not indicated」의 강도 차이는?',
+ ans:'contraindicated > is not indicated',
+ choices:[
+  '둘은 완전히 동일한 의미',
+  'is not indicated가 더 강한 금지 표현',
+  'contraindicated > is not indicated',
+  'contraindicated = 상대적 금기 / is not indicated = 절대적 금기'
+ ],
+ exp:'contraindicated = 해서는 절대 안 됨, 하면 환자에게 해가 됨. is not indicated = 이 상황에 맞지 않음(해가 될 수도, 아닐 수도). absolute vs relative contraindication도 구별 필요.',
+ nuanceRows:[
+  {tag:'강함', cls:'tag-warn', val:'<em>contraindicated</em> = 하면 해가 됨, 절대/상대 구분'},
+  {tag:'약함', cls:'tag-en', val:'<em>is not indicated</em> = 이 상황에 맞지 않음'},
+  {tag:'순서', cls:'tag-tip', val:'contraindicated > should be avoided > is not indicated > is not preferred'}
+ ]
+},
+{cat:'contraindication', mode:'nuance',
+ term:'reveals / is positive for / is suggestive of', termSub:'검사 결과 표현 — 강도 순서',
+ ctx:null, note:null,
+ q:'검사 소견이 진단을 연결하는 강도가 강한 것부터 순서로 옳은 것은?',
+ ans:'is diagnostic of > is positive for > reveals/indicates > is suggestive of > is consistent with',
+ choices:[
+  'is consistent with > suggests > reveals > is diagnostic of',
+  'is suggestive of > reveals > is positive for > is diagnostic of',
+  'is diagnostic of > is positive for > reveals/indicates > is suggestive of > is consistent with',
+  '모두 동일한 강도'
+ ],
+ exp:'is diagnostic of(확진) > is positive for(양성 결과) > reveals/indicates(드러냄/시사) > is suggestive of(간접 시사) > is consistent with(부합). 강도에 따라 선택지 구별에 활용.',
+ nuanceRows:[
+  {tag:'확진', cls:'tag-warn', val:'<em>is diagnostic of</em> — 이 소견 = 이 진단 (확정)'},
+  {tag:'강한 연결', cls:'tag-en', val:'<em>is positive for / indicates</em> — 직접적 연결'},
+  {tag:'약한 연결', cls:'tag-ko', val:'<em>is suggestive of / consistent with</em> — 간접적 시사'}
+ ]
+},
+{cat:'grading', mode:'nuance',
+ term:'Grade I / II / III (injury)', termSub:'등급 표현 — 손상 심각도',
+ ctx:null, note:null,
+ q:'인대 손상 Grade I / II / III에 대한 설명으로 옳은 것은?',
+ ans:'Grade I = 미세 파열(통증, 불안정성 없음) / Grade II = 부분 파열(경미한 불안정) / Grade III = 완전 파열',
+ choices:[
+  'Grade I = 완전 파열 / Grade II = 부분 파열 / Grade III = 미세 파열',
+  'Grade I = 미세 파열(통증, 불안정성 없음) / Grade II = 부분 파열(경미한 불안정) / Grade III = 완전 파열',
+  'Grade I~III 모두 수술이 필요한 손상',
+  'Grade = 오직 근력 검사에만 사용되는 표현'
+ ],
+ exp:'Grade I < II < III 순으로 심각. Grade III = 완전 파열 = 수술 고려. Grade(손상·가동술·근력) / Stage(압박궤양·암) / Level(SCI 신경 레벨) — 용도에 따라 다른 분류 체계.',
+ nuanceRows:[
+  {tag:'Grade I', cls:'tag-ko', val:'미세 파열 — 통증 있으나 불안정성 없음'},
+  {tag:'Grade II', cls:'tag-en', val:'부분 파열 — 경미한 불안정성, 통증 심함'},
+  {tag:'Grade III', cls:'tag-warn', val:'완전 파열 — 심한 불안정성, 수술 고려'},
+  {tag:'주의', cls:'tag-tip', val:'Grade(손상) vs Stage(궤양·암) vs Level(SCI) — 맥락에 따라 다른 체계'}
+ ]
+}
+];
+
+// ============================================================
+// APP STATE
+// ============================================================
+let S = {
+  mode:'nuance', part:'all', cnt:10,
+  pool:[], cur:0, correct:0, wrong:0,
+  streak:0, best:0,
+  totOk:0, totAll:0, sessStreak:0,
+  answered:false, missed:[]
+};
+
+function loadSave(){
+  try{const d=JSON.parse(localStorage.getItem('npte_v2')||'{}');
+    S.totOk=d.ok||0; S.totAll=d.all||0; S.sessStreak=d.ss||0;
+  }catch(e){}
+}
+function doSave(){
+  try{localStorage.setItem('npte_v2',JSON.stringify({ok:S.totOk,all:S.totAll,ss:S.sessStreak}));}catch(e){}
+}
+function updHdr(){
+  document.getElementById('hS').textContent=S.sessStreak;
+  document.getElementById('hT').textContent=S.totAll;
+  document.getElementById('hA').textContent=S.totAll>0?Math.round(S.totOk/S.totAll*100)+'%':'-';
+  const sb=document.getElementById('home-streak');
+  if(S.sessStreak>0){sb.style.display='flex';document.getElementById('homeStreakN').textContent=S.sessStreak;}
+  else sb.style.display='none';
+}
+
+// ============================================================
+// NAV
+// ============================================================
+function go(name){
+  document.querySelectorAll('.sc').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('sc-'+name).classList.add('on');
+  const idx=['home','quiz','ref','chart'].indexOf(name);
+  if(idx>=0) document.querySelectorAll('.nb')[idx].classList.add('on');
+  if(name==='ref') renderRef('all');
+  if(name==='home') buildHome();
+  if(name==='chart'){showChartTab('overview');renderOverview();}
+}
+
+// ============================================================
+// HOME
+// ============================================================
+function buildHome(){
+  updHdr();
+  const parts=[
+    {id:'all',   num:'ALL', title:'전체 랜덤 퀴즈', desc:'모든 표현 혼합 출제'},
+    {id:'modifier', num:'P1', title:'핵심 수식어', desc:'MOST / BEST / LEAST / FIRST / PRIMARY'},
+    {id:'verb',  num:'P2', title:'핵심 동사', desc:'suspect / demonstrate / indicate / refer'},
+    {id:'phrase', num:'P3', title:'구 단위 표현', desc:'secondary to / at risk for / consistent with'},
+    {id:'trap',  num:'P5', title:'함정 탐지', desc:'방향 반전 · 시기 · 자립도 · 반사 표현'},
+    {id:'symptom', num:'NA', title:'증상 묘사 동사', desc:'presents with / reveals / complains of / denies'},
+    {id:'clinical_verb', num:'NB', title:'임상 기능 동사', desc:'facilitate / inhibit / exacerbate / compensate'},
+    {id:'time_seq', num:'NC', title:'시간·순서 표현', desc:'prior to / in order to / at this time / weeks post'},
+    {id:'comparison', num:'ND', title:'비교·대조 표현', desc:'compared to / rather than / as opposed to / despite'},
+    {id:'contraindication', num:'NE', title:'금기·제한 표현', desc:'contraindicated / restricted to / is indicated'},
+    {id:'grading', num:'NF', title:'등급 표현', desc:'Grade I~III / Stage 1~4 / Level'},
+  ];
+  const g=document.getElementById('home-parts');
+  g.innerHTML='';
+  parts.forEach(p=>{
+    const cnt=p.id==='all'?QB.length:QB.filter(q=>q.cat===p.id).length;
+    const d=document.createElement('div');
+    d.className='pcard'+(p.id==='all'?' all-card':'');
+    d.onclick=()=>startPart(p.id);
+    d.innerHTML=`<div class="pnum">${p.num}</div><div class="pinfo"><h3>${p.title}</h3><p>${p.desc}</p></div><div class="pcnt">${cnt}Q</div>`;
+    g.appendChild(d);
+  });
+}
+
+function startPart(part){
+  S.part=part;
+  go('quiz');
+  showSetup();
+}
+
+// ============================================================
+// QUIZ SETUP
+// ============================================================
+let _mode='nuance', _cnt=10;
+function pickMode(m){
+  _mode=m;
+  document.querySelectorAll('.mc').forEach(c=>c.classList.remove('sel'));
+  document.getElementById('mc-'+m).classList.add('sel');
+}
+function pickCnt(n,el){
+  _cnt=n;
+  document.querySelectorAll('.pills .pill').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+}
+function showSetup(){
+  document.getElementById('q-setup').style.display='block';
+  document.getElementById('q-area').style.display='none';
+  document.getElementById('q-result').style.display='none';
+}
+
+function launchQuiz(){
+  S.mode=_mode; S.cnt=_cnt;
+  let pool=S.part==='all'?[...QB]:QB.filter(q=>q.cat===S.part);
+  // filter by mode if not 'all'
+  const mFiltered=pool.filter(q=>q.mode===S.mode);
+  if(mFiltered.length>0) pool=mFiltered;
+  pool=shuffle(pool);
+  const n=S.cnt===999?pool.length:Math.min(S.cnt,pool.length);
+  S.pool=pool.slice(0,n);
+  S.cur=0; S.correct=0; S.wrong=0; S.streak=0; S.best=0; S.missed=[]; S.answered=false;
+  document.getElementById('q-setup').style.display='none';
+  document.getElementById('q-area').style.display='block';
+  document.getElementById('q-result').style.display='none';
+  renderQ();
+}
+
+function shuffle(a){
+  const b=[...a];
+  for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}
+  return b;
+}
+
+// ============================================================
+// RENDER QUESTION
+// ============================================================
+function renderQ(){
+  if(S.cur>=S.pool.length){showResult();return;}
+  const q=S.pool[S.cur];
+  const total=S.pool.length;
+  const pct=Math.round(S.cur/total*100);
+  document.getElementById('qPtxt').textContent=`${S.cur+1} / ${total}`;
+  document.getElementById('qStxt').textContent=`정답 ${S.correct}`;
+  document.getElementById('qPbar').style.width=pct+'%';
+  document.getElementById('qNum').textContent=`#${S.cur+1}`;
+
+  // Badge
+  const modeLabel={nuance:'뜻·뉘앙스',usage:'용법·상황',compare:'표현 비교',trap:'⚠️ 함정 탐지'};
+  const badge=document.getElementById('qBadge');
+  badge.textContent=modeLabel[q.mode]||q.mode;
+  badge.className='q-badge'+(q.mode==='trap'?' trap':q.mode==='usage'?' fill':'');
+
+  // Expression box — 학습 표현 제목만 TTS (순수 영어 표현)
+  const termTxt = q.term;
+  document.getElementById('qTerm').innerHTML = makeTTSBtn(termTxt) + escHtml(termTxt);
+  document.getElementById('qSub').textContent=q.termSub||'';
+  const ctxEl=document.getElementById('qCtx');
+  if(q.ctx){
+    ctxEl.style.display='block';
+    // ctx는 순수 영어 문장일 때만 TTS, 그 외에는 tooltip만
+    const ctxRaw = q.ctx.replace(/<[^>]+>/g,'').trim();
+    const isPureEn = /^[^가-힣]{10,}$/.test(ctxRaw); // 한글 없는 순수 영어 문장
+    ctxEl.innerHTML = (isPureEn ? makeTTSBtn(ctxRaw) : '') + applyWordTooltips(q.ctx);
+  } else ctxEl.style.display='none';
+
+  // Note
+  const noteEl=document.getElementById('qNote');
+  if(q.note){noteEl.style.display='block';noteEl.textContent=q.note;}
+  else noteEl.style.display='none';
+
+  // Question — tooltip만 (TTS 없음)
+  const qEl=document.getElementById('qText');
+  qEl.innerHTML = applyWordTooltips(escHtml(q.q));
+
+  // Choices — TTS 제거, tooltip만 적용
+  const choices=shuffle(q.choices);
+  const chEl=document.getElementById('qChoices');
+  chEl.innerHTML='';
+  choices.forEach((c,i)=>{
+    const btn=document.createElement('button');
+    btn.className='cbtn';
+    // 선택지: 힌트성 괄호/대시 설명 제거 후 tooltip 적용
+    btn.dataset.ans = c; // 원본 정답 비교용
+    btn.innerHTML=`<span class="cnum">${i+1}</span><span>${applyWordTooltips(escHtml(cleanChoice(c)))}</span>`;
+    btn.onclick=()=>checkA(c,q,choices);
+    chEl.appendChild(btn);
+  });
+
+  // Reset feedback
+  const fb=document.getElementById('qFb');
+  fb.style.display='none'; fb.className='fb';
+  document.getElementById('qNuance').style.display='none';
+  document.getElementById('qSkip').style.display='block';
+  document.getElementById('qNext').style.display='none';
+  S.answered=false;
+}
+
+function checkA(chosen, q, choices){
+  if(S.answered) return;
+  S.answered=true;
+  const ok=chosen===q.ans;
+
+  // Style buttons — dataset.ans(원본값)로 비교
+  document.querySelectorAll('.cbtn').forEach(btn=>{
+    btn.disabled=true;
+    const orig=btn.dataset.ans;
+    if(orig===q.ans) btn.classList.add(ok?'correct':'show-ans');
+    else if(orig===chosen&&!ok) btn.classList.add('wrong');
+  });
+
+  if(ok){
+    S.correct++; S.totOk++; S.streak++; S.sessStreak++;
+    if(S.streak>S.best) S.best=S.streak;
+  } else {
+    S.wrong++; S.streak=0; S.sessStreak=0;
+    S.missed.push({term:q.term, ans:q.ans});
+  }
+  S.totAll++; doSave(); updHdr();
+
+  // Feedback
+  const fb=document.getElementById('qFb');
+  fb.style.display='block';
+  fb.className='fb '+(ok?'ok':'ng');
+  document.getElementById('qFbHead').textContent=ok?'✅ 정답!':'❌ 오답 — 정답을 확인하세요';
+  document.getElementById('qFbBody').innerHTML=`<strong>정답:</strong> ${q.ans}<br><br>${q.exp}`;
+
+  // Nuance rows
+  if(q.nuanceRows&&q.nuanceRows.length>0){
+    const nb=document.getElementById('qNuance');
+    nb.style.display='block';
+    document.getElementById('qNuanceRows').innerHTML=q.nuanceRows.map(r=>
+      `<div class="nuance-row"><span class="nuance-tag ${r.cls}">${r.tag}</span><div class="nuance-val">${r.val}</div></div>`
+    ).join('');
+  }
+
+  document.getElementById('qSkip').style.display='none';
+  document.getElementById('qNext').style.display='block';
+}
+
+function next(){S.cur++;renderQ();}
+
+// ============================================================
+// RESULT
+// ============================================================
+function showResult(){
+  document.getElementById('q-area').style.display='none';
+  document.getElementById('q-result').style.display='block';
+  const total=S.pool.length;
+  const pct=total>0?Math.round(S.correct/total*100):0;
+  document.getElementById('resPct').textContent=pct+'%';
+  document.getElementById('resOk').textContent=S.correct;
+  document.getElementById('resNg').textContent=S.wrong;
+  document.getElementById('resBest').textContent=S.best;
+  // color
+  const c=document.querySelector('.res-circle');
+  c.style.borderColor=pct>=80?'var(--green)':pct>=60?'var(--gold)':'var(--red)';
+  document.querySelector('.res-score').style.color=pct>=80?'var(--green)':pct>=60?'var(--gold)':'var(--red)';
+  // missed
+  const rv=document.getElementById('res-review');
+  if(S.missed.length>0){
+    rv.style.display='block';
+    document.getElementById('res-review-list').innerHTML=S.missed.slice(0,6).map(m=>
+      `<div class="review-item"><div class="ri-term">${m.term}</div><div class="ri-ans">정답: <strong>${m.ans}</strong></div></div>`
+    ).join('');
+  } else rv.style.display='none';
+}
+
+// ============================================================
+// REFERENCE
+// ============================================================
+let _refFilter='all';
+function filterRef(f,el){
+  _refFilter=f;
+  document.querySelectorAll('#ref-pills .pill').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  renderRef(f);
+}
+function renderRef(f){
+  const wrap=document.getElementById('ref-content');
+  wrap.innerHTML='';
+  const secs=[
+    {key:'modifier',   label:'PART 1 · 핵심 수식어 (MOST / BEST / LEAST / FIRST / PRIMARY)'},
+    {key:'verb',       label:'PART 2 · 핵심 동사 (suspect / demonstrate / indicate / refer)'},
+    {key:'phrase',     label:'PART 3 · 구 단위 표현 (at risk for / secondary to / consistent with)'},
+    {key:'trap',       label:'PART 5 · 함정 표현 (방향반전 / 검사결과 / 시기 / 자립도 / 반사)'},
+    {key:'symptom',    label:'NEW A · 증상 묘사 동사 (presents with / reveals / complains of / denies)'},
+    {key:'clinical_verb', label:'NEW B · 임상 기능 동사 (facilitate / inhibit / exacerbate / compensate / alleviate)'},
+    {key:'time_seq',   label:'NEW C · 시간·순서 표현 (prior to / in order to / at this time / N weeks post)'},
+    {key:'comparison', label:'NEW D · 비교·대조 표현 (compared to / rather than / as opposed to / despite)'},
+    {key:'contraindication', label:'NEW E · 금기·제한 표현 (contraindicated / is indicated / restricted to)'},
+    {key:'grading',    label:'NEW F · 등급 표현 (Grade I~III / Stage 1~4)'},
+  ];
+
+  function buildSiblings(exp){
+    if(!exp.siblings||exp.siblings.length===0) return '';
+    const rows=exp.siblings.map(s=>
+      `<div style="display:flex;gap:8px;align-items:baseline;margin-bottom:5px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--orange);min-width:0;flex:1">${s.term}</span>
+        <span style="font-size:11px;color:var(--text2);flex:1">${s.ko}</span>
+       </div>`
+    ).join('');
+    return `<div class="rdl" style="margin-top:10px">📎 유사·관련 표현 메모</div>
+      <div style="background:rgba(247,165,79,.07);border:1px solid rgba(247,165,79,.2);border-radius:8px;padding:11px 13px;margin-bottom:10px">${rows}</div>`;
+  }
+
+  secs.forEach(sec=>{
+    if(f!=='all'&&f!==sec.key) return;
+    const s=document.createElement('div');
+    s.className='ref-section';
+    s.innerHTML=`<div class="ref-stitle">${sec.label}</div>`;
+    (EXPRS[sec.key]||[]).forEach(exp=>{
+      const item=document.createElement('div');
+      item.className='ritem';
+      const hasDiff = exp.diff_from ? `<div class="rdl">다른 표현과 비교</div><div class="rdv">${exp.diff_from}</div>` : '';
+      const termClean = exp.term.replace(/★/g,'').trim();
+      item.innerHTML=`
+        <div class="ritem-head" onclick="this.parentElement.classList.toggle('open')">
+          <div><div class="rterm">${makeTTSBtn(termClean)}${exp.term}</div><div class="rko">${exp.ko}</div></div>
+          <div class="rchev">▼</div>
+        </div>
+        <div class="rdetail">
+          <div class="rdl">핵심 뉘앙스</div><div class="rdv">${applyWordTooltips(exp.nuance)}</div>
+          ${hasDiff ? `<div class="rdl">다른 표현과 비교</div><div class="rdv">${applyWordTooltips(exp.diff_from)}</div>` : ''}
+          ${buildSiblings(exp)}
+          <div class="rdl">실제 사용 문맥</div><div class="rdv" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent2)">${makeTTSBtn(exp.context)}${exp.context}</div>
+          ${exp.examples.map(ex=>`<div class="rexbox"><div class="en">${makeTTSBtn(ex.en)}${ex.en}</div><div class="ko">${ex.ko}</div></div>`).join('')}
+        </div>`;
+      s.appendChild(item);
+    });
+    wrap.appendChild(s);
+  });
+  if(f==='all'||f==='abbr'){
+    const s=document.createElement('div');
+    s.className='ref-section';
+    s.innerHTML=`<div class="ref-stitle">약어 정리 (Abbreviations)</div><div class="abgrid" id="abg"></div>`;
+    wrap.appendChild(s);
+    const g=document.getElementById('abg');
+    ABBREVS.forEach(a=>{
+      const d=document.createElement('div');
+      d.className='abcard';
+      d.innerHTML=`<div class="ab-term">${a.t}</div><div class="ab-full">${a.f}</div><div class="ab-ko">${a.k}</div>`;
+      g.appendChild(d);
+    });
+  }
+}
+
+// ============================================================
+// CHART READING MODULE
+// ============================================================
+
+// ── 1. CHART STRUCTURE DATA ──────────────────────────────────
+const CHART_SECTIONS = [
+  {
+    id:'demographics',
+    icon:'🪪', title:'Patient Demographics / Identifying Information', ko:'환자 기본 정보',
+    purpose:'환자의 기본 신상 정보. 나이·성별·직업·거주 환경이 <strong>중재 목표 설정</strong>과 <strong>기능 수준 기대치</strong>에 영향. 문제에서 직접 묻는 경우는 드물지만 context 설정에 핵심.',
+    what_to_find:'나이(연령대별 고려사항), 성별(특정 질환 위험), 직업(복귀 목표), 거주 환경(계단, 독거 여부)',
+    terms:[
+      {en:'DOB / Age', ko:'생년월일 / 나이', note:'연령 관련 합병증 위험 단서'},
+      {en:'Sex / Gender', ko:'성별', note:'골다공증·임신 등 연관'},
+      {en:'Occupation', ko:'직업', note:'복직 가능성·목표 설정'},
+      {en:'Living situation', ko:'거주 환경', note:'독거/동거, 계단 유무'},
+      {en:'Primary language', ko:'주 사용 언어', note:'교육 방법 결정'},
+      {en:'Insurance / Payer', ko:'보험 정보', note:'치료 횟수·커버리지'},
+      {en:'Referring physician', ko:'의뢰 의사', note:'전문과 → 진단 힌트'},
+      {en:'Chief complaint (CC)', ko:'주소 (主訴)', note:'환자가 직접 말하는 주된 문제'},
+    ],
+    trap:'나이와 성별 조합으로 "가장 위험한 합병증"이나 "가장 가능성 높은 진단"을 추론하는 문제가 출제. 65세 이상 여성 → 골다공증·낙상 위험 자동 연상.'
+  },
+  {
+    id:'dx',
+    icon:'🩺', title:'Diagnosis / Medical History (Dx / PMH)', ko:'진단명 / 과거 병력',
+    purpose:'현재 진단(Primary Dx)과 과거력(PMH), 수술력(Surgical Hx), 사회력(Social Hx) 포함. <strong>가장 중요한 섹션</strong> — 모든 임상 판단의 기반.',
+    what_to_find:'Primary Dx(현 진단), Secondary Dx(동반 질환), 수술 날짜·종류, 과거 골절/수술, 음주·흡연·운동 습관',
+    terms:[
+      {en:'Primary Dx / Admitting Dx', ko:'주 진단명 / 입원 진단', note:''},
+      {en:'Secondary Dx / Comorbidities', ko:'동반 질환', note:'치료 제한 요인'},
+      {en:'PMH (Past Medical History)', ko:'과거 병력', note:''},
+      {en:'PSH (Past Surgical History)', ko:'수술력', note:'수술 날짜 확인 필수'},
+      {en:'FH (Family History)', ko:'가족력', note:''},
+      {en:'Social History (SH)', ko:'사회력', note:'흡연·음주·운동'},
+      {en:'HPI (History of Present Illness)', ko:'현병력', note:'발병 경위 상세'},
+      {en:'Mechanism of injury (MOI)', ko:'손상 기전', note:''},
+      {en:'Onset', ko:'발병 시점', note:'insidious vs sudden'},
+      {en:'Duration', ko:'유병 기간', note:''},
+    ],
+    trap:'Secondary Dx가 치료 금기나 주의사항을 만들어낼 수 있음. 예: Primary Dx = hip fracture이지만 Secondary Dx = osteoporosis + anticoagulant → 낙상 예방 최우선!'
+  },
+  {
+    id:'meds',
+    icon:'💊', title:'Medications / Current Medications', ko:'복용 약물',
+    purpose:'현재 복용 약물 목록. <strong>PT에 직접 영향을 주는 약물</strong>을 파악해야 함. 운동 반응, 출혈 위험, 혈압 변화, 근력·균형에 영향.',
+    what_to_find:'항응고제(출혈 위험), 혈압약(운동 시 반응), 코르티코스테로이드(장기 사용 → 골다공증), 이뇨제(전해질 불균형), 당뇨약(저혈당)',
+    terms:[
+      {en:'Anticoagulant (Warfarin, Heparin)', ko:'항응고제', note:'출혈 위험 ↑ → 도수 치료 주의'},
+      {en:'Beta-blocker (Metoprolol, Atenolol)', ko:'베타차단제', note:'운동 시 HR 반응 둔화 → RPE 사용'},
+      {en:'ACE inhibitor (-pril)', ko:'ACE 억제제', note:'기침 부작용, 운동 혈압 안정화'},
+      {en:'Corticosteroid (Prednisone)', ko:'코르티코스테로이드', note:'장기 사용 → 골다공증·근력저하'},
+      {en:'Diuretic (Furosemide)', ko:'이뇨제', note:'전해질 불균형·어지러움'},
+      {en:'Insulin / Oral hypoglycemic', ko:'인슐린 / 경구혈당강하제', note:'운동 전후 혈당 모니터링'},
+      {en:'NSAID (Ibuprofen, Naproxen)', ko:'비스테로이드 소염제', note:'통증·염증 억제'},
+      {en:'Opioid analgesic', ko:'마약성 진통제', note:'균형·인지 영향'},
+      {en:'Statin (-statin)', ko:'스타틴', note:'근육통·근병증 부작용 가능'},
+      {en:'Bronchodilator (Albuterol)', ko:'기관지 확장제', note:'운동 전 흡입 확인'},
+    ],
+    trap:'Beta-blocker 복용 환자 → 운동 시 심박수가 오르지 않음 → HR로 운동 강도 측정 불가 → <strong>RPE(자각 운동 강도) 스케일</strong>로 대체해야 정답!'
+  },
+  {
+    id:'vitals',
+    icon:'📊', title:'Vital Signs', ko:'활력 징후',
+    purpose:'치료 전·중·후 안전성 확인의 핵심. <strong>치료 시작/중단/수정</strong>을 결정하는 수치들. 정상 범위를 벗어난 값이 있으면 반드시 행동 결정에 반영.',
+    what_to_find:'BP, HR, RR, SpO₂, Temperature, 혈당 — 치료 시작 전과 후를 비교, 이상 수치 파악',
+    terms:[
+      {en:'BP (Blood Pressure)', ko:'혈압 (mmHg)', note:'정상 <120/80 / HTN: >130/80'},
+      {en:'HR (Heart Rate)', ko:'심박수 (bpm)', note:'정상 60-100 / tachy >100 / brady <60'},
+      {en:'RR (Respiratory Rate)', ko:'호흡수 (breaths/min)', note:'정상 12-20 / >20 = tachypnea'},
+      {en:'SpO₂ / O₂ Sat', ko:'산소포화도 (%)', note:'정상 ≥95% / <90% = 치료 중단'},
+      {en:'Temperature', ko:'체온 (°F / °C)', note:'>101°F(38.3°C) = 열 → 치료 주의'},
+      {en:'Blood glucose / BG', ko:'혈당 (mg/dL)', note:'<70 = 저혈당 / >250 = 고혈당 → 운동 주의'},
+      {en:'Pain (0-10 VAS/NRS)', ko:'통증 척도 (0-10)', note:''},
+      {en:'Weight bearing status', ko:'체중 부하 상태', note:'NWB / PWB / WBAT / FWB'},
+    ],
+    trap:'<strong>운동 중단 절대 적응증</strong>을 모르면 함정! SpO₂ <90%, 수축기 BP >180 또는 <90mmHg, 심한 흉통·어지러움·청색증 → 즉시 중단. "at rest vs during exercise" 구별 필수.'
+  },
+  {
+    id:'labs',
+    icon:'🔬', title:'Laboratory Values / Lab Results', ko:'검사 수치',
+    purpose:'혈액 검사·영상 검사 결과. PT에 영향을 주는 수치를 파악해야 함. <strong>정상 범위를 벗어난 수치 = 치료 수정 또는 의사 보고</strong>의 신호.',
+    what_to_find:'Hgb/Hct(빈혈), WBC(감염), Platelet(출혈 위험), INR/PT(항응고 상태), BUN/Creatinine(신장), 영상 소견',
+    terms:[
+      {en:'Hgb (Hemoglobin)', ko:'혈색소', note:'정상 남 14-18 / 여 12-16 g/dL / 낮으면 → 피로·SOB'},
+      {en:'Hct (Hematocrit)', ko:'적혈구용적률', note:'빈혈 지표 / <25% → 치료 강도 조절'},
+      {en:'WBC (White Blood Cells)', ko:'백혈구 수', note:'>11,000 = 감염·염증 / <1,000 = 면역저하 → 격리'},
+      {en:'Platelet count', ko:'혈소판 수', note:'<50,000 = 도수 치료 주의 / <20,000 = 금기'},
+      {en:'INR / PT (Prothrombin Time)', ko:'응고 검사', note:'INR >3.0 = 출혈 위험 ↑ → 주의'},
+      {en:'BUN / Creatinine', ko:'신장 기능', note:'신장 기능 저하 → 수분·전해질 불균형'},
+      {en:'HbA1c', ko:'당화혈색소 (%)', note:'3개월 평균 혈당 / >7% = 혈당 조절 불량'},
+      {en:'X-ray / Radiograph', ko:'방사선 사진', note:'"negative for fracture" = 골절 없음'},
+      {en:'MRI findings', ko:'MRI 소견', note:'연부조직 손상 확인'},
+      {en:'Bone density / T-score', ko:'골밀도 / T 점수', note:'< -2.5 = 골다공증'},
+    ],
+    trap:'<strong>Lab 수치의 "정상 범위 외"가 항상 치료 중단 신호는 아님</strong>. 예: Hgb 10.5 g/dL → 빈혈이지만 치료 강도 조절하면 가능. Platelet <20,000 → 도수 치료 절대 금기. 문제가 묻는 것이 "중단"인지 "수정"인지 구별!'
+  },
+  {
+    id:'orders',
+    icon:'📋', title:'Physician Orders / Precautions / Restrictions', ko:'의사 처방 / 주의사항 / 제한',
+    purpose:'PT가 <strong>반드시 따라야 하는 지시사항</strong>. 체중 부하 허용 범위, ROM 제한, 자세 제한, 활동 제한이 포함. 이 섹션을 먼저 확인해야 함.',
+    what_to_find:'WB status, ROM restrictions, Positioning precautions, Activity level, 격리 여부, 특수 주의사항',
+    terms:[
+      {en:'Weight bearing status', ko:'체중 부하 상태', note:'NWB/PWB/WBAT/FWB 처방'},
+      {en:'ROM restrictions / Precautions', ko:'관절 가동 범위 제한', note:'예: "No hip flexion >90°"'},
+      {en:'Hip precautions', ko:'고관절 주의사항', note:'THA 후: no flexion>90°, no IR, no adduction'},
+      {en:'Sternal precautions', ko:'흉골 주의사항', note:'CABG 후: no pushing/pulling >5 lbs'},
+      {en:'Spinal precautions', ko:'척추 주의사항', note:'수술 후: no BLT(Bending, Lifting, Twisting)'},
+      {en:'Fall risk / Fall precautions', ko:'낙상 위험 / 낙상 예방', note:'고위험 → 항상 gait belt 착용'},
+      {en:'Isolation precautions', ko:'격리 주의사항', note:'Contact/Droplet/Airborne 격리 종류'},
+      {en:'Activity as tolerated (AAT)', ko:'허용 범위 내 활동', note:''},
+      {en:'Bed rest', ko:'침대 안정', note:'이동 최소화'},
+      {en:'NPO (Nil Per Os)', ko:'금식', note:'식사·약물 제한 → 혈당·에너지 주의'},
+    ],
+    trap:'<strong>이 섹션이 답을 바꾸는 경우가 가장 많음!</strong> 아무리 좋은 중재도 physician orders에 위배되면 오답. "Hip precautions"가 있는데 hip flexion >90° 운동 = 즉시 오답.'
+  },
+  {
+    id:'notes',
+    icon:'📝', title:'PT / OT / Nursing Notes (Prior Session Notes)', ko:'이전 치료 기록',
+    purpose:'이전 PT 세션 기록, 간호 기록, 다른 치료사의 메모. <strong>현재 기능 수준·진행 상황·반응</strong>을 파악하는 핵심 섹션.',
+    what_to_find:'Functional level (이동 능력, 보조 수준), 이전 치료 반응, 통증 수준 변화, 환자 목표, 치료사 계획(Plan)',
+    terms:[
+      {en:'S: (Subjective)', ko:'주관적 — 환자가 말하는 것', note:'"Patient reports pain 6/10"'},
+      {en:'O: (Objective)', ko:'객관적 — 측정·관찰 소견', note:'MMT, ROM, gait distance'},
+      {en:'A: (Assessment)', ko:'평가 — 치료사의 임상 판단', note:'"Patient is making functional progress"'},
+      {en:'P: (Plan)', ko:'계획 — 다음 세션 계획', note:'"Continue current POC / Progress to..."'},
+      {en:'Functional mobility', ko:'기능적 이동 능력', note:'침대이동·이동보행 포함'},
+      {en:'Ambulation distance', ko:'보행 거리', note:'예: "ambulated 50 ft with walker"'},
+      {en:'Assist level', ko:'보조 수준', note:'Supervision / MinA / ModA / MaxA'},
+      {en:'Gait belt', ko:'보행 벨트', note:'낙상 고위험 → 항상 착용'},
+      {en:'AD (Assistive Device)', ko:'보조 기구', note:'cane / walker / crutches / wheelchair'},
+      {en:'POC (Plan of Care)', ko:'치료 계획', note:'목표·중재·빈도 포함'},
+      {en:'D/C plan (Discharge plan)', ko:'퇴원 계획', note:'퇴원 후 환경·필요 사항'},
+      {en:'Tolerance to treatment', ko:'치료 내성·수용도', note:'"Patient tolerated treatment well"'},
+    ],
+    trap:'<strong>SOAP 노트 읽기</strong>: S(환자 말) ≠ O(PT 측정). Assessment에 있는 치료사 판단과 Plan에 있는 계획을 혼동하지 말 것. "Patient tolerated well" ≠ 증상이 좋아졌다 (단지 부작용 없이 견뎠다는 의미).'
+  }
+];
+
+// ── 2. QUESTION TYPES DATA ──────────────────────────────────
+const CHART_QTYPES = [
+  {badge:'유형 1', cls:'qt-b1', title:'정보 추출형', desc:'차트의 특정 섹션에서 수치·사실을 찾아내는 문제. "What is the patient\'s current WB status?"'},
+  {badge:'유형 2', cls:'qt-b2', title:'임상 판단형', desc:'여러 섹션 정보를 종합해 "지금 어떤 중재가 적절/부적절한가?" 판단. 가장 많이 출제.'},
+  {badge:'유형 3', cls:'qt-b3', title:'우선순위형', desc:'"What should the therapist address FIRST?" 차트 정보 중 가장 중요한 문제를 식별.'},
+  {badge:'유형 4', cls:'qt-b4', title:'안전 판단형', desc:'Lab/Vitals의 이상 수치, 약물 정보를 보고 치료 시작/중단/수정 여부를 결정.'},
+];
+
+// ── 3. STRATEGY DATA ──────────────────────────────────────────
+const CHART_STRATEGY = [
+  {
+    num:'01', title:'질문을 먼저 읽어라 — 그 다음 차트',
+    desc:'차트 전체를 읽으면 시간 낭비. 질문이 무엇을 묻는지 파악한 뒤, 필요한 섹션만 집중해서 확인. "Which WB status is ordered?" → <em>Orders 섹션만 확인</em>.'
+  },
+  {
+    num:'02', title:'Orders/Precautions 섹션을 가장 먼저 스캔',
+    desc:'어떤 중재를 선택하든 의사 처방과 주의사항을 위반하면 오답. Orders 섹션에서 WB status, ROM 제한, 낙상 위험, 격리 여부를 30초 안에 파악.'
+  },
+  {
+    num:'03', title:'Vitals & Labs의 이상 수치에 표시',
+    desc:'정상 범위를 벗어난 수치는 치료 결정의 핵심 단서. SpO₂ <90%, HR >100 at rest, BG <70 mg/dL → 이 수치들이 "무엇을 해야 하는가"를 결정. <em>수치를 외우라</em>가 아니라 이상 수치가 있을 때 어떻게 행동하는지를 알아야 함.'
+  },
+  {
+    num:'04', title:'Medications → 운동 반응에 영향',
+    desc:'Beta-blocker = HR 반응 둔화. Anticoagulant = 출혈 위험. Corticosteroid 장기 = 골다공증. <em>약물명 끝글자 패턴</em>으로 분류: -lol = beta-blocker / -pril = ACE inhibitor / -statin = statin / -mab = monoclonal antibody.'
+  },
+  {
+    num:'05', title:'PMH / Secondary Dx가 주의사항을 만든다',
+    desc:'Primary Dx만 보면 함정. Osteoporosis + hip fracture → 골밀도 주의. DVT history → 압박 치료 주의. 2차 진단이 1차 치료의 금기가 되는 경우가 자주 출제.'
+  },
+  {
+    num:'06', title:'S·O·A·P 노트에서 기능 수준 파악',
+    desc:'Prior session note에서 현재 보조 수준(MinA/ModA)과 이전 세션 반응을 확인. "Patient ambulated 50 ft with walker and MinA" → 다음 목표 = 100 ft 또는 supervision으로 진행. <em>Progress = 보조 수준 감소 또는 거리·속도 증가</em>.'
+  },
+  {
+    num:'07', title:'Date·시간 정보가 단서',
+    desc:'입원 날짜, 수술 날짜, 현재 날짜를 계산하면 "수술 후 몇 주"인지 알 수 있음. "Surgery: June 1 / Today: June 15 = 2 weeks post-op" → 급성-아급성기 → aggressive exercise 금지.'
+  },
+  {
+    num:'08', title:'차트 정보 중 "가장 즉각적인 위협"을 우선순위 1위로',
+    desc:'여러 이상 소견이 있을 때 ABC(Airway-Breathing-Circulation) 위협 > 낙상 위험 > 기능 저하 순으로 우선순위. <em>생명 안전 > 환자 안전 > 기능 목표</em>.'
+  },
+];
+
+// ── 4. CHART TRAP LIST ──────────────────────────────────────
+const CHART_TRAPS = [
+  {title:'Beta-blocker → RPE로 대체',desc:'심박수가 오르지 않음 → HR로 운동 강도 측정 불가 → Borg RPE 스케일 사용'},
+  {title:'Hip precautions 무시 → 즉시 오답',desc:'"No hip flexion >90°" 처방인데 좌식 운동 = 오답'},
+  {title:'Platelet <20,000 → 도수 치료 금기',desc:'출혈 위험 절대 금기. 수치 확인 후 중재 선택'},
+  {title:'"Tolerated well" ≠ 호전',desc:'치료를 부작용 없이 견뎠다는 뜻. 증상이 좋아졌다는 의미 아님'},
+  {title:'NPO 환자 → 에너지·혈당 주의',desc:'공복 상태 → 저혈당 위험 → 고강도 운동 피함'},
+  {title:'Isolation precaution 종류 구별',desc:'Contact=장갑+가운 / Droplet=마스크 / Airborne=N95+음압병실'},
+];
+
+// ── 5. SECTION TERM DATA (for sections tab) ──────────────────
+const SEC_TERMS = {};
+CHART_SECTIONS.forEach(s => { SEC_TERMS[s.id] = s; });
+
+// ── 6. CHART QUIZ BANK ──────────────────────────────────────
+// 각 문제에 실제 차트 데이터 + 질문이 포함됨
+const CHART_QUIZ_DATA = [
+
+// ── CHART A: Post-THA Patient ──────────────────────────────
+{
+  chartId:'A',
+  chartTitle:'Patient Chart — Orthopedic',
+  chart:{
+    demographics:[
+      {label:'Patient', val:'Mrs. Johnson, 72 y/o Female'},
+      {label:'Occupation', val:'Retired teacher'},
+      {label:'Living', val:'Two-story home, lives with spouse'},
+    ],
+    diagnosis:[
+      {label:'Primary Dx', val:'<span class="hi">R THA via posterolateral approach</span> (Surgery: 3 days ago)'},
+      {label:'Secondary Dx', val:'Osteoporosis, Type 2 Diabetes (well-controlled)'},
+      {label:'PMH', val:'HTN, GERD'},
+    ],
+    medications:[
+      {label:'Medications', val:'Warfarin 5mg daily, Metformin 500mg BID, Lisinopril 10mg daily, Calcium + Vit D'},
+    ],
+    vitals:[
+      {label:'BP', val:'138/84 mmHg'},{label:'HR', val:'78 bpm'},{label:'SpO₂', val:'97%'},
+      {label:'Pain', val:'4/10 at rest, 7/10 with movement'},
+    ],
+    orders:[
+      {label:'WB Status', val:'<span class="warn">WBAT — Right LE</span>'},
+      {label:'Hip Precautions', val:'<span class="warn">No flexion >90°, No IR, No adduction past midline</span>'},
+      {label:'Fall Risk', val:'HIGH — Gait belt required at all times'},
+      {label:'INR (today)', val:'<span class="warn">2.8</span> (Therapeutic range: 2.0–3.0)'},
+    ],
+    notes:[
+      {label:'PT Note (POD 2)', val:'"Patient ambulated 15 ft with standard walker and <span class="hi">MaxA of 1</span>. Patient demonstrates guarding behavior. Tolerates treatment well."'},
+    ]
+  },
+  qType:'임상 판단형',
+  qNote:'⚠️ Hip Precautions와 복용 약물을 반드시 확인하세요',
+  q:'이 환자의 오늘(POD 3) 초기 PT 평가에서 가장 먼저 확인해야 할 것은?',
+  ans:'Hip precautions 준수 여부',
+  choices:[
+    'INR 수치',
+    'Hip precautions 준수 여부',
+    '혈당 수치',
+    '낙상 위험 평가'
+  ],
+  exp:'POD 3 THA 환자의 최우선 = Hip precautions 확인. Posterolateral approach → "No flexion >90°, No IR, No adduction" — 이것을 위반하면 탈구 위험. INR 2.8 = 치료 범위 내(2.0-3.0)이므로 문제없음.',
+  nuanceRows:[
+    {tag:'Orders 먼저', cls:'tag-warn', val:'Hip precautions = <em>모든 중재보다 먼저 확인</em>. 위반 시 탈구'},
+    {tag:'INR 해석', cls:'tag-en', val:'INR 2.8 = 치료 범위(2.0-3.0) <em>내</em> → 정상 → 문제없음'},
+    {tag:'Approach별', cls:'tag-tip', val:'Posterolateral → 굴곡·IR·내전 금지 / Anterior → 신전·ER 주의'}
+  ]
+},
+{
+  chartId:'A',
+  chartTitle:'Patient Chart — Orthopedic (동일 차트)',
+  chart:{
+    demographics:[{label:'Patient', val:'Mrs. Johnson, 72 y/o Female'}],
+    diagnosis:[{label:'Primary Dx', val:'R THA via posterolateral approach (POD 3)'}],
+    medications:[{label:'Medications', val:'<span class="hi">Warfarin 5mg</span> daily, Metformin 500mg BID'}],
+    vitals:[{label:'BP', val:'138/84'},{label:'HR', val:'78'},{label:'SpO₂', val:'97%'}],
+    orders:[{label:'WB Status', val:'WBAT — Right LE'}],
+    notes:[{label:'PT Note (POD 2)', val:'"Patient ambulated 15 ft with walker and MaxA of 1."'}]
+  },
+  qType:'약물 판단형',
+  qNote:'💊 Medications 섹션을 주목하세요',
+  q:'이 환자가 Warfarin을 복용하고 있다는 것이 PT 치료에 미치는 가장 중요한 임상적 함의는?',
+  ans:'도수 치료 및 관절 조작 시 출혈 위험 증가를 고려해야 함',
+  choices:[
+    '운동 시 심박수 반응이 둔화되므로 RPE 스케일을 사용해야 함',
+    '도수 치료 및 관절 조작 시 출혈 위험 증가를 고려해야 함',
+    'Warfarin은 PT 치료에 영향을 주지 않음',
+    '혈당 조절 약물이므로 운동 전 혈당을 측정해야 함'
+  ],
+  exp:'Warfarin = 항응고제 → 출혈 위험 ↑. INR을 확인하고 과도한 도수 치료 주의. RPE = Beta-blocker 복용 시 HR 대신 사용. Metformin = 당뇨약 → 혈당 주의는 맞지만 Warfarin의 주된 함의가 아님.',
+  nuanceRows:[
+    {tag:'항응고제', cls:'tag-warn', val:'Warfarin(-warin) / Heparin / Rivaroxaban → <em>출혈 위험</em>'},
+    {tag:'Beta-blocker', cls:'tag-en', val:'-lol 끝 약물 → HR 반응 둔화 → <em>RPE 사용</em>'},
+    {tag:'약물 패턴', cls:'tag-tip', val:'-lol=베타차단 / -pril=ACE억제 / -warin=항응고 / -statin=지질'}
+  ]
+},
+
+// ── CHART B: ICU / Cardiac Patient ──────────────────────────
+{
+  chartId:'B',
+  chartTitle:'Patient Chart — Cardiac/ICU',
+  chart:{
+    demographics:[
+      {label:'Patient', val:'Mr. Kim, 68 y/o Male'},
+      {label:'Occupation', val:'Accountant (desk job)'},
+    ],
+    diagnosis:[
+      {label:'Primary Dx', val:'<span class="hi">Acute MI</span> — s/p CABG ×3 (5 days ago)'},
+      {label:'Secondary Dx', val:'HTN, Hyperlipidemia, Type 2 DM'},
+    ],
+    medications:[
+      {label:'Medications', val:'<span class="hi">Metoprolol</span> 50mg BID, Aspirin 81mg daily, Atorvastatin 40mg, Lisinopril 20mg, Insulin glargine'},
+    ],
+    vitals:[
+      {label:'BP (rest)', val:'<span class="ok">118/76 mmHg</span>'},
+      {label:'HR (rest)', val:'<span class="hi">58 bpm</span>'},
+      {label:'SpO₂', val:'<span class="ok">96%</span>'},
+      {label:'BG (pre-session)', val:'<span class="hi">88 mg/dL</span>'},
+    ],
+    orders:[
+      {label:'Activity', val:'Phase I Cardiac Rehab — Low-level activity'},
+      {label:'Sternal Precautions', val:'<span class="warn">No pushing/pulling >5 lbs bilaterally for 6-8 weeks</span>'},
+      {label:'WB Status', val:'FWB bilaterally'},
+    ],
+    notes:[
+      {label:'Nursing Note', val:'"Patient reports dyspnea with ambulation >20 ft. SpO₂ drops to <span class="warn">89%</span> with activity. Returned to rest immediately."'},
+    ]
+  },
+  qType:'안전 판단형',
+  qNote:'⚠️ Nursing Note의 SpO₂ 수치를 확인하세요',
+  q:'간호 기록에 활동 시 SpO₂ 89%가 기록되어 있다. PT 세션에서 가장 적절한 첫 번째 행동은?',
+  ans:'주치의에게 보고하고 활동 중단',
+  choices:[
+    '저강도 앉아서 하는 운동으로 변경하여 세션 계속 진행',
+    '보조 산소를 투여하고 계속 진행',
+    '주치의에게 보고하고 활동 중단',
+    '호흡 운동만 침대에서 진행'
+  ],
+  exp:'SpO₂ <90% = 운동 절대 중단(absolute contraindication to exercise). 호흡 운동도 SpO₂ 기저치 확인 후 결정. 간호 기록에 이미 이 소견이 있으면 → 의사에게 보고 후 지시 대기.',
+  nuanceRows:[
+    {tag:'절대 중단', cls:'tag-warn', val:'SpO₂ <90% / 수축기BP <90 또는 >180 / 흉통 / 심한 어지러움'},
+    {tag:'상대 중단', cls:'tag-en', val:'HR >130(안정 시) / SpO₂ 90-94% 구간 → 판단 후 결정'},
+    {tag:'기록 활용', cls:'tag-tip', val:'Nursing note의 이전 반응 = 오늘 치료 강도 결정의 핵심 단서'}
+  ]
+},
+{
+  chartId:'B',
+  chartTitle:'Patient Chart — Cardiac/ICU (동일 차트)',
+  chart:{
+    demographics:[{label:'Patient', val:'Mr. Kim, 68 y/o Male — s/p CABG ×3'}],
+    medications:[{label:'Medications', val:'<span class="hi">Metoprolol</span> 50mg BID, Insulin glargine, Atorvastatin 40mg'}],
+    vitals:[{label:'HR (rest)', val:'58 bpm'},{label:'BG', val:'88 mg/dL'}],
+    orders:[{label:'Sternal Precautions', val:'<span class="warn">No pushing/pulling >5 lbs × 6-8 weeks</span>'}],
+  },
+  qType:'약물+처방 복합형',
+  qNote:'💊 Metoprolol의 약물 분류와 Sternal Precautions를 함께 고려하세요',
+  q:'이 환자에게 운동 강도를 처방할 때 가장 적절한 모니터링 방법과, 제외해야 할 운동을 올바르게 짝지은 것은?',
+  ans:'Borg RPE 스케일로 강도 모니터링 + 상지 push/pull 운동 제외 (sternal precautions)',
+  choices:[
+    '목표 심박수로 강도 조절 + 상지 운동 자유롭게 허용',
+    'Borg RPE 스케일로 강도 모니터링 + 상지 push/pull 운동 제외 (sternal precautions)',
+    'SpO₂로 강도 조절 + 하지 운동만 제외',
+    '혈압으로 강도 조절 + 침대 운동만 허용'
+  ],
+  exp:'Metoprolol = Beta-blocker(-lol) → HR 반응 둔화 → 목표 HR 공식 사용 불가 → RPE 사용. Sternal precautions = CABG 후 흉골 유합 전 → 상지 push/pull >5 lbs 금지 6-8주.',
+  nuanceRows:[
+    {tag:'Beta-blocker 법칙', cls:'tag-warn', val:'-lol 약물 → HR 반응 둔화 → <em>RPE(Borg scale)</em>로 대체'},
+    {tag:'Sternal Prec.', cls:'tag-en', val:'CABG 후 6-8주 → 상지 push/pull/lift >5 lbs = 금기'},
+    {tag:'Phase I 심장재활', cls:'tag-tip', val:'침대→앉기→서기→보행 순서로 단계별 진행'}
+  ]
+},
+
+// ── CHART C: Neuro/Stroke Patient ───────────────────────────
+{
+  chartId:'C',
+  chartTitle:'Patient Chart — Neurological',
+  chart:{
+    demographics:[
+      {label:'Patient', val:'Mr. Torres, 61 y/o Male'},
+      {label:'Living', val:'First-floor apartment, lives alone'},
+    ],
+    diagnosis:[
+      {label:'Primary Dx', val:'<span class="hi">L MCA CVA</span> (3 weeks ago) — R hemiplegia'},
+      {label:'Secondary Dx', val:'Atrial fibrillation, HTN'},
+    ],
+    medications:[
+      {label:'Medications', val:'Apixaban (Eliquis) 5mg BID, Lisinopril, Amlodipine'},
+    ],
+    vitals:[
+      {label:'BP', val:'<span class="hi">156/92 mmHg</span>'},{label:'HR', val:'82 bpm (irregular)'},
+      {label:'SpO₂', val:'95%'},
+    ],
+    orders:[
+      {label:'WB Status', val:'FWB with supervision'},
+      {label:'Fall Risk', val:'HIGH'},
+      {label:'Activity', val:'OOB (Out of Bed) TID, Gait training with AD as appropriate'},
+    ],
+    notes:[
+      {label:'PT Note (Day 20)', val:'"Patient demonstrates R UE flaccidity, R LE minimal active movement. Ambulated 20 ft with <span class="hi">hemi-walker and MaxA of 1</span>. Patient denies pain. Patient states he wants to return home."'},
+      {label:'PT Goal', val:'"Short-term: Amb 50 ft with hemi-walker and MinA / Long-term: independent amb with cane"'},
+    ]
+  },
+  qType:'우선순위형',
+  qNote:'📋 PT Note의 기능 수준과 Living situation을 함께 확인하세요',
+  q:'이 환자의 퇴원 계획을 위해 PT가 가장 먼저 다루어야 할 것은?',
+  ans:'독거·1층 거주 환경에서의 안전한 독립적 이동 능력 확보',
+  choices:[
+    '오른쪽 상지 flaccidity에 대한 신경근 재교육 시작',
+    '독거·1층 거주 환경에서의 안전한 독립적 이동 능력 확보',
+    'BP 156/92 → 즉시 운동 중단하고 의사에게 보고',
+    '심방세동에 대한 심장 모니터링 실시'
+  ],
+  exp:'D/C 계획에서 "lives alone + first-floor" + "Fall risk HIGH" + "MaxA of 1" → 퇴원 후 낙상이 가장 큰 위협. 기능 목표(50 ft with MinA)가 있으므로 그 방향으로 진행. BP 156/92 = 경계, 즉시 중단 기준(>180)은 아님.',
+  nuanceRows:[
+    {tag:'D/C 우선순위', cls:'tag-en', val:'환자 목표(귀가) + Living situation = 치료 우선순위 결정의 핵심'},
+    {tag:'BP 해석', cls:'tag-ko', val:'>180/110 = 운동 중단 / 156/92 = 모니터링하며 진행 가능'},
+    {tag:'SOAP 활용', cls:'tag-tip', val:'P(Plan)의 단기 목표 → 오늘 세션의 치료 방향'}
+  ]
+},
+{
+  chartId:'C',
+  chartTitle:'Patient Chart — Neurological (동일 차트)',
+  chart:{
+    diagnosis:[{label:'Primary Dx', val:'L MCA CVA — R hemiplegia'},{label:'Secondary Dx', val:'Atrial fibrillation'}],
+    medications:[{label:'Medications', val:'<span class="hi">Apixaban (Eliquis)</span> 5mg BID'}],
+    notes:[
+      {label:'PT Note', val:'"Patient <span class="hi">denies</span> pain. Patient demonstrates R UE flaccidity."'},
+    ]
+  },
+  qType:'용어 해석형',
+  qNote:'📝 PT Note의 표현을 정확하게 해석하세요',
+  q:'PT Note에서 「Patient denies pain」의 정확한 의미는?',
+  ans:'환자가 통증이 없다고 말하고 있다 — denies = 해당 증상이 없다고 부정하는 것',
+  choices:[
+    '환자가 통증을 참고 있다',
+    '치료사가 환자에게 통증이 없다고 판단했다',
+    '환자가 통증이 없다고 말하고 있다',
+    '환자가 통증 치료를 거부하고 있다'
+  ],
+  exp:'"denies" = 환자가 그 증상이 없다고 말함. "Patient reports pain" = 통증이 있다고 말함. 반대 방향! "Patient denies chest pain, nausea, or dizziness" = 흉통, 오심, 어지러움 없음.',
+  nuanceRows:[
+    {tag:'denies ⚠️', cls:'tag-warn', val:'증상 <em>없음</em>을 환자가 말함 — reports(있음)의 반대'},
+    {tag:'SOAP S: 표현', cls:'tag-en', val:'reports(있음) / denies(없음) / states(말함) / describes(묘사함)'},
+    {tag:'해석', cls:'tag-tip', val:'"denies" 놓치면 증상이 있다고 반대로 해석 → 오답'}
+  ]
+},
+
+// ── CHART D: Outpatient Ortho ───────────────────────────────
+{
+  chartId:'D',
+  chartTitle:'Patient Chart — Outpatient Orthopedic',
+  chart:{
+    demographics:[
+      {label:'Patient', val:'Ms. Chen, 35 y/o Female, Nurse'},
+      {label:'Chief Complaint', val:'Left knee pain — insidious onset, 4 weeks duration'},
+    ],
+    diagnosis:[
+      {label:'Primary Dx', val:'Patellofemoral pain syndrome (PFPS)'},
+      {label:'PMH', val:'Grade II L MCL sprain (2 years ago, fully resolved)'},
+    ],
+    medications:[
+      {label:'Medications', val:'Ibuprofen 400mg PRN (as needed for pain)'},
+    ],
+    vitals:[
+      {label:'BP', val:'118/72'},{label:'HR', val:'72'},{label:'Pain', val:'5/10 with stairs'},
+    ],
+    orders:[
+      {label:'PT orders', val:'Evaluate and treat × 8 visits / Physician: "address biomechanics"'},
+    ],
+    notes:[
+      {label:'Exam findings', val:'"Positive patellar grind test. VMO <span class="warn">weakness (3+/5)</span>. Tight lateral retinaculum. <span class="hi">Increased Q-angle</span>. Pain with prolonged sitting (theater sign)."'},
+    ]
+  },
+  qType:'임상 판단형',
+  qNote:'📋 Exam findings에서 VMO 근력과 Q-angle을 확인하세요',
+  q:'이 환자의 차트에서 PFPS 관리에 가장 중요한 임상 소견은?',
+  ans:'VMO 약화(3+/5) + Increased Q-angle',
+  choices:[
+    'Ibuprofen PRN 복용 중 → 비스테로이드 소염제 효과로 곧 회복될 것',
+    '2년 전 MCL 염좌 병력 → MCL 안정성 재평가 필요',
+    'Positive patellar grind test → 즉시 수술 의뢰 필요',
+    'VMO 약화(3+/5) + Increased Q-angle'
+  ],
+  exp:'PFPS 치료의 핵심 = VMO 강화 + 외측 구조물 스트레칭 + 생체역학 교정. VMO 3+/5 = 약화(정상 5/5) / Increased Q-angle = 슬개골 외측 견인력 증가. 이 두 가지가 치료 방향의 핵심 근거.',
+  nuanceRows:[
+    {tag:'MMT 읽기', cls:'tag-en', val:'3+/5 = <em>중력에 대해 완전 ROM + 최소 저항</em> (정상: 5/5)'},
+    {tag:'소견 통합', cls:'tag-ko', val:'VMO 약화 + Q-angle 증가 → 슬개골 외측 편위 → PFPS 기전'},
+    {tag:'PRN 해석', cls:'tag-tip', val:'PRN = <em>as needed</em> = 필요 시 복용. 규칙적 복용 아님'}
+  ]
+},
+
+// ── CHART E: Lab Values Focus ─────────────────────────────────
+{
+  chartId:'E',
+  chartTitle:'Patient Chart — Inpatient Medical',
+  chart:{
+    demographics:[{label:'Patient', val:'Mr. Patel, 55 y/o Male — Inpatient Day 4'}],
+    diagnosis:[
+      {label:'Primary Dx', val:'Pneumonia — resolving'},
+      {label:'Secondary Dx', val:'CLL (Chronic Lymphocytic Leukemia), Type 2 DM'},
+    ],
+    medications:[
+      {label:'Medications', val:'IV Antibiotics, Albuterol MDI, Insulin sliding scale'},
+    ],
+    vitals:[
+      {label:'BP', val:'122/78'},{label:'HR', val:'88'},{label:'RR', val:'18'},
+      {label:'SpO₂', val:'<span class="hi">93% on 2L O₂</span>'},
+      {label:'Temp', val:'<span class="ok">99.1°F</span>'},
+    ],
+    orders:[
+      {label:'Activity', val:'OOB with assist, ambulate in hall'},
+      {label:'Isolation', val:'<span class="warn">Contact Precautions</span>'},
+    ],
+    labs:[
+      {label:'WBC', val:'<span class="warn">0.8 × 10³/μL</span> (Normal: 4.5–11)'},
+      {label:'Hgb', val:'<span class="warn">9.2 g/dL</span> (Normal: 14–18)'},
+      {label:'Platelet', val:'<span class="warn">48,000/μL</span> (Normal: 150,000–400,000)'},
+      {label:'BG (morning)', val:'142 mg/dL'},
+    ]
+  },
+  qType:'Lab 안전 판단형',
+  qNote:'🔬 Lab Values를 정상 범위와 비교하세요',
+  q:'이 환자의 Lab 수치를 확인한 PT가 오늘 세션에서 가장 먼저 고려해야 할 안전 사항은?',
+  ans:'WBC 0.8 (심각한 면역 저하) → Contact Precautions 철저히 준수 + 활동 강도 조절',
+  choices:[
+    'Platelet 48,000 → 도수 치료 절대 금기이므로 모든 세션 취소',
+    'BG 142 mg/dL → 즉시 인슐린 투여 후 세션 진행',
+    'WBC 0.8 (심각한 면역 저하) → Contact Precautions 철저히 준수 + 활동 강도 조절',
+    'Hgb 9.2 → 즉시 수혈 후 세션 진행'
+  ],
+  exp:'WBC 0.8 = 심각한 면역저하(정상 4.5-11) → 감염 위험 극도로 높음 → Contact Precautions 가장 중요. Platelet 48,000 > 20,000 → 조심스럽게 진행 가능(금기는 <20,000). Hgb 9.2 = 빈혈이나 즉시 수혈 수준 아님. BG 142 = 경미한 고혈당, 운동 가능.',
+  nuanceRows:[
+    {tag:'WBC 기준', cls:'tag-warn', val:'<1,000 = 심각한 면역저하 → 역격리 / 감염 예방 최우선'},
+    {tag:'Platelet 기준', cls:'tag-en', val:'<20,000 = 도수치료 금기 / 20-50k = 주의 / >50k = 가능'},
+    {tag:'Hgb 기준', cls:'tag-ko', val:'<8 g/dL = 운동 강도 대폭 감소 / 9.2 = 조정하며 가능'}
+  ]
+},
+{
+  chartId:'E',
+  chartTitle:'Patient Chart — Inpatient Medical (동일 차트)',
+  chart:{
+    orders:[{label:'Isolation', val:'<span class="warn">Contact Precautions</span>'}],
+    diagnosis:[{label:'Primary Dx', val:'Pneumonia / Secondary: CLL'}],
+  },
+  qType:'격리 지식형',
+  qNote:'🦠 Contact Precautions의 정확한 PPE를 알아야 합니다',
+  q:'Contact Precautions가 지시된 이 환자를 치료하러 방에 들어갈 때 PT가 착용해야 하는 PPE는?',
+  ans:'장갑(Gloves) + 가운(Gown)',
+  choices:[
+    'N95 마스크 + 장갑 + 가운 + 고글',
+    '일반 수술 마스크(Surgical mask)만 착용',
+    '장갑(Gloves) + 가운(Gown)',
+    '장갑 + 가운 + 음압 병실(Negative pressure room) 확인'
+  ],
+  exp:'Contact Precautions = 장갑 + 가운. Droplet = 수술 마스크. Airborne = N95 + 음압 병실. COVID/TB/Chickenpox = Airborne(N95 필수). MRSA/C.diff/VRE = Contact(장갑+가운).',
+  nuanceRows:[
+    {tag:'Contact', cls:'tag-ko', val:'장갑 + 가운 → MRSA, C.diff, VRE, 상처 감염'},
+    {tag:'Droplet', cls:'tag-en', val:'수술 마스크 → 독감, 폐렴구균, 수막구균'},
+    {tag:'Airborne', cls:'tag-warn', val:'N95 + 음압 → TB, COVID, 수두, 홍역'}
+  ]
+},
+
+// ── CHART F: SOAP Note Focus ─────────────────────────────────
+{
+  chartId:'F',
+  chartTitle:'PT SOAP Note — Progress Note',
+  chart:{
+    demographics:[{label:'Patient', val:'Mr. Williams, 70 y/o Male — Day 5 SNF'}],
+    diagnosis:[{label:'Primary Dx', val:'R Hip fracture — s/p ORIF (3 weeks ago)'}],
+    orders:[{label:'WB Status', val:'WBAT — R LE'},{label:'Fall Risk', val:'HIGH'}],
+    notes:[
+      {label:'S:', val:'"Patient reports pain <span class="hi">2/10</span> today. States he wants to walk to the dining room independently."'},
+      {label:'O:', val:'"MMT R hip abductors: <span class="hi">3+/5</span>. Amb 75 ft with standard walker and <span class="hi">Supervision</span>. Stairs: not assessed. Gait speed: slow."'},
+      {label:'A:', val:'"Patient is making <span class="hi">functional progress</span> toward D/C goals. Increased amb distance from 50 ft (Day 3) to 75 ft. Decreased assist level from MinA to Supervision."'},
+      {label:'P:', val:'"Continue POC. Progress ambulation to 100 ft. Initiate stair training. Target: <span class="hi">independent amb with cane</span> for D/C."'},
+    ]
+  },
+  qType:'SOAP 읽기형',
+  qNote:'📝 SOAP 노트의 각 파트가 의미하는 것을 파악하세요',
+  q:'이 SOAP 노트를 읽고 환자의 현재 상태와 진행 방향을 가장 정확하게 설명한 것은?',
+  ans:'보조 수준이 MinA → Supervision으로 감소하고 보행 거리 50→75 ft로 증가',
+  choices:[
+    '환자가 아직 MaxA 수준이며 더 많은 도움이 필요하다',
+    '환자의 통증이 심해져서 오늘 세션을 중단해야 한다',
+    '보조 수준이 MinA → Supervision으로 감소하고 보행 거리 50→75 ft로 증가',
+    'SOAP 노트의 A 섹션은 환자가 스스로 작성한 기록이다'
+  ],
+  exp:'O: 섹션 = 객관적 측정값(PT가 측정). A: 섹션 = PT의 임상 평가. P: 섹션 = 다음 계획. "functional progress" + MinA→Supervision + 50→75 ft = 3가지 모두 호전 증거. SOAP의 A = PT 작성, S = 환자가 말함.',
+  nuanceRows:[
+    {tag:'S (주관적)', cls:'tag-ko', val:'환자가 <em>말하는</em> 것 — pain reports, goals, concerns'},
+    {tag:'O (객관적)', cls:'tag-en', val:'PT가 <em>측정·관찰</em> — MMT, ROM, 보행 거리, 보조 수준'},
+    {tag:'A (평가)', cls:'tag-tip', val:'<em>PT의 임상 판단</em> — 진전 여부, 목표 달성도'},
+    {tag:'P (계획)', cls:'tag-warn', val:'<em>다음 세션 계획</em> — Progress / Continue / Modify POC'}
+  ]
+}
+];
+
+// ── 7. CHART QUIZ STATE ────────────────────────────────────────
+let CQ = {
+  pool:[], cur:0, correct:0, wrong:0, streak:0, best:0, answered:false,
+  filter:'all'
+};
+
+// ── 8. CHART TAB FUNCTIONS ─────────────────────────────────────
+function showChartTab(tab){
+  document.querySelectorAll('.ctab').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.ctab-panel').forEach(p=>p.style.display='none');
+  document.querySelectorAll('.ctab')[['overview','sections','strategy','cquiz'].indexOf(tab)].classList.add('on');
+  document.getElementById('ctab-'+tab).style.display='block';
+  if(tab==='overview' && !document.getElementById('chart-structure-list').innerHTML) renderOverview();
+  if(tab==='sections') renderSections('all');
+  if(tab==='strategy') renderStrategy();
+  if(tab==='cquiz') renderCQuizIntro();
+}
+
+function renderOverview(){
+  // Structure blocks
+  const list = document.getElementById('chart-structure-list');
+  list.innerHTML = CHART_SECTIONS.map((s,i)=>`
+    <div class="cs-block" id="csb-${s.id}">
+      <div class="cs-header" onclick="toggleCS('${s.id}')">
+        <div class="cs-icon">${s.icon}</div>
+        <div style="flex:1"><div class="cs-title">${s.title}</div><div class="cs-ko">${s.ko}</div></div>
+        <div class="cs-chev">▼</div>
+      </div>
+      <div class="cs-body">
+        <div class="cs-purpose">${s.purpose}</div>
+        <div class="cs-what">✅ 여기서 확인할 것</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:8px">${s.what_to_find}</div>
+        <div class="cs-trap"><strong>⚠️ 함정 주의:</strong> ${s.trap}</div>
+      </div>
+    </div>`).join('');
+
+  // Q Type grid
+  document.getElementById('chart-qtype-grid').innerHTML = CHART_QTYPES.map(q=>`
+    <div class="qtype-card">
+      <div class="qt-badge ${q.cls}">${q.badge}</div>
+      <div class="qt-title">${q.title}</div>
+      <div class="qt-desc">${q.desc}</div>
+    </div>`).join('');
+}
+
+function toggleCS(id){
+  const el = document.getElementById('csb-'+id);
+  el.classList.toggle('open');
+  el.querySelector('.cs-chev').style.transform = el.classList.contains('open') ? 'rotate(180deg)' : '';
+}
+
+function renderSections(f){
+  const wrap = document.getElementById('sec-content');
+  const sections = f==='all' ? CHART_SECTIONS : CHART_SECTIONS.filter(s=>s.id===f);
+  wrap.innerHTML = sections.map(s=>`
+    <div style="margin-bottom:18px">
+      <div class="chart-section-title">${s.icon} ${s.title} — ${s.ko}</div>
+      <div class="term-grid">
+        ${s.terms.map(t=>`
+          <div class="term-chip">
+            <div class="tc-en">${t.en}</div>
+            <div class="tc-ko">${t.ko}</div>
+            ${t.note?`<div class="tc-note">→ ${t.note}</div>`:''}
+          </div>`).join('')}
+      </div>
+      <div class="cs-trap" style="margin-top:10px"><strong>⚠️ 함정:</strong> ${s.trap}</div>
+    </div>`).join('');
+}
+
+function filterSec(f,el){
+  document.querySelectorAll('.sec-pills .pill').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  renderSections(f);
+}
+
+function renderStrategy(){
+  const wrap = document.getElementById('strategy-content');
+  if(wrap.innerHTML) return;
+  let html = CHART_STRATEGY.map(s=>`
+    <div class="strat-card">
+      <div class="strat-step">
+        <div class="strat-num">${s.num}</div>
+        <div class="strat-body">
+          <div class="strat-title">${s.title}</div>
+          <div class="strat-desc">${s.desc}</div>
+        </div>
+      </div>
+    </div>`).join('');
+  html += `<div class="strat-warn"><div class="strat-warn-title">🚨 즉시 외워야 할 치료 중단 기준</div>
+    <div class="strat-warn-body">
+      <strong>절대 중단:</strong> SpO₂ &lt;90% / 수축기BP &lt;90 또는 &gt;180 mmHg / 이완기BP &gt;110 mmHg / 흉통·청색증·심한 어지러움 / 환자가 중단 요청<br>
+      <strong>약물 패턴:</strong> -lol = 베타차단제(HR 반응↓→RPE 사용) / -warin/-xaban/-parin = 항응고제(출혈↑) / -pril/-sartan = 혈압약 / -statin = 지질강하제(근병증 주의)<br>
+      <strong>Lab 기준:</strong> Platelet &lt;20,000 → 도수 금기 / WBC &lt;1,000 → 역격리 / Hgb &lt;8 → 운동 강도↓↓ / INR &gt;3.0 → 출혈 주의
+    </div>
+  </div>`;
+  wrap.innerHTML = html;
+}
+
+function renderCQuizIntro(){
+  if(document.getElementById('cq-mode-grid').innerHTML) return;
+  document.getElementById('cq-mode-grid').innerHTML = `
+    <div class="cq-mode-card sel" id="cqm-all" onclick="pickCQMode('all')">
+      <div class="cq-mc-ico">🗂️</div><div class="cq-mc-title">전체 차트 문제</div>
+      <div class="cq-mc-desc">모든 유형 혼합<br>${CHART_QUIZ_DATA.length}문제</div>
+    </div>
+    <div class="cq-mode-card" id="cqm-terms" onclick="pickCQMode('terms')">
+      <div class="cq-mc-ico">📖</div><div class="cq-mc-title">용어 해석형</div>
+      <div class="cq-mc-desc">차트 속 표현 뜻<br>파악 연습</div>
+    </div>
+    <div class="cq-mode-card" id="cqm-safety" onclick="pickCQMode('safety')">
+      <div class="cq-mc-ico">⚠️</div><div class="cq-mc-title">안전 판단형</div>
+      <div class="cq-mc-desc">Lab/Vitals → 치료<br>시작·중단·수정</div>
+    </div>
+    <div class="cq-mode-card" id="cqm-clinical" onclick="pickCQMode('clinical')">
+      <div class="cq-mc-ico">🩺</div><div class="cq-mc-title">임상 판단형</div>
+      <div class="cq-mc-desc">차트 종합 →<br>최선 중재 결정</div>
+    </div>`;
+}
+
+let _cqMode = 'all';
+function pickCQMode(m){
+  _cqMode = m;
+  document.querySelectorAll('.cq-mode-card').forEach(c=>c.classList.remove('sel'));
+  document.getElementById('cqm-'+m).classList.add('sel');
+}
+
+function renderChartCard(chart, container){
+  const secs = Object.entries(chart);
+  let html = '';
+  secs.forEach(([secKey, rows])=>{
+    const labels = {demographics:'👤 Demographics',diagnosis:'🩺 Diagnosis / PMH',medications:'💊 Medications',vitals:'📊 Vital Signs',orders:'📋 Orders / Precautions',notes:'📝 PT / Nursing Notes',labs:'🔬 Lab Values'};
+    html += `<div class="chart-section-hdr">${labels[secKey]||secKey}</div>`;
+    rows.forEach(r=>{
+      html += `<div class="chart-row"><div class="chart-row-label">${r.label}</div><div class="chart-row-val">${r.val}</div></div>`;
+    });
+  });
+  container.innerHTML = `
+    <div class="chart-card-header"><span style="font-size:16px">🗂️</span><span class="chart-card-title">${container.dataset.title||'Patient Chart'}</span></div>
+    <div class="chart-card-body">${html}</div>`;
+}
+
+function startChartQuiz(){
+  let pool = [...CHART_QUIZ_DATA];
+  if(_cqMode==='safety') pool = pool.filter(q=>q.qType.includes('안전')||q.qType.includes('Lab'));
+  if(_cqMode==='clinical') pool = pool.filter(q=>q.qType.includes('임상')||q.qType.includes('우선순위'));
+  if(_cqMode==='terms') pool = pool.filter(q=>q.qType.includes('용어')||q.qType.includes('SOAP')||q.qType.includes('격리'));
+  if(pool.length===0) pool = [...CHART_QUIZ_DATA];
+  pool = shuffle(pool);
+  CQ.pool=pool; CQ.cur=0; CQ.correct=0; CQ.wrong=0; CQ.streak=0; CQ.best=0; CQ.answered=false;
+  document.getElementById('cq-intro').style.display='none';
+  document.getElementById('cq-area').style.display='block';
+  document.getElementById('cq-result').style.display='none';
+  renderCQ();
+}
+
+function renderCQ(){
+  if(CQ.cur>=CQ.pool.length){showCQResult();return;}
+  const q=CQ.pool[CQ.cur];
+  const total=CQ.pool.length;
+  document.getElementById('cqPtxt').textContent=`${CQ.cur+1} / ${total}`;
+  document.getElementById('cqStxt').textContent=`정답 ${CQ.correct}`;
+  document.getElementById('cqPbar').style.width=Math.round(CQ.cur/total*100)+'%';
+  document.getElementById('cqNum').textContent=`#${CQ.cur+1}`;
+  document.getElementById('cqBadge').textContent=q.qType;
+
+  // Chart
+  const chartEl = document.getElementById('cq-chart-display');
+  chartEl.dataset.title = q.chartTitle;
+  renderChartCard(q.chart, chartEl);
+
+  // Note
+  const noteEl=document.getElementById('cqNote');
+  if(q.qNote){noteEl.style.display='block';noteEl.textContent=q.qNote;}
+  else noteEl.style.display='none';
+
+  document.getElementById('cqText').textContent=q.q;
+
+  // Choices
+  const cs=shuffle([...q.choices]);
+  const chEl=document.getElementById('cqChoices');
+  chEl.innerHTML='';
+  cs.forEach((c,i)=>{
+    const btn=document.createElement('button');
+    btn.className='cbtn';
+    btn.innerHTML=`<span class="cnum">${i+1}</span><span>${c}</span>`;
+    btn.onclick=()=>checkCQ(c,q);
+    chEl.appendChild(btn);
+  });
+
+  const fb=document.getElementById('cqFb');
+  fb.style.display='none'; fb.className='fb';
+  document.getElementById('cqNuance').style.display='none';
+  document.getElementById('cqSkip').style.display='block';
+  document.getElementById('cqNextBtn').style.display='none';
+  CQ.answered=false;
+}
+
+function checkCQ(chosen,q){
+  if(CQ.answered) return;
+  CQ.answered=true;
+  const ok=chosen===q.ans;
+  document.querySelectorAll('#cqChoices .cbtn').forEach(btn=>{
+    btn.disabled=true;
+    const txt=btn.querySelector('span:last-child').textContent;
+    if(txt===q.ans) btn.classList.add(ok?'correct':'show-ans');
+    else if(txt===chosen&&!ok) btn.classList.add('wrong');
+  });
+  if(ok){CQ.correct++;CQ.streak++;S.totOk++;S.sessStreak++;if(CQ.streak>CQ.best)CQ.best=CQ.streak;}
+  else{CQ.wrong++;CQ.streak=0;S.sessStreak=0;}
+  S.totAll++;doSave();updHdr();
+  const fb=document.getElementById('cqFb');
+  fb.style.display='block'; fb.className='fb '+(ok?'ok':'ng');
+  document.getElementById('cqFbHead').textContent=ok?'✅ 정답!':'❌ 오답 — 해설을 확인하세요';
+  document.getElementById('cqFbBody').innerHTML=`<strong>정답:</strong> ${q.ans}<br><br>${q.exp}`;
+  if(q.nuanceRows&&q.nuanceRows.length>0){
+    document.getElementById('cqNuance').style.display='block';
+    document.getElementById('cqNuanceRows').innerHTML=q.nuanceRows.map(r=>
+      `<div class="nuance-row"><span class="nuance-tag ${r.cls}">${r.tag}</span><div class="nuance-val">${r.val}</div></div>`
+    ).join('');
+  }
+  document.getElementById('cqSkip').style.display='none';
+  document.getElementById('cqNextBtn').style.display='block';
+}
+
+function cqNext(){CQ.cur++;renderCQ();}
+
+function showCQResult(){
+  document.getElementById('cq-area').style.display='none';
+  document.getElementById('cq-result').style.display='block';
+  const total=CQ.pool.length;
+  const pct=total>0?Math.round(CQ.correct/total*100):0;
+  document.getElementById('cqResPct').textContent=pct+'%';
+  document.getElementById('cqResOk').textContent=CQ.correct;
+  document.getElementById('cqResNg').textContent=CQ.wrong;
+  document.getElementById('cqResBest').textContent=CQ.best;
+  const c=document.getElementById('cqResCircle');
+  c.style.borderColor=pct>=80?'var(--green)':pct>=60?'var(--gold)':'var(--red)';
+  document.querySelector('#cqResCircle .res-score').style.color=pct>=80?'var(--green)':pct>=60?'var(--gold)':'var(--red)';
+}
+
+function resetChartQuiz(){
+  document.getElementById('cq-result').style.display='none';
+  document.getElementById('cq-area').style.display='none';
+  document.getElementById('cq-intro').style.display='block';
+}
+
+// ============================================================
+// UTIL: HTML escape
+// ============================================================
+function escHtml(s){
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+// 선택지 표시용 — 힌트성 괄호 설명·대시 설명 제거
+// 예: "환자가 ~를 말하다 (주관적 호소)"  →  "환자가 ~를 말하다"
+//     "적극적 저항 운동 — 조직 손상 위험" →  "적극적 저항 운동"
+// 단, 괄호 안이 핵심 내용인 경우(영어 용어 단독) 유지
+function cleanChoice(s) {
+  // 1) " — 이후 설명" 제거 (em-dash, hyphen-dash 모두)
+  let c = s.replace(/\s*[—–-]{1,2}\s+[^—–\n]+$/u, '');
+  // 2) " (한글 설명)" 제거 — 괄호 안이 한글로만 구성된 경우
+  c = c.replace(/\s*\([가-힣\s·\/·,]+\)\s*$/g, '');
+  // 3) " / 영어 설명" 같은 추가 설명 꼬리 제거는 하지 않음 (내용 일부일 수 있음)
+  return c.trim();
+}
+
+// ============================================================
+// TTS — Text-To-Speech
+// ============================================================
+let _ttsActive = null; // {btn, utter}
+
+function speakText(rawText, btn) {
+  if (!('speechSynthesis' in window)) {
+    alert('이 브라우저는 음성 출력을 지원하지 않습니다.\n(Chrome/Edge 권장)');
+    return;
+  }
+  // 이미 재생 중인 동일 버튼이면 중지
+  if (_ttsActive && _ttsActive.btn === btn) {
+    window.speechSynthesis.cancel();
+    btn.classList.remove('speaking');
+    btn.textContent = '▶';
+    _ttsActive = null;
+    return;
+  }
+  // 이전 것 중지
+  window.speechSynthesis.cancel();
+  if (_ttsActive) {
+    _ttsActive.btn.classList.remove('speaking');
+    _ttsActive.btn.textContent = '▶';
+  }
+
+  const text = rawText.replace(/★/g,'').replace(/\s+/g,' ').trim();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'en-US';
+  utter.rate = 0.88;
+  utter.pitch = 1.0;
+
+  // en-US 음성 선택 (로드 완료 후)
+  const setVoice = () => {
+    const voices = window.speechSynthesis.getVoices();
+    const v = voices.find(v => v.lang === 'en-US' && /Google/.test(v.name))
+           || voices.find(v => v.lang === 'en-US')
+           || voices.find(v => v.lang.startsWith('en'));
+    if (v) utter.voice = v;
+  };
+  setVoice();
+  if (window.speechSynthesis.getVoices().length === 0) {
+    window.speechSynthesis.onvoiceschanged = setVoice;
+  }
+
+  btn.classList.add('speaking');
+  btn.textContent = '■';
+  _ttsActive = {btn, utter};
+
+  utter.onend = utter.onerror = () => {
+    btn.classList.remove('speaking');
+    btn.textContent = '▶';
+    _ttsActive = null;
+  };
+  window.speechSynthesis.speak(utter);
+}
+
+// TTS 버튼 HTML 반환
+function makeTTSBtn(text) {
+  if (!text) return '';
+  const safe = String(text).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+  return `<span class="tts-btn" onclick="event.stopPropagation();speakText('${safe}',this)" title="발음 듣기 (클릭)">▶</span>`;
+}
+
+// ============================================================
+// WORD TOOLTIP 데이터베이스 (35개 핵심 표현)
+// ============================================================
+const WORD_DB = [
+  // ── 핵심 수식어 ──
+  {k:'MOST',           pos:'형용사 (최상급)',    warn:false, ko:'가장 ~한',              nuance:'최상의 하나를 고르는 방향 지시어. BEST와 함께 "정답 방향"을 가리킴.',                                       en:'Which is the MOST appropriate intervention?',             ko2:'가장 적절한 중재는?'},
+  {k:'BEST',           pos:'형용사 (최상급)',    warn:false, ko:'가장 좋은',             nuance:'임상적으로 최우선되는 것을 선택. MOST와 방향 동일.',                                                         en:'What is the BEST initial response?',                      ko2:'가장 좋은 초기 반응은?'},
+  {k:'LEAST',          pos:'형용사 (최하급) ⚠️', warn:true,  ko:'가장 ~하지 않은',       nuance:'방향 반전! "나쁜 것, 틀린 것"을 고르는 함정. 빠른 독해 시 놓치기 쉬움.',                                 en:'Which is LEAST appropriate?',                             ko2:'가장 부적절한 것은? ← 나쁜 것 선택!'},
+  {k:'FIRST',          pos:'부사 / 형용사',      warn:false, ko:'가장 먼저',             nuance:'시간적 순서의 첫 번째 행동. 우선순위 1위.',                                                                  en:'What should the therapist do FIRST?',                     ko2:'치료사가 가장 먼저 해야 할 것은?'},
+  {k:'PRIMARY',        pos:'형용사',             warn:false, ko:'주된 / 가장 중요한',    nuance:'여러 원인·목표 중 핵심. chief와 동의.',                                                                      en:'The PRIMARY goal of treatment is...',                     ko2:'치료의 주된 목표는...'},
+  {k:'INITIAL',        pos:'형용사',             warn:false, ko:'초기의 / 첫 번째의',    nuance:'치료 시작 단계. FIRST와 유사하지만 더 넓은 "초기 단계" 개념.',                                             en:'The INITIAL intervention should be...',                   ko2:'초기 중재는 ~이어야 한다'},
+  {k:'IMMEDIATELY',    pos:'부사',               warn:false, ko:'즉시 / 당장',           nuance:'지연 없이 즉각 행동. 응급·안전 상황에서 자주 등장.',                                                        en:'The therapist should IMMEDIATELY...',                     ko2:'치료사는 즉시 ~해야 한다'},
+  {k:'GREATEST',       pos:'형용사 (최상급)',    warn:false, ko:'가장 큰 / 가장 높은',   nuance:'"at GREATEST risk" 형태로 자주 출제. 위험도·효과 1위를 묻는다.',                                           en:'Patient at GREATEST risk for DVT',                        ko2:'DVT 발생 위험이 가장 높은 환자'},
+  {k:'appropriate',    pos:'형용사',             warn:false, ko:'적절한 / 알맞은',       nuance:'가장 흔히 나오는 평가 기준어. most/least appropriate 형태로 사용.',                                         en:'Which intervention is most appropriate?',                 ko2:'가장 적절한 중재는?'},
+  {k:'indicated',      pos:'형용사',             warn:false, ko:'적응증인 / 해야 하는',  nuance:'이 상황에 맞는 치료. contraindicated(금기)의 반대.',                                                        en:'Exercise is indicated for this patient',                  ko2:'이 환자에게 운동은 적응증이다'},
+
+  // ── 핵심 동사 ──
+  {k:'suspect',        pos:'동사 (타동사)',       warn:false, ko:'의심하다 / 추정하다',   nuance:'아직 확진 아님. 증상 조합으로 유력 진단을 추론하는 단계.',                                                  en:'Therapist should suspect scaphoid fracture',              ko2:'치료사는 주상골 골절을 의심해야 한다'},
+  {k:'reports',        pos:'동사 ★ 주관',        warn:false, ko:'(환자가) 호소하다',     nuance:'환자의 주관적 증상에만 사용! demonstrates(객관)와 반드시 구별.',                                            en:'Patient reports pain 7/10',                               ko2:'환자는 통증 7/10을 호소한다 (주관적)'},
+  {k:'demonstrates',   pos:'동사 (객관)',         warn:false, ko:'(소견을) 보이다',       nuance:'PT가 관찰하는 객관적 소견. reports(환자 주관)와 반대 방향.',                                                en:'Patient demonstrates limited ROM',                        ko2:'환자는 ROM 제한을 나타낸다 (객관적)'},
+  {k:'indicates',      pos:'동사 (강한 연결)',    warn:false, ko:'시사한다 / 나타낸다',   nuance:'진단과 소견을 강하게 연결. suggests / consistent with보다 강도 높음.',                                      en:'ST displacement indicates MI',                            ko2:'ST분절 변위는 심근경색을 시사한다'},
+  {k:'suggests',       pos:'동사 (약한 연결)',    warn:false, ko:'암시한다',              nuance:'indicates보다 간접적 연결. 가능성을 제시하는 표현.',                                                        en:'Finding suggests systemic disease',                       ko2:'소견이 전신 질환을 암시한다'},
+  {k:'refer',          pos:'동사',               warn:false, ko:'의뢰하다',              nuance:'PT 범위 초과 시 의사에게 돌려보내는 것. red flag 발견 시 정답으로 자주 등장.',                              en:'Refer back to physician immediately',                     ko2:'즉시 의사에게 재의뢰하다'},
+  {k:'exacerbate',     pos:'동사 (타동사)',       warn:false, ko:'악화시키다',            nuance:'이미 있는 문제를 더 나쁘게 만드는 것. aggravate, worsen과 동의어.',                                        en:'Activity exacerbates symptoms',                           ko2:'활동이 증상을 악화시킨다'},
+  {k:'aggravate',      pos:'동사 (타동사)',       warn:false, ko:'악화시키다 (구어)',      nuance:'exacerbate의 구어적 동의어. "what aggravates your symptoms?" 형태로 사용.',                                en:'What aggravates the pain?',                               ko2:'무엇이 통증을 악화시킵니까?'},
+  {k:'facilitate',     pos:'동사 (타동사)',       warn:false, ko:'촉진하다 / 활성화',     nuance:'움직임·반응을 촉진·증가. inhibit(억제)의 반대 방향.',                                                      en:'Visual cue facilitates movement',                         ko2:'시각 단서가 움직임을 촉진한다'},
+  {k:'inhibit',        pos:'동사 (타동사)',       warn:false, ko:'억제하다 / 감소',       nuance:'활성·반응을 억제·줄이는 것. facilitate(촉진)의 반대.',                                                     en:'Weight bearing inhibits spasticity',                     ko2:'체중 부하가 경직을 억제한다'},
+  {k:'alleviate',      pos:'동사 (타동사)',       warn:false, ko:'경감하다 / 완화',       nuance:'부분적 완화. eliminate(완전 제거)보다 약한 표현. relieve와 유사.',                                         en:'Stretching alleviates muscle tightness',                  ko2:'스트레칭이 근육 긴장을 완화시킨다'},
+  {k:'relieve',        pos:'동사 (타동사)',       warn:false, ko:'완화하다 / 경감하다',   nuance:'alleviate와 동의어. 통증·증상을 줄이는 표현.',                                                             en:'Ice helps relieve acute pain',                            ko2:'얼음이 급성 통증 완화에 도움이 된다'},
+  {k:'promote',        pos:'동사 (타동사)',       warn:false, ko:'촉진하다 / 증진하다',   nuance:'치유·기능·회복을 "증진"하는 표현. facilitate보다 넓은 개념.',                                             en:'Exercise promotes bone density',                          ko2:'운동이 골밀도를 증진시킨다'},
+  {k:'enhance',        pos:'동사 (타동사)',       warn:false, ko:'향상시키다 / 강화하다', nuance:'품질·효과를 높이는 표현. 기능적 결과 향상에 사용.',                                                        en:'Feedback enhances motor learning',                        ko2:'피드백이 운동 학습을 향상시킨다'},
+  {k:'improve',        pos:'동사 (타동사)',       warn:false, ko:'개선하다 / 향상하다',   nuance:'가장 일반적인 향상 표현. ROM, strength, function 앞에 자주 사용.',                                         en:'PT aims to improve functional mobility',                  ko2:'PT는 기능적 이동성 향상을 목표로 한다'},
+  {k:'enable',         pos:'동사 (타동사)',       warn:false, ko:'가능하게 하다 (능력)',  nuance:'어떤 행동·능력을 가능하게 함. 보조 도구나 중재의 효과를 설명할 때 사용.',                                 en:'Assistive device enables independent ambulation',         ko2:'보조 기구가 독립적 보행을 가능하게 한다'},
+  {k:'assist',         pos:'동사 (타동사)',       warn:false, ko:'돕다 / 보조하다',       nuance:'치료사나 도구가 환자를 보조하는 것. assist level(보조 수준)과 연결.',                                      en:'Therapist assists with transfer',                         ko2:'치료사가 이동을 보조한다'},
+  {k:'optimize',       pos:'동사 (타동사)',       warn:false, ko:'최적화하다',            nuance:'최상의 결과를 내도록 조정하는 것. 치료 계획 최적화에 사용.',                                              en:'Optimize ROM prior to strengthening',                     ko2:'근력 강화 전에 ROM을 최적화한다'},
+  {k:'compensate',     pos:'동사 (자동사)',       warn:false, ko:'보상하다 / 대체하다',   nuance:'결손을 대체 전략으로 메우는 것. substitute(MMT 특화)보다 넓은 개념.',                                     en:'Patient compensates with trunk lean',                     ko2:'환자가 체간 기울기로 보상한다'},
+  {k:'substitute',     pos:'동사 (자동사)',       warn:false, ko:'대체하다 (MMT 특화)',   nuance:'MMT에서 약한 근육 대신 다른 근육이 수축하는 것. 검사를 무효화함.',                                        en:'Tibialis posterior substitutes in MMT',                   ko2:'MMT에서 후경골근이 대신 수축한다'},
+  {k:'contraindicated',pos:'형용사 ⚠️',          warn:true,  ko:'금기인',               nuance:'하면 환자에게 해가 됨. is not indicated(맞지 않음)보다 강한 금지.',                                        en:'Vigorous exercise is contraindicated',                    ko2:'격렬한 운동은 금기이다'},
+  {k:'restrict',       pos:'동사 (타동사)',       warn:false, ko:'제한하다',              nuance:'범위·활동을 제한하는 것. restriction = 제한 사항.',                                                        en:'Physician orders restrict weight bearing',                ko2:'의사 처방이 체중 부하를 제한한다'},
+  {k:'precaution',     pos:'명사',               warn:false, ko:'주의사항 / 예방 조치',  nuance:'완전 금기(contraindication)보다 약한 주의 조치. 조심해서 시행할 수 있음.',                               en:'Hip precautions after THA',                               ko2:'THA 후 고관절 주의사항'},
+
+  // ── 진단 연결 강도 동사 ──
+  {k:'reveals',        pos:'동사 (검사 주어)',    warn:false, ko:'드러내다 / 보여주다',   nuance:'검사·영상이 주어일 때 사용. 사람이 주어면 reports/notes를 씀.',                                           en:'Radiograph reveals no fracture',                          ko2:'방사선 사진은 골절 없음을 보여준다'},
+  {k:'presents with',  pos:'동사구',             warn:false, ko:'~을 주소로 내원하다',   nuance:'지문 첫 줄 표현. 주관·객관 구분 없이 전체 임상 양상을 포괄적으로 설정.',                                  en:'Patient presents with bilateral LE edema',                ko2:'환자는 양측 하지 부종을 주소로 내원'},
+  {k:'complains of',   pos:'동사구',             warn:false, ko:'~을 호소하다 (강조)',   nuance:'reports와 유사하나 불편·고통을 강조. 주관적 증상 표현.',                                                  en:'Patient complains of persistent LBP',                     ko2:'환자는 지속적인 요통을 호소한다'},
+  {k:'denies',         pos:'동사 ⚠️',            warn:true,  ko:'(증상이 없다고) 부정',  nuance:'reports의 반대! 해당 증상이 없음을 환자가 말하는 것. 빠른 독해 시 놓치면 반전!',                          en:'Patient denies chest pain',                               ko2:'환자는 흉통이 없다고 한다 (없음!)'},
+  {k:'note',           pos:'동사 (치료사 주어)',  warn:false, ko:'관찰하다 / 발견하다',   nuance:'therapist가 주어일 때 사용하는 관찰 동사.',                                                               en:'Therapist notes abnormal gait pattern',                   ko2:'치료사는 비정상적 보행 패턴을 관찰한다'},
+  {k:'exhibit',        pos:'동사',               warn:false, ko:'나타내다 / 보이다',     nuance:'demonstrates와 동의어. 관찰 가능한 객관적 소견.',                                                          en:'Patient exhibits freezing episodes',                      ko2:'환자는 동결 삽화를 나타낸다'},
+
+  // ── 구 표현 ──
+  {k:'secondary to',   pos:'전치사구',           warn:false, ko:'~때문에 / ~으로 인한',  nuance:'인과관계 표현. 원인이 뒤에 온다. due to와 동의이나 의무기록에서 더 공식적.',                              en:'Weakness secondary to femoral nerve lesion',              ko2:'대퇴신경 병변으로 인한 근력 약화'},
+  {k:'status post',    pos:'의료 관용구',         warn:false, ko:'~ 이후의 상태',         nuance:'과거 수술·시술을 간결 표현. s/p로 축약. "s/p THA" = THA 시행 후.',                                       en:'Patient is s/p THA posterolateral approach',              ko2:'후외측 접근 THA 시술 후 상태'},
+  {k:'at risk for',    pos:'전치사구',           warn:false, ko:'~의 위험에 처한',       nuance:'"at GREATEST risk for" 형태로 자주 출제. 위험도 1위 환자군을 묻는다.',                                    en:'Patient at GREATEST risk for DVT',                        ko2:'DVT 발생 위험이 가장 높은 환자'},
+  {k:'in the absence of',pos:'전치사구 ⚠️',      warn:true,  ko:'~이 없는 상황에서',     nuance:'조건 부정! "absence of pain" = 통증 없을 때. 반대로 읽으면 의미 완전히 달라짐.',                          en:'BP drop in the absence of ischemic changes',             ko2:'허혈 변화 없이 혈압만 하강 (없을 때)'},
+  {k:'consistent with',pos:'형용사구',           warn:false, ko:'~에 부합하는',          nuance:'진단 연결 강도 최약. indicates > suggests > consistent with 순서.',                                       en:'Finding is consistent with metabolic syndrome',           ko2:'소견이 대사증후군에 부합한다 (약한 연결)'},
+  {k:'despite',        pos:'전치사 ⚠️',          warn:true,  ko:'~에도 불구하고',        nuance:'역접! 예상과 반대 결과를 연결. in spite of와 동의어.',                                                    en:'Despite treatment, symptoms persisted',                   ko2:'치료에도 불구하고 증상이 지속됐다'},
+  {k:'prior to',       pos:'전치사구',           warn:false, ko:'~ 이전에 / ~하기 전',   nuance:'시간 순서 표현. before보다 공식적. 치료 전 확인 사항과 연결.',                                            en:'Prior to initiating exercise...',                         ko2:'운동을 시작하기 전에...'},
+  {k:'in order to',    pos:'접속사구',           warn:false, ko:'~하기 위해서',          nuance:'목적 표현. 치료 목표 서술에 자주 등장.',                                                                  en:'In order to improve balance...',                          ko2:'균형을 향상시키기 위해서...'},
+  {k:'insidious onset',pos:'명사구',             warn:false, ko:'서서히 발병 (비외상)',   nuance:'점진적·외상 없음 → 과사용/퇴행/전신 원인 시사. sudden onset과 반대.',                                    en:'Shoulder pain of insidious onset',                        ko2:'서서히 시작된 어깨 통증 → 비외상성'},
+  {k:'radiating',      pos:'형용사',             warn:false, ko:'방사되는 / 뻗치는',     nuance:'신경근 자극 시사. 방향이 손상 레벨 추론의 단서가 됨.',                                                    en:'Radiating pain down the lateral leg',                     ko2:'다리 외측으로 방사되는 통증 → L4-L5'},
+  {k:'rather than',    pos:'접속사구',           warn:false, ko:'~보다는 / ~대신',       nuance:'선호하는 것을 선택하는 비교 표현. instead of보다 약간 더 강한 선호.',                                     en:'Use RPE rather than heart rate',                          ko2:'심박수보다 RPE를 사용하라'},
+  {k:'as opposed to',  pos:'접속사구',           warn:false, ko:'~와는 반대로',          nuance:'대립·대조를 가장 강하게 강조. rather than, instead of보다 강한 대비.',                                   en:'Subacute as opposed to acute phase',                      ko2:'급성기와는 반대로 아급성기'},
+  {k:'instead of',     pos:'전치사구',           warn:false, ko:'~ 대신에',              nuance:'단순 대체(중립적). 가장 약한 비교 표현.',                                                                 en:'Use ice instead of heat',                                 ko2:'열 대신 얼음을 사용하라'},
+
+  // ── 함정 표현 ──
+  {k:'EXCEPT',         pos:'접속사 ⚠️',          warn:true,  ko:'~을 제외하고',          nuance:'방향 반전! 나머지 3개는 맞고 "하나만 틀린 것"을 고른다.',                                                en:'All of the following EXCEPT...',                          ko2:'다음 중 ~을 제외한 모든 것 → 틀린 것 선택!'},
+  {k:'NOT',            pos:'부정어 ⚠️',          warn:true,  ko:'아닌',                  nuance:'부정 방향! NOT appropriate = "해서는 안 되는 것"을 고른다.',                                              en:'Which is NOT appropriate?',                               ko2:'적절하지 않은 것은? ← 나쁜 것 선택!'},
+  {k:'AVOID',          pos:'동사 ⚠️',            warn:true,  ko:'피하다 / 금지',         nuance:'금지 표현. AVOID = 해서는 안 되는 행동을 선택.',                                                          en:'The therapist should AVOID...',                           ko2:'치료사는 ~을 피해야 한다 (금지)'},
+  {k:'regardless of',  pos:'전치사구 ⚠️',        warn:true,  ko:'~에 관계없이',          nuance:'조건을 무시. "regardless of symptoms" = 증상에 관계없이. despite와 유사하지만 다름.',                   en:'Continue regardless of mild symptoms',                    ko2:'가벼운 증상에 관계없이 계속한다'},
+
+  // ── 증상 관련 ──
+  {k:'insidious',      pos:'형용사',             warn:false, ko:'서서히 / 점진적으로',   nuance:'insidious onset = 서서히 발병. 외상 없는 비기계적·퇴행성 원인 시사.',                                    en:'Insidious onset suggests non-traumatic cause',            ko2:'서서히 발병 → 비외상성 원인 시사'},
+  {k:'acute',          pos:'형용사',             warn:false, ko:'급성의 (48~72시간)',    nuance:'급성기 = 염증 최고조. aggressive 운동 금기. RICE + 통증 관리 우선.',                                      en:'Acute phase: avoid aggressive exercise',                  ko2:'급성기: 적극적 운동 금지'},
+  {k:'chronic',        pos:'형용사',             warn:false, ko:'만성의 (3개월 이상)',   nuance:'3개월 이상 지속. 만성기는 점진적 부하 증가 가능.',                                                        en:'Chronic LBP responds to graded exercise',                 ko2:'만성 요통은 점진적 운동에 반응한다'},
+  {k:'bilateral',      pos:'형용사',             warn:false, ko:'양측성의',              nuance:'양쪽 모두에 나타나는 증상. unilateral(편측)과 대비. 신경계/전신 질환 시사.',                              en:'Bilateral LE weakness suggests UMN lesion',               ko2:'양측 하지 약화는 상위운동신경원 병변 시사'},
+  {k:'unilateral',     pos:'형용사',             warn:false, ko:'편측성의 / 한쪽의',    nuance:'한쪽에만 나타나는 증상. 신경근병증·국소 병변 시사.',                                                      en:'Unilateral LE swelling suggests DVT',                     ko2:'편측 하지 부종은 DVT 시사'},
+  {k:'proximal',       pos:'형용사',             warn:false, ko:'근위부의 (몸쪽)',       nuance:'몸통에 가까운 쪽. proximal weakness → 근육병증, 스테로이드 근병증 등.',                                   en:'Proximal UE weakness suggests myopathy',                  ko2:'근위부 상지 약화는 근육병증 시사'},
+  {k:'distal',         pos:'형용사',             warn:false, ko:'원위부의 (말단)',       nuance:'몸통에서 먼 쪽. distal weakness → 말초신경병증 시사.',                                                    en:'Distal LE weakness suggests peripheral neuropathy',       ko2:'원위부 하지 약화는 말초신경병증 시사'},
+  {k:'diffuse',        pos:'형용사',             warn:false, ko:'광범위한 / 산만한',    nuance:'특정 위치 없이 넓게 퍼진 증상. 전신 질환·중추신경계 병변 시사.',                                          en:'Diffuse pain without clear localization',                 ko2:'명확한 위치 없이 광범위한 통증'},
+  {k:'localized',      pos:'형용사',             warn:false, ko:'국소적인 / 한 부위의', nuance:'특정 부위에 한정된 증상. 국소 조직 병변 시사.',                                                            en:'Localized tenderness over the lateral epicondyle',        ko2:'외측상과 부위의 국소적 압통'},
+
+  // ── 검사 결과 표현 ──
+  {k:'is positive for',pos:'형용사구',           warn:false, ko:'~에 양성이다',          nuance:'검사 결과 양성. is diagnostic of(확진)보다 약하지만 강한 연결.',                                          en:'Lachman test is positive for ACL tear',                   ko2:'Lachman 검사가 ACL 파열에 양성'},
+  {k:'is negative for',pos:'형용사구',           warn:false, ko:'~에 음성이다',          nuance:'검사 결과 음성 = 해당 소견 없음. "negative for fracture" = 골절 없음.',                                  en:'X-ray is negative for fracture',                          ko2:'방사선 사진은 골절에 음성 (없음)'},
+  {k:'is suggestive of',pos:'형용사구',          warn:false, ko:'~을 시사한다 (약함)',   nuance:'진단 연결 강도 약함. suggests와 동의. indicates보다 간접적.',                                             en:'Finding is suggestive of rotator cuff tear',              ko2:'소견이 회전근개 파열을 시사한다'},
+  {k:'is diagnostic of',pos:'형용사구',          warn:false, ko:'~을 확진한다',          nuance:'진단 연결 강도 최강. 이 소견 = 이 진단 (확정). 가장 강한 표현.',                                         en:'This finding is diagnostic of...',                        ko2:'이 소견은 ~을 확진한다 (가장 강한 연결)'},
+  {k:'is consistent with',pos:'형용사구',        warn:false, ko:'~에 부합하는',          nuance:'진단 연결 강도 최약. 부합할 수 있다는 의미이지 확진 아님.',                                              en:'Finding is consistent with metabolic syndrome',           ko2:'소견이 대사증후군에 부합한다'},
+];
+
+// 키워드를 긴 것부터 정렬 (복합어 먼저 매칭)
+WORD_DB.sort((a,b) => b.k.length - a.k.length);
+
+// 말풍선 HTML 생성
+function makeTooltipHTML(d) {
+  const posClass = d.warn ? ' class="wt-pos warn"' : ' class="wt-pos"';
+  return `<span class="wt" onclick="toggleTT(event,this)">${escHtml(d.k)
+  }<span class="wt-bubble"
+  ><span${posClass}>${escHtml(d.pos)}</span
+  ><div class="wt-ko">${escHtml(d.ko)}</div
+  ><div class="wt-nuance">${escHtml(d.nuance)}</div
+  ><div class="wt-ex"><div class="wt-en">${escHtml(d.en)}</div><div class="wt-ko-ex">${escHtml(d.ko2)}</div></div
+  ></span></span>`;
+}
+
+// 텍스트에 tooltip 적용
+// 방식: 텍스트를 순수 텍스트 세그먼트로 분리 → 각 세그먼트에서
+//        키워드를 찾아 플레이스홀더(\x00N\x00)로 치환 → 마지막에 HTML 복원
+//        → 이미 교체된 부분은 텍스트가 아니므로 재매칭 불가
+function applyWordTooltips(input) {
+  // 1) HTML 태그와 텍스트 노드를 분리
+  const tokens = input.split(/(<[^>]*>)/);
+  // 2) 교체 결과를 저장할 맵
+  const replacements = [];
+
+  const processed = tokens.map(tok => {
+    // 태그 토큰은 그대로 통과
+    if (/^</.test(tok)) return tok;
+    // 텍스트 토큰: 이미 플레이스홀더가 있으면 그대로 (중복 방지)
+    let s = tok;
+    WORD_DB.forEach(d => {
+      const esc = d.k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+      const boundary = d.k.includes(' ') ? '(?<![\\w-])' : '\\b';
+      const boundaryEnd = d.k.includes(' ') ? '(?![\\w-])' : '\\b';
+      const re = new RegExp(`${boundary}(${esc})${boundaryEnd}`, 'gi');
+      // 첫 1회만 교체
+      let done = false;
+      s = s.replace(re, (m) => {
+        if (done) return m;
+        done = true;
+        const idx = replacements.length;
+        replacements.push(makeTooltipHTML({...d, k: m}));
+        return `\x00${idx}\x00`; // 플레이스홀더 (텍스트 영역에만 존재)
+      });
+    });
+    return s;
+  });
+
+  // 3) 토큰 재결합 후 플레이스홀더를 실제 HTML로 교체
+  return processed.join('').replace(/\x00(\d+)\x00/g, (_, i) => replacements[+i]);
+}
+
+// 말풍선 토글
+function toggleTT(e, el) {
+  e.stopPropagation();
+  const wasOpen = el.classList.contains('open');
+  document.querySelectorAll('.wt.open').forEach(w => w.classList.remove('open'));
+  if (!wasOpen) {
+    el.classList.add('open');
+    // 뷰포트 경계 보정
+    requestAnimationFrame(() => {
+      const b = el.querySelector('.wt-bubble');
+      if (!b) return;
+      const r = b.getBoundingClientRect();
+      const vw = window.innerWidth;
+      if (r.left < 6) b.style.left = `calc(50% + ${6 - r.left}px)`;
+      if (r.right > vw - 6) b.style.left = `calc(50% - ${r.right - vw + 6}px)`;
+      if (r.top < 6) {
+        b.style.bottom = 'auto';
+        b.style.top = 'calc(100% + 10px)';
+      }
+    });
+  }
+}
+// 전역 클릭으로 말풍선 닫기
+document.addEventListener('click', () =>
+  document.querySelectorAll('.wt.open').forEach(w => w.classList.remove('open'))
+);
+
+// chart tab go() integrated above
+
+// INIT
+loadSave(); buildHome();
+</script>
+</body>
+</html>
