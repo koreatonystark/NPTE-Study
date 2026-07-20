@@ -376,6 +376,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
       <button class="btn-back" onclick="goHome()">← Back</button>
       <div class="quiz-meta">
         <button class="btn-translate" id="btn-translate" onclick="toggleTranslate()">🌐 한국어</button>
+        <button class="btn-translate" id="btn-tts" onclick="toggleTts()" title="자동 읽기">🔊</button>
         <span class="quiz-info" id="q-counter">1 / 50</span>
       </div>
     </div>
@@ -766,6 +767,7 @@ let selCats=new Set(),selYears=new Set(),selSrcs=new Set(),selSubs=new Set();
 const CAT_SUBS={};  // 데이터 로드 후 동적으로 채워짐
 let sessQs=[],qIdx=0,answered=false,sCorrect=0,sWrong=0,sWrongIds=[];
 let translateOn=false,timerIv=null,timerLeft=0,trStem='',trOpts=[];
+let ttsOn=false; // 자동 읽기 토글
 let sessStartTime=0,seenQIds=new Set(),sessionAnswers={};
 let store={done:{},bm:new Set(),wrongs:new Set(),skip:new Set()};
 
@@ -1287,7 +1289,7 @@ sk.textContent=store.skip.has(q2.id)?'⏭ Skipped':'Skip';
 // 이미 답한 문제로 돌아온 경우 복원
 const prev=sessionAnswers[q2.id];
 if(prev!==undefined){restoreAnswer(q2,prev);}
-else{document.getElementById('quiz-body').scrollTop=0;startTimer();}
+else{document.getElementById('quiz-body').scrollTop=0;startTimer();ttsRead();}
 }
 function gdImg(url){const m=url.match(/\/d\/([^/]+)/);return m?'https://drive.google.com/uc?export=view&id='+m[1]:url;}
 function gdEmbed(url){let m=url.match(/youtu\.be\/([^?]+)/)||url.match(/youtube\.com\/watch\?v=([^&]+)/);if(m)return 'https://www.youtube.com/embed/'+m[1];m=url.match(/\/d\/([^/]+)/);if(m)return 'https://drive.google.com/file/d/'+m[1]+'/preview';return url;}
@@ -1426,6 +1428,37 @@ function closeExplain(){
   document.getElementById('expl-vid').src='';
   document.getElementById('expl-overlay').style.display='none';
 }
+function toggleTts(){
+  ttsOn=!ttsOn;
+  const btn=document.getElementById('btn-tts');
+  if(ttsOn){
+    btn.classList.add('active');
+    btn.textContent='🔊';
+    // 현재 문제 바로 읽기
+    if(!translateOn) ttsRead();
+  } else {
+    btn.classList.remove('active');
+    btn.textContent='🔊';
+    window.speechSynthesis.cancel();
+  }
+}
+
+function ttsRead(){
+  if(!ttsOn||translateOn)return;
+  window.speechSynthesis.cancel();
+  const q=sessQs[qIdx];
+  if(!q)return;
+  const L=['A','B','C','D'];
+  const opts=q.opts.filter(o=>o);
+  // 문제 + 보기 텍스트 구성
+  const text=q.stem+' ... '+opts.map((o,i)=>L[i]+'. '+o).join(' ... ');
+  const utt=new SpeechSynthesisUtterance(text);
+  utt.lang='en-US';
+  utt.rate=0.9;
+  utt.pitch=1;
+  window.speechSynthesis.speak(utt);
+}
+
 async function toggleTranslate(){const btn=document.getElementById('btn-translate');if(translateOn){const q=sessQs[qIdx];document.getElementById('q-stem').textContent=q.stem;document.querySelectorAll('.opt-text').forEach((el,i)=>el.innerHTML=renderStem(q.opts[i]||''));translateOn=false;btn.classList.remove('active');btn.textContent='🌐 한국어';return;}btn.textContent='⏳';btn.disabled=true;const q=sessQs[qIdx];try{if(!trStem){const all=[q.stem,...q.opts.filter(Boolean)];const joined=all.map((t,i)=>'['+i+'] '+t).join('\n');const url='https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q='+encodeURIComponent(joined);const res=await fetch(url);const data=await res.json();const raw=data[0].map(x=>x[0]).join('').split('\n');const result=[];for(const line of raw){const m=line.match(/^\[(\d+)\]\s*(.*)/);if(m)result[parseInt(m[1])]=m[2];}trStem=result[0]||q.stem;trOpts=q.opts.map((_,i)=>result[i+1]||q.opts[i]||'');}document.getElementById('q-stem').textContent=trStem;document.querySelectorAll('.opt-text').forEach((el,i)=>{if(i<trOpts.length)el.textContent=trOpts[i];});translateOn=true;btn.classList.add('active');btn.textContent='🌐 English';}catch(e){alert('번역 실패. 인터넷 연결을 확인하세요.');btn.textContent='🌐 한국어';}btn.disabled=false;}
 
 function restoreAnswer(q,prev){
@@ -1574,7 +1607,7 @@ function toggleBm(){const q=sessQs[qIdx];store.bm.has(q.id)?store.bm.delete(q.id
 function showResult(){clearInterval(timerIv);const tot=sessQs.length,pct=Math.round(sCorrect/tot*100);document.getElementById('res-score').textContent=sCorrect+'/'+tot;document.getElementById('res-label').textContent=pct+'% correct · '+sWrong+' wrong';document.getElementById('bar-c').style.width=(sCorrect/tot*100)+'%';document.getElementById('bar-w').style.width=(sWrong/tot*100)+'%';document.getElementById('num-c').textContent=sCorrect;document.getElementById('num-w').textContent=sWrong;document.getElementById('btn-rw').style.display=sWrong?'':'none';document.getElementById('prog').style.width='100%';updateStats();showScreen('result');}
 function retrySame(){const qs=[...sessQs];if(order==='rand')qs.sort(()=>Math.random()-.5);sessQs=qs;qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];seenQIds=new Set();sessStartTime=Date.now();sessionAnswers={};answered=false;showScreen('quiz');showQ();}
 function retryWrong(){const wqs=ALL_QS.filter(q=>sWrongIds.includes(q.id));if(!wqs.length)return;sessQs=wqs;qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];seenQIds=new Set();sessStartTime=Date.now();sessionAnswers={};answered=false;showScreen('quiz');showQ();}
-function goHome(){clearInterval(timerIv);updateStats();showScreen('home');updateBtn();}
+function goHome(){clearInterval(timerIv);window.speechSynthesis.cancel();updateStats();showScreen('home');updateBtn();}
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 window.onload=()=>{loadStore();initAuth();};
 document.addEventListener('visibilitychange',()=>{
