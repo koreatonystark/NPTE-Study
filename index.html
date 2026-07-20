@@ -1508,7 +1508,7 @@ function ttsRead(){
     chunks.forEach((chunk, i) => {
       const utt = new SpeechSynthesisUtterance(chunk);
       utt.lang = 'en-US';
-      utt.rate = 0.78;
+      utt.rate = 0.85;
       utt.pitch = 1;
       utt.volume = 1;
       // 캐시된 음성 사용
