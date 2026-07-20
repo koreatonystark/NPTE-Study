@@ -1451,12 +1451,20 @@ function ttsRead(){
   const L=['Number one. ','Number two. ','Number three. ','Number four. '];
   const opts=q.opts.filter(o=>o);
   // 문제 + 보기 텍스트 구성
-  const text=q.stem+' ... '+opts.map((o,i)=>L[i]+o).join(' ... ');
-  const utt=new SpeechSynthesisUtterance(text);
-  utt.lang='en-US';
-  utt.rate=0.9;
-  utt.pitch=1;
-  window.speechSynthesis.speak(utt);
+  // 문제와 보기 사이에 충분한 쉼 추가, 보기 내 쉼표로 자연스러운 끊김
+  const pausedStem = q.stem.replace(/,/g, ', ').replace(/\./g, '. ');
+  const pausedOpts = opts.map((o,i) => L[i] + o.replace(/,/g, ', ').replace(/\./g, '. '));
+  const parts = [pausedStem, ...pausedOpts];
+
+  // 문제와 보기를 별도 utterance로 분리 → 자연스러운 끊김
+  parts.forEach((part, i) => {
+    const utt = new SpeechSynthesisUtterance(part);
+    utt.lang = 'en-US';
+    utt.rate = 0.78;   // 느리게
+    utt.pitch = 1;
+    utt.volume = 1;
+    window.speechSynthesis.speak(utt);
+  });
 }
 
 async function toggleTranslate(){const btn=document.getElementById('btn-translate');if(translateOn){const q=sessQs[qIdx];document.getElementById('q-stem').textContent=q.stem;document.querySelectorAll('.opt-text').forEach((el,i)=>el.innerHTML=renderStem(q.opts[i]||''));translateOn=false;btn.classList.remove('active');btn.textContent='🌐 한국어';return;}btn.textContent='⏳';btn.disabled=true;const q=sessQs[qIdx];try{if(!trStem){const all=[q.stem,...q.opts.filter(Boolean)];const joined=all.map((t,i)=>'['+i+'] '+t).join('\n');const url='https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q='+encodeURIComponent(joined);const res=await fetch(url);const data=await res.json();const raw=data[0].map(x=>x[0]).join('').split('\n');const result=[];for(const line of raw){const m=line.match(/^\[(\d+)\]\s*(.*)/);if(m)result[parseInt(m[1])]=m[2];}trStem=result[0]||q.stem;trOpts=q.opts.map((_,i)=>result[i+1]||q.opts[i]||'');}document.getElementById('q-stem').textContent=trStem;document.querySelectorAll('.opt-text').forEach((el,i)=>{if(i<trOpts.length)el.textContent=trOpts[i];});translateOn=true;btn.classList.add('active');btn.textContent='🌐 English';}catch(e){alert('번역 실패. 인터넷 연결을 확인하세요.');btn.textContent='🌐 한국어';}btn.disabled=false;}
