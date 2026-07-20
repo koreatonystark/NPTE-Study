@@ -1451,16 +1451,28 @@ function ttsRead(){
   const L=['Number one. ','Number two. ','Number three. ','Number four. '];
   const opts=q.opts.filter(o=>o);
   // 문제 + 보기 텍스트 구성
-  // 문제와 보기 사이에 충분한 쉼 추가, 보기 내 쉼표로 자연스러운 끊김
-  const pausedStem = q.stem.replace(/,/g, ', ').replace(/\./g, '. ');
-  const pausedOpts = opts.map((o,i) => L[i] + o.replace(/,/g, ', ').replace(/\./g, '. '));
+  // 문제와 보기를 별도 utterance로 분리 + 사이에 무음 pause 삽입
+  const pausedStem = q.stem.replace(/,/g, ',').replace(/\./g, '.');
+  const pausedOpts = opts.map((o,i) => L[i] + o);
   const parts = [pausedStem, ...pausedOpts];
 
-  // 문제와 보기를 별도 utterance로 분리 → 자연스러운 끊김
+  function makePause(ms) {
+    // 무음 utterance로 자연스러운 쉼 구현
+    const silence = new SpeechSynthesisUtterance(' ');
+    silence.lang = 'en-US';
+    silence.volume = 0;
+    silence.rate = 0.1;
+    return silence;
+  }
+
   parts.forEach((part, i) => {
+    // 문장 앞 pause (문제 앞은 짧게, 보기 앞은 길게)
+    const pause = makePause(i === 0 ? 100 : 400);
+    window.speechSynthesis.speak(pause);
+
     const utt = new SpeechSynthesisUtterance(part);
     utt.lang = 'en-US';
-    utt.rate = 0.78;   // 느리게
+    utt.rate = 0.78;
     utt.pitch = 1;
     utt.volume = 1;
     window.speechSynthesis.speak(utt);
