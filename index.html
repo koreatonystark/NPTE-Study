@@ -768,6 +768,20 @@ const CAT_SUBS={};  // 데이터 로드 후 동적으로 채워짐
 let sessQs=[],qIdx=0,answered=false,sCorrect=0,sWrong=0,sWrongIds=[];
 let translateOn=false,timerIv=null,timerLeft=0,trStem='',trOpts=[];
 let ttsOn=false; // 자동 읽기 토글
+let ttsVoice=null; // 선택된 음성 캐시
+// 음성 목록 비동기 로드 후 캐시
+function loadTtsVoice(){
+  const voices=window.speechSynthesis.getVoices();
+  if(voices.length){
+    ttsVoice=voices.find(v=>v.name==='Google US English')
+      ||voices.find(v=>v.name.includes('Google')&&v.lang==='en-US')
+      ||voices.find(v=>v.lang==='en-US'&&!v.name.includes('Zira')&&!v.name.includes('David'))
+      ||voices.find(v=>v.lang==='en-US')
+      ||null;
+  }
+}
+window.speechSynthesis.onvoiceschanged=loadTtsVoice;
+loadTtsVoice();
 let sessStartTime=0,seenQIds=new Set(),sessionAnswers={};
 let store={done:{},bm:new Set(),wrongs:new Set(),skip:new Set()};
 
@@ -1497,6 +1511,8 @@ function ttsRead(){
       utt.rate = 0.78;
       utt.pitch = 1;
       utt.volume = 1;
+      // 캐시된 음성 사용
+      if(ttsVoice) utt.voice = ttsVoice;
       window.speechSynthesis.speak(utt);
       // 청크 사이 짧은 침묵
       if(i < chunks.length - 1) window.speechSynthesis.speak(makeSilence(true));
