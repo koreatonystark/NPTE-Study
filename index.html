@@ -47,8 +47,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);
   padding:14px 12px;cursor:pointer;transition:all .15s;text-align:left;position:relative}
 .cat-btn.selected{border-color:var(--accent);background:rgba(59,130,246,.12)}
 .cat-btn .em{font-size:22px;display:block;margin-bottom:5px}
-.cat-btn .nm{font-size:13px;font-weight:600;color:var(--text);line-height:1.4;word-break:keep-all}
-.cat-btn .ct{font-size:11px;color:var(--text3);margin-top:3px}
+.cat-btn .nm{font-size:15px;font-weight:600;color:var(--text);line-height:1.4;word-break:keep-all}
+.cat-btn .ct{font-size:13px;color:var(--text3);margin-top:3px}
 .cat-btn .ck{position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;
   background:var(--accent);display:none;align-items:center;justify-content:center;font-size:10px;color:#fff}
 .cat-btn.selected .ck{display:flex}
@@ -201,7 +201,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 .cat-all-btn .nm{font-size:14px!important;font-weight:700!important}
 .cat-all-btn.selected{background:rgba(59,130,246,.25)!important;border-color:var(--accent)!important}
 .sub-chips{display:flex;flex-wrap:wrap;gap:5px;padding:8px 0 4px;margin-top:6px;border-top:1px solid var(--border)}
-.sub-chip{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;
+.sub-chip{padding:4px 11px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;
   background:var(--bg3);color:var(--text3);border:1px solid var(--border);transition:all .15s}
 .sub-chip.sub-all{background:var(--accent);color:#fff;border-color:var(--accent)}
 .sub-chip.sub-on{background:var(--accent2);color:#fff;border-color:var(--accent2)}
@@ -300,24 +300,22 @@ html,body{height:100%;background:var(--bg);color:var(--text);
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px">
       <a href="english.html" style="text-decoration:none">
         <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;
-          padding:14px 12px;cursor:pointer;transition:all .15s;text-align:left;
-          display:flex;flex-direction:column;gap:5px"
+          padding:12px 14px;cursor:pointer;transition:all .15s;
+          display:flex;align-items:center;gap:10px"
           onmouseover="this.style.borderColor='var(--accent)'"
           onmouseout="this.style.borderColor='var(--border)'">
           <span style="font-size:22px">📝</span>
-          <div style="font-size:13px;font-weight:700;color:var(--text)">English Mastery</div>
-          <div style="font-size:11px;color:var(--text3)">NPTE 영어표현 학습</div>
+          <div style="font-size:14px;font-weight:700;color:var(--text)">English Mastery</div>
         </div>
       </a>
       <a href="chart.html" style="text-decoration:none">
         <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;
-          padding:14px 12px;cursor:pointer;transition:all .15s;text-align:left;
-          display:flex;flex-direction:column;gap:5px"
+          padding:12px 14px;cursor:pointer;transition:all .15s;
+          display:flex;align-items:center;gap:10px"
           onmouseover="this.style.borderColor='var(--accent)'"
           onmouseout="this.style.borderColor='var(--border)'">
           <span style="font-size:22px">📊</span>
-          <div style="font-size:13px;font-weight:700;color:var(--text)">Chart Reading</div>
-          <div style="font-size:11px;color:var(--text3)">차트 해석 마스터</div>
+          <div style="font-size:14px;font-weight:700;color:var(--text)">Chart Reading</div>
         </div>
       </a>
     </div>
