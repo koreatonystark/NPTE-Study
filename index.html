@@ -1448,10 +1448,10 @@ function ttsRead(){
   window.speechSynthesis.cancel();
   const q=sessQs[qIdx];
   if(!q)return;
-  const L=['A','B','C','D'];
+  const L=['Number one. ','Number two. ','Number three. ','Number four. '];
   const opts=q.opts.filter(o=>o);
   // 문제 + 보기 텍스트 구성
-  const text=q.stem+' ... '+opts.map((o,i)=>L[i]+'. '+o).join(' ... ');
+  const text=q.stem+' ... '+opts.map((o,i)=>L[i]+o).join(' ... ');
   const utt=new SpeechSynthesisUtterance(text);
   utt.lang='en-US';
   utt.rate=0.9;
