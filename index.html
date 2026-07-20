@@ -1485,9 +1485,8 @@ async function ttsRead(){
     function toSsml(text){
       // 1. 특수문자 이스케이프
       text=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      // 2. 쉼표/세미콜론 → 300ms
+      // 2. 쉼표 → 300ms (콜론/세미콜론은 쉼 없음)
       text=text.replace(/,\s*/g,', <break time="300ms"/>');
-      text=text.replace(/;\s*/g,'; <break time="350ms"/>');
       // 3. 마침표/물음표/느낌표 → 500ms
       text=text.replace(/\.\s+/g,'. <break time="500ms"/>');
       text=text.replace(/\?\s+/g,'? <break time="500ms"/>');
