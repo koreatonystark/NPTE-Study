@@ -82,7 +82,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 .vw{border-bottom:1px dashed rgba(126,184,247,.6);cursor:pointer;color:inherit}
 .q-media{margin-bottom:14px;border-radius:var(--radius-sm);overflow:hidden;background:var(--bg3);display:none}
 .q-media.show{display:block}
-.q-media img{width:100%;height:auto;display:block;cursor:zoom-in}
+.q-media img{width:100%;height:auto;display:block;cursor:zoom-in;margin:0 auto}
+@media(min-width:600px){.q-media img{width:50%}}
 .q-media iframe{width:100%;aspect-ratio:16/9;height:auto;border:none;display:block}
 .q-media-link{display:flex;align-items:center;gap:8px;padding:14px;color:var(--accent2);font-size:14px;text-decoration:none}
 .options{display:flex;flex-direction:column;gap:9px}
@@ -827,10 +828,9 @@ const GCS_BASE='https://storage.googleapis.com/imgn/';
 let gcsFiles=new Set(); // 앱 시작 시 1회 로드되는 GCS 파일 목록
 async function loadGCSFileList(){
   try{
-    const res=await fetch(GCS_BASE+'?list-type=2&t='+Date.now());
-    const text=await res.text();
-    const matches=text.matchAll(/<Key>([^<]+)<\/Key>/g);
-    for(const m of matches)gcsFiles.add(m[1]);
+    const res=await fetch('https://storage.googleapis.com/storage/v1/b/imgn/o?fields=items(name)');
+    const data=await res.json();
+    if(data.items)data.items.forEach(item=>gcsFiles.add(item.name));
   }catch(e){}
 }
 function getQuestionImageUrl(q){
@@ -1379,7 +1379,7 @@ function showQ(){const q=sessQs[qIdx];answered=false;translateOn=false;trStem=''
     // 미디어 (이미지 or 영상)
     const med=document.getElementById('q-media');med.innerHTML='';med.className='q-media';
     const imgUrl=getQuestionImageUrl(q);
-    if(imgUrl){med.classList.add('show');const img=document.createElement('img');img.src=imgUrl;img.alt='';img.style.cssText='width:100%;height:auto;display:block;cursor:zoom-in';img.onclick=function(){toggleImgZoom(img);};med.appendChild(img);}
+    if(imgUrl){med.classList.add('show');const img=document.createElement('img');img.src=imgUrl;img.alt='';img.style.cssText='width:100%;height:auto;display:block;cursor:zoom-in;margin:0 auto';img.classList.add('q-img');img.onclick=function(){toggleImgZoom(img);};med.appendChild(img);}
     else if(q.q_vid){med.classList.add('show');const fr=document.createElement('iframe');fr.src=gdEmbed(q.q_vid);fr.allowFullscreen=true;fr.style.cssText='width:100%;aspect-ratio:16/9;border:none;display:block';med.appendChild(fr);}
     const opts=document.getElementById('options');opts.innerHTML='';q.opts.forEach((txt,i)=>{if(!txt)return;const b=document.createElement('button');b.className='opt-btn';b.innerHTML='<span class="opt-num">'+(i+1)+'</span><span class="opt-text">'+renderStem(txt)+'</span>';b.onclick=()=>pick(i,q.answer,q);opts.appendChild(b);});
     // post-answer 초기화
