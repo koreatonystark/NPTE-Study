@@ -1379,7 +1379,7 @@ function showQ(){const q=sessQs[qIdx];answered=false;translateOn=false;trStem=''
     // 미디어 (이미지 or 영상)
     const med=document.getElementById('q-media');med.innerHTML='';med.className='q-media';
     const imgUrl=getQuestionImageUrl(q);
-    if(imgUrl){med.classList.add('show');const img=document.createElement('img');img.src=imgUrl;img.alt='';img.style.cssText='width:100%;height:auto;display:block;cursor:zoom-in;margin:0 auto';img.classList.add('q-img');img.onclick=function(){toggleImgZoom(img);};med.appendChild(img);}
+    if(imgUrl){med.classList.add('show');const img=document.createElement('img');img.src=imgUrl;img.alt='';img.style.cssText='height:auto;display:block;cursor:zoom-in;margin:0 auto';img.classList.add('q-img');img.onclick=function(){toggleImgZoom(img);};med.appendChild(img);}
     else if(q.q_vid){med.classList.add('show');const fr=document.createElement('iframe');fr.src=gdEmbed(q.q_vid);fr.allowFullscreen=true;fr.style.cssText='width:100%;aspect-ratio:16/9;border:none;display:block';med.appendChild(fr);}
     const opts=document.getElementById('options');opts.innerHTML='';q.opts.forEach((txt,i)=>{if(!txt)return;const b=document.createElement('button');b.className='opt-btn';b.innerHTML='<span class="opt-num">'+(i+1)+'</span><span class="opt-text">'+renderStem(txt)+'</span>';b.onclick=()=>pick(i,q.answer,q);opts.appendChild(b);});
     // post-answer 초기화
