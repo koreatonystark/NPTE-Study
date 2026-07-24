@@ -77,8 +77,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 .progress-bar{height:2px;background:var(--bg3);margin:0 16px 10px}
 .progress-fill{height:100%;background:var(--accent);transition:width .3s}
 .quiz-body{flex:1;overflow-y:auto;padding:16px;-webkit-overflow-scrolling:touch}
-.q-source{font-size:10px;color:var(--text3);margin-bottom:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
-.q-stem{font-size:17px;line-height:1.7;color:var(--text);margin-bottom:14px}
+.q-source{font-size:13px;color:var(--text3);margin-bottom:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.q-stem{font-size:19px;line-height:1.7;color:var(--text);margin-bottom:14px}
 .vw{border-bottom:1px dashed rgba(126,184,247,.6);cursor:pointer;color:inherit}
 .q-media{margin-bottom:14px;border-radius:var(--radius-sm);overflow:hidden;background:var(--bg3);display:none}
 .q-media.show{display:block}
@@ -87,7 +87,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 .q-media-link{display:flex;align-items:center;gap:8px;padding:14px;color:var(--accent2);font-size:14px;text-decoration:none}
 .options{display:flex;flex-direction:column;gap:9px}
 .opt-btn{width:100%;padding:14px;border:1.5px solid var(--border);border-radius:var(--radius);
-  background:var(--bg2);color:var(--text);font-size:17px;line-height:1.55;
+  background:var(--bg2);color:var(--text);font-size:19px;line-height:1.55;
   cursor:pointer;text-align:left;transition:border-color .15s,background .15s;
   display:flex;align-items:flex-start;gap:10px}
 .opt-btn:active{transform:scale(.99)}
@@ -107,8 +107,19 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 .post-answer.show{display:block}
 .explain-btn{display:flex;align-items:center;gap:7px;padding:13px 16px;
   background:rgba(59,130,246,.1);border:1px solid var(--accent);border-radius:var(--radius-sm);
-  color:var(--accent2);font-size:15px;cursor:pointer;text-decoration:none;
-  width:100%;justify-content:center;font-weight:500}
+  color:var(--accent2);font-size:15px;cursor:default;text-decoration:none;
+  width:100%;justify-content:center;font-weight:500;pointer-events:none}
+.explain-text{margin-top:10px;background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:16px;font-size:16px;line-height:1.8;
+  color:var(--text);word-break:break-word;display:none}
+.explain-text.show{display:block}
+.dup-area{margin-top:18px;padding-top:14px;border-top:1px solid var(--border);display:none}
+.dup-area.show{display:block}
+.dup-label{font-size:11px;color:var(--text3);font-weight:700;letter-spacing:.07em;
+  text-transform:uppercase;margin-bottom:8px}
+.dup-tags{display:flex;flex-wrap:wrap;gap:6px}
+.dup-tag{padding:6px 12px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:20px;font-size:13px;color:var(--text2);white-space:nowrap}
 .quiz-footer{padding:11px 16px;background:var(--bg2);border-top:1px solid var(--border);
   display:flex;gap:9px;align-items:center;flex-shrink:0}
 .btn-bm{padding:10px;background:var(--bg3);border:none;border-radius:var(--radius-sm);
@@ -407,16 +418,17 @@ html,body{height:100%;background:var(--bg);color:var(--text);
     <div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
   </div>
   <div class="quiz-body" id="quiz-body">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-      <div class="q-source" id="q-source"></div>
-      <span id="q-dup" style="display:none;font-size:11px;color:var(--text3);
-        background:var(--bg3);border-radius:20px;padding:2px 8px;white-space:nowrap;flex-shrink:0"></span>
-    </div>
+    <div class="q-source" id="q-source"></div>
     <div class="q-stem"   id="q-stem"></div>
     <div class="q-media"  id="q-media"></div>
     <div class="options"  id="options"></div>
     <div class="post-answer" id="post-answer">
-      <button class="explain-btn" id="explain-btn" onclick="openExplain()" style="display:none">📖 해설 보기</button>
+      <div class="explain-btn" id="explain-btn" style="display:none">📖 해설</div>
+      <div class="explain-text" id="explain-text"></div>
+    </div>
+    <div class="dup-area" id="dup-area">
+      <div class="dup-label">같은 문제 · 다른 버전</div>
+      <div class="dup-tags" id="dup-tags"></div>
     </div>
   </div>
   <div class="quiz-footer" style="gap:6px">
@@ -811,6 +823,28 @@ function resetBiometric(){
 
 const SHEETS_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vSxL_twK0WV9AXDTX6__YYFxpcfRl_kNaC6ripaS-BK3gpklyk51Qoit4azoThAT4ww3rvx880jprgU/pub?gid=1021898635&single=true&output=csv";
 const VOCAB_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vSxL_twK0WV9AXDTX6__YYFxpcfRl_kNaC6ripaS-BK3gpklyk51Qoit4azoThAT4ww3rvx880jprgU/pub?gid=1703682275&single=true&output=csv";
+const GCS_BASE='https://storage.googleapis.com/imgn/';
+let gcsFiles=new Set(); // 앱 시작 시 1회 로드되는 GCS 파일 목록
+async function loadGCSFileList(){
+  try{
+    const res=await fetch(GCS_BASE+'?list-type=2&t='+Date.now());
+    const text=await res.text();
+    const matches=text.matchAll(/<Key>([^<]+)<\/Key>/g);
+    for(const m of matches)gcsFiles.add(m[1]);
+  }catch(e){}
+}
+function getQuestionImageUrl(q){
+  // 1순위: q_img에 직접 URL
+  if(q.q_img){
+    if(q.q_img.startsWith('http'))return q.q_img;
+    return GCS_BASE+q.q_img;
+  }
+  // 2순위: GCS 메모리 목록에서 src_qnum 자동 매핑
+  const name=q.src+'_'+q.qnum;
+  if(gcsFiles.has(name+'.jpg'))return GCS_BASE+name+'.jpg';
+  if(gcsFiles.has(name+'.png'))return GCS_BASE+name+'.png';
+  return '';
+}
 let VOCAB=[];
 const CAT_ORDER=["Musculoskeletal","Neuromuscular","Cardiovascular & Pulmonary","Integumentary","Metabolic & Endocrine","Gastrointestinal","Genitourinary","Lymphatic","System Interactions / Differential Diagnosis","Equipment & Assistive Technology","Modalities","Safety","Professional Issues","Research"];
 const CAT_EMOJI={"Musculoskeletal":"🦴","Neuromuscular":"🧠","Cardiovascular & Pulmonary":"❤️","Integumentary":"🩹","Metabolic & Endocrine":"🔬","Gastrointestinal":"🫃","Genitourinary":"🫀","Lymphatic":"💧","System Interactions / Differential Diagnosis":"🔍","Equipment & Assistive Technology":"🦽","Modalities":"⚡","Safety":"🚨","Professional Issues":"📋","Research":"📊"};
@@ -1034,6 +1068,7 @@ async function loadData(forceReload=false){
       // 긴 숙어 먼저 매칭되도록 정렬
       VOCAB.sort((a,b)=>b.word.length-a.word.length);
     }).catch(()=>{});
+    loadGCSFileList(); // GCS 파일 목록 백그라운드 로드 (1회)
     document.getElementById('loading').style.display='none';
     buildCatGrid();buildYearChips();buildSrcChips();
     document.getElementById('home-sub').textContent=ALL_QS.length.toLocaleString()+' 문항 · Google Sheets 연결됨';
@@ -1340,16 +1375,28 @@ function updateStats(){
 }
 function startQuiz(){let qs=getFiltered();if(!qs.length)return;if(order==='rand')qs=[...qs].sort(()=>Math.random()-.5);const n=sessCount===0?qs.length:Math.min(sessCount,qs.length);sessQs=qs.slice(0,n);qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];seenQIds=new Set();sessStartTime=Date.now();sessionAnswers={};answered=false;translateOn=false;document.getElementById('btn-translate').classList.remove('active');document.getElementById('btn-translate').textContent='🌐 한국어';showScreen('quiz');showQ();}
 function showQ(){const q=sessQs[qIdx];answered=false;translateOn=false;trStem='';trOpts=[];document.getElementById('btn-translate').classList.remove('active');document.getElementById('btn-translate').textContent='🌐 한국어';document.getElementById('q-counter').textContent=(qIdx+1)+' / '+sessQs.length;document.getElementById('prog').style.width=(qIdx/sessQs.length*100)+'%';document.getElementById('q-source').textContent='('+q.src+') Q'+q.qnum+' · '+q.cat+(q.sub?' / '+q.sub:'');
-    // 중복 버전 표시
-    const dupEl=document.getElementById('q-dup');
-    if(dupEl){
-      if(q.dupInfo&&q.dupInfo.length){
-        dupEl.textContent='≡ '+q.dupInfo.join(', ');
-        dupEl.style.display='inline';
-      } else {
-        dupEl.style.display='none';
-      }
-    }document.getElementById('q-stem').innerHTML=renderStem(q.stem);const med=document.getElementById('q-media');med.innerHTML='';med.className='q-media';if(q.q_img){med.classList.add('show');const img=document.createElement('img');img.src=gdImg(q.q_img);img.alt='';img.style.cssText='width:100%;height:auto;display:block;cursor:zoom-in';img.onclick=function(){toggleImgZoom(img);};med.appendChild(img);}if(q.q_vid){med.classList.add('show');const fr=document.createElement('iframe');fr.src=gdEmbed(q.q_vid);fr.allowFullscreen=true;fr.style.cssText='width:100%;aspect-ratio:16/9;border:none;display:block';med.appendChild(fr);}const opts=document.getElementById('options');opts.innerHTML='';q.opts.forEach((txt,i)=>{if(!txt)return;const b=document.createElement('button');b.className='opt-btn';b.innerHTML='<span class="opt-num">'+(i+1)+'</span><span class="opt-text">'+renderStem(txt)+'</span>';b.onclick=()=>pick(i,q.answer,q);opts.appendChild(b);});document.getElementById('post-answer').className='post-answer';document.getElementById('explain-btn').style.display='none';const bm=document.getElementById('btn-bm');bm.textContent=store.bm.has(q.id)?'★':'☆';bm.classList.toggle('on',store.bm.has(q.id));document.getElementById('btn-next').className='btn-next';
+    document.getElementById('q-stem').innerHTML=renderStem(q.stem);
+    // 미디어 (이미지 or 영상)
+    const med=document.getElementById('q-media');med.innerHTML='';med.className='q-media';
+    const imgUrl=getQuestionImageUrl(q);
+    if(imgUrl){med.classList.add('show');const img=document.createElement('img');img.src=imgUrl;img.alt='';img.style.cssText='width:100%;height:auto;display:block;cursor:zoom-in';img.onclick=function(){toggleImgZoom(img);};med.appendChild(img);}
+    else if(q.q_vid){med.classList.add('show');const fr=document.createElement('iframe');fr.src=gdEmbed(q.q_vid);fr.allowFullscreen=true;fr.style.cssText='width:100%;aspect-ratio:16/9;border:none;display:block';med.appendChild(fr);}
+    const opts=document.getElementById('options');opts.innerHTML='';q.opts.forEach((txt,i)=>{if(!txt)return;const b=document.createElement('button');b.className='opt-btn';b.innerHTML='<span class="opt-num">'+(i+1)+'</span><span class="opt-text">'+renderStem(txt)+'</span>';b.onclick=()=>pick(i,q.answer,q);opts.appendChild(b);});
+    // post-answer 초기화
+    document.getElementById('post-answer').className='post-answer';
+    document.getElementById('explain-btn').style.display='none';
+    document.getElementById('explain-text').className='explain-text';
+    document.getElementById('explain-text').innerHTML='';
+    // 중복 버전 — 보기 아래 별도 영역
+    const dupArea=document.getElementById('dup-area');
+    const dupTags=document.getElementById('dup-tags');
+    if(q.dupInfo&&q.dupInfo.length){
+      dupTags.innerHTML=q.dupInfo.map(d=>'<span class="dup-tag">'+escHtml(d)+'</span>').join('');
+      dupArea.className='dup-area show';
+    } else {
+      dupArea.className='dup-area';
+    }
+    const bm=document.getElementById('btn-bm');bm.textContent=store.bm.has(q.id)?'★':'☆';bm.classList.toggle('on',store.bm.has(q.id));document.getElementById('btn-next').className='btn-next';
 document.getElementById('btn-prev').disabled=(qIdx===0);
 const q2=sessQs[qIdx];seenQIds.add(q2.id);saveSession();
 const sk=document.getElementById('btn-skip');
@@ -1360,7 +1407,16 @@ const prev=sessionAnswers[q2.id];
 if(prev!==undefined){restoreAnswer(q2,prev);}
 else{document.getElementById('quiz-body').scrollTop=0;startTimer();ttsRead();}
 }
-function gdImg(url){const m=url.match(/\/d\/([^/]+)/);return m?'https://drive.google.com/uc?export=view&id='+m[1]:url;}
+function gdImg(url){
+  if(!url)return '';
+  if(url.startsWith('http')){
+    // Google Drive 링크 → lh3 변환 (CORS 우회)
+    const m=url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if(m)return 'https://lh3.googleusercontent.com/d/'+m[1];
+    return url;
+  }
+  return GCS_BASE+url;
+}
 function gdEmbed(url){let m=url.match(/youtu\.be\/([^?]+)/)||url.match(/youtube\.com\/watch\?v=([^&]+)/);if(m)return 'https://www.youtube.com/embed/'+m[1];m=url.match(/\/d\/([^/]+)/);if(m)return 'https://drive.google.com/file/d/'+m[1]+'/preview';return url;}
 function startTimer(){clearInterval(timerIv);timerLeft=TIMER_SEC;const track=document.getElementById('timer-track'),fill=document.getElementById('timer-fill'),lbl=document.getElementById('timeout-label');track.classList.remove('timeout');fill.style.display='block';lbl.style.display='none';fill.style.width='100%';fill.style.background='#22c55e';timerIv=setInterval(()=>{if(answered){clearInterval(timerIv);return;}timerLeft--;const pct=Math.max(0,timerLeft/TIMER_SEC*100);fill.style.width=pct+'%';fill.style.background=pct>50?'#22c55e':pct>20?'#f59e0b':'#ef4444';if(timerLeft<=0){clearInterval(timerIv);fill.style.display='none';track.classList.add('timeout');lbl.style.display='flex';if(!answered){answered=true;const q=sessQs[qIdx];document.querySelectorAll('.opt-btn').forEach((b,i)=>{b.disabled=true;if(i===q.answer)b.classList.add('correct');});sWrong++;sWrongIds.push(q.id);store.done[q.id]=false;store.wrongs.add(q.id);saveStore();showPostAnswer(q);document.getElementById('btn-next').classList.add('ready');}}},1000);}
 function pick(chosen,correct,q){
@@ -1400,8 +1456,24 @@ function pick(chosen,correct,q){
 function showPostAnswer(q){
   document.getElementById('post-answer').className='post-answer show';
   const eb=document.getElementById('explain-btn');
-  const hasExpl=q.expl_url||q.expl_text||q.img_url||q.vid_url;
-  eb.style.display=hasExpl?'flex':'none';
+  const et=document.getElementById('explain-text');
+  const textContent=q.expl_text||q.expl_url||'';
+  const hasExpl=textContent||q.img_url||q.vid_url;
+  if(hasExpl){
+    eb.style.display='flex';
+    // 해설 텍스트 자동 노출
+    if(textContent){
+      et.innerHTML=textContent
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/【([^】]+)】/g,'<strong style="color:#60a5fa">【$1】</strong>')
+        .replace(/✅ ?정답/g,'<span style="color:#22c55e;font-weight:700">✅ 정답</span>')
+        .replace(/❌ ?오답/g,'<span style="color:#ef4444">❌ 오답</span>')
+        .replace(/\n/g,'<br>');
+      et.className='explain-text show';
+    }
+  } else {
+    eb.style.display='none';
+  }
 }
 function openExplain(){
   const q=sessQs[qIdx];
