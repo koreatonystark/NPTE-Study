@@ -1489,31 +1489,48 @@ function pick(chosen,correct,q){
     document.getElementById('quiz-body').appendChild(badge);
   }
 }
-/* ── 해설 텍스트 렌더러 (markdown 표 지원) ── */
+/* ── 해설 텍스트 렌더러 (full markdown 지원) ── */
 function renderExpl(text){
-  // 1) HTML 이스케이프
-  var s=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  // 2) markdown 표 감지 → <table> 변환
-  // 줄 단위로 나눠서 |로 시작하는 연속 블록을 표로 변환
-  var lines=s.split('\n');
-  var out=[];var tbl=[];var inTable=false;
+  // 줄 단위 처리
+  var lines=text.split('\n');
+  var out=[];
+  var tbl=[];
+  var inTable=false;
+  var inList=false;
+
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+  // 인라인 마크다운: bold, italic, code, 특수마커, URL
+  function inline(s){
+    s=esc(s);
+    // **bold**
+    s=s.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+    // *italic*
+    s=s.replace(/\*([^*]+)\*/g,'<em>$1</em>');
+    // `code`
+    s=s.replace(/`([^`]+)`/g,'<code style="background:rgba(255,255,255,.1);padding:1px 5px;border-radius:4px;font-size:.92em">$1</code>');
+    // 특수 마커
+    s=s.replace(/【([^】]+)】/g,'<strong style="color:#60a5fa">【$1】</strong>');
+    s=s.replace(/✅ ?정답/g,'<span style="color:#22c55e;font-weight:700">✅ 정답</span>');
+    s=s.replace(/❌ ?오답/g,'<span style="color:#ef4444">❌ 오답</span>');
+    // URL
+    s=s.replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener" style="color:var(--accent2);text-decoration:underline;word-break:break-all">$1</a>');
+    return s;
+  }
+
   function flushTable(){
     if(!tbl.length)return;
     var html='<div style="overflow-x:auto;margin:10px 0"><table style="border-collapse:collapse;width:100%;font-size:14px;line-height:1.6">';
-    tbl.forEach(function(row,ri){
-      var isSep=/^\|[\s\-\|:]+\|$/.test(row.replace(/\s/g,''));
-      if(isSep)return; // 구분선 행 skip
-      var isHeader=(ri===0||(ri===1&&tbl.length>2&&/^\|[\s\-\|:]+\|$/.test(tbl[1].replace(/\s/g,''))));
-      // 실제 header 판단: row 0이 header, row 1이 separator
+    var dataRows=tbl.filter(function(r){return !/^\|[\s\-\|:]+\|$/.test(r.replace(/\s/g,''));});
+    dataRows.forEach(function(row,ri){
       var cells=row.split('|').slice(1,-1);
-      var tag=(ri===0)?'th':'td';
-      var rowBg=(ri===0)?'background:rgba(59,130,246,.2)':'';
-      var altBg=(ri>1&&ri%2===0)?'background:rgba(255,255,255,.03)':'';
+      var tag=ri===0?'th':'td';
+      var altBg=ri>0&&ri%2===0?'background:rgba(255,255,255,.03)':'';
       html+='<tr style="border-bottom:1px solid var(--border);'+altBg+'">';
       cells.forEach(function(c){
-        html+='<'+tag+' style="padding:7px 10px;text-align:left;color:var(--text);'+
-          (ri===0?'font-weight:700;color:var(--accent2);border-bottom:2px solid var(--accent)':'')+
-          '">'+c.trim()+'</'+tag+'>';
+        html+='<'+tag+' style="padding:7px 10px;text-align:left;'+
+          (ri===0?'font-weight:700;color:var(--accent2);border-bottom:2px solid rgba(59,130,246,.6)':'color:var(--text)')+
+          '">'+inline(c.trim())+'</'+tag+'>';
       });
       html+='</tr>';
     });
@@ -1521,26 +1538,67 @@ function renderExpl(text){
     out.push(html);
     tbl=[];inTable=false;
   }
+
+  function flushList(){
+    if(!inList)return;
+    out.push('</ul>');
+    inList=false;
+  }
+
   lines.forEach(function(line){
     var trimmed=line.trim();
+
+    // 표
     if(trimmed.startsWith('|')&&trimmed.endsWith('|')){
-      inTable=true;tbl.push(trimmed);
-    } else {
-      if(inTable)flushTable();
-      out.push(line);
+      flushList();
+      inTable=true;tbl.push(trimmed);return;
     }
+    if(inTable){flushTable();}
+
+    // 구분선 ---
+    if(/^-{3,}$/.test(trimmed)){
+      flushList();
+      out.push('<hr style="border:none;border-top:1px solid var(--border);margin:10px 0">');return;
+    }
+
+    // ### heading
+    var hm=trimmed.match(/^(#{1,4})\s+(.+)/);
+    if(hm){
+      flushList();
+      var lvl=hm[1].length;
+      var sz=['18px','16px','15px','14px'][lvl-1]||'14px';
+      var mt=lvl===1?'16px':'12px';
+      out.push('<div style="font-size:'+sz+';font-weight:700;color:var(--accent2);margin:'+mt+' 0 6px">'+inline(hm[2])+'</div>');return;
+    }
+
+    // > blockquote
+    var qm=trimmed.match(/^>\s*(.*)/);
+    if(qm){
+      flushList();
+      out.push('<div style="border-left:3px solid var(--accent);padding:6px 12px;margin:6px 0;background:rgba(59,130,246,.08);border-radius:0 6px 6px 0;font-size:14px;color:var(--text2)">'+inline(qm[1])+'</div>');return;
+    }
+
+    // - list item
+    var lm=trimmed.match(/^[-*]\s+(.+)/);
+    if(lm){
+      if(!inList){out.push('<ul style="margin:6px 0 6px 16px;padding:0;list-style:disc">');inList=true;}
+      out.push('<li style="margin:3px 0;font-size:15px;line-height:1.7;color:var(--text)">'+inline(lm[1])+'</li>');return;
+    }
+
+    // 빈 줄
+    if(!trimmed){
+      flushList();
+      out.push('<br>');return;
+    }
+
+    // 일반 텍스트
+    flushList();
+    out.push('<div style="font-size:15px;line-height:1.8;color:var(--text);margin:2px 0">'+inline(trimmed)+'</div>');
   });
-  if(inTable)flushTable();
-  s=out.join('\n');
-  // 3) 특수 마커 강조
-  s=s.replace(/【([^】]+)】/g,'<strong style="color:#60a5fa">【$1】</strong>');
-  s=s.replace(/✅ ?정답/g,'<span style="color:#22c55e;font-weight:700">✅ 정답</span>');
-  s=s.replace(/❌ ?오답/g,'<span style="color:#ef4444">❌ 오답</span>');
-  // 4) URL 링크
-  s=s.replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener" style="color:var(--accent2);text-decoration:underline;word-break:break-all">$1</a>');
-  // 5) 줄바꿈 (표 블록 내 <br> 방지)
-  s=s.replace(/\n/g,'<br>');
-  return s;
+
+  flushTable();
+  flushList();
+  return out.join('');
 }
 function showPostAnswer(q){
   document.getElementById('post-answer').className='post-answer show';
