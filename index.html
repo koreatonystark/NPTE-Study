@@ -2041,167 +2041,70 @@ document.addEventListener('visibilitychange',()=>{
   // visible로 돌아올 때 loadData() 호출하지 않음 - 데이터는 최초 1회만 로드
 });
 // ── Analytics ──────────────────────────────────────────
-let analyticsTargetCat=null, analyticsTargetSub=null;
+let analyticsTargetCat=null,analyticsTargetSub=null;
 
 function openAnalytics(){
   document.getElementById('analytics-overlay').style.display='flex';
-  renderAnalytics(null);
+  renderAnalytics();
 }
 function closeAnalytics(){
   document.getElementById('analytics-overlay').style.display='none';
 }
 
-function renderAnalytics(filterCat){
+function renderAnalytics(){
   const body=document.getElementById('analytics-body');
   const cats=[...new Set(ALL_QS.map(q=>q.cat).filter(Boolean))].sort();
-
-  // 전체 요약
-  const totalQ=ALL_QS.length;
-  const doneIds=Object.keys(store.done);
-  const totalDone=doneIds.length;
-  const totalCor=Object.values(store.done).filter(Boolean).length;
-  const totalWrong=totalDone-totalCor;
-  const totalUnseen=totalQ-totalDone;
-  const accPct=totalDone?Math.round(totalCor/totalDone*100):0;
-
-  let html=`
-  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px">
-    <div style="font-size:12px;color:var(--text3);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">Overall Progress</div>
-    <div style="display:flex;gap:10px;margin-bottom:12px">
-      <div style="flex:1;text-align:center;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:10px;padding:10px 6px">
-        <div style="font-size:22px;font-weight:700;color:#22c55e">${totalCor}</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:2px">정답</div>
-      </div>
-      <div style="flex:1;text-align:center;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:10px 6px">
-        <div style="font-size:22px;font-weight:700;color:#ef4444">${totalWrong}</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:2px">오답</div>
-      </div>
-      <div style="flex:1;text-align:center;background:rgba(148,163,184,.1);border:1px solid rgba(148,163,184,.2);border-radius:10px;padding:10px 6px">
-        <div style="font-size:22px;font-weight:700;color:var(--text3)">${totalUnseen}</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:2px">미풀이</div>
-      </div>
-      <div style="flex:1;text-align:center;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);border-radius:10px;padding:10px 6px">
-        <div style="font-size:22px;font-weight:700;color:var(--accent2)">${accPct}%</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:2px">정답률</div>
-      </div>
-    </div>
-    <div style="background:var(--bg3);border-radius:6px;height:8px;overflow:hidden">
-      <div style="height:100%;display:flex">
-        <div style="background:#22c55e;width:${totalQ?totalCor/totalQ*100:0}%;transition:width .4s"></div>
-        <div style="background:#ef4444;width:${totalQ?totalWrong/totalQ*100:0}%;transition:width .4s"></div>
-      </div>
-    </div>
-    <div style="display:flex;gap:12px;margin-top:6px;font-size:11px;color:var(--text3)">
-      <span>🟢 정답 ${totalQ?Math.round(totalCor/totalQ*100):0}%</span>
-      <span>🔴 오답 ${totalQ?Math.round(totalWrong/totalQ*100):0}%</span>
-      <span>⚪ 미풀이 ${totalQ?Math.round(totalUnseen/totalQ*100):0}%</span>
-    </div>
-  </div>
-  <div style="font-size:12px;color:var(--text3);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px">
-    Category Breakdown <span style="font-weight:400;color:var(--text3);font-size:11px">탭하면 세부 항목 확인</span>
-  </div>`;
-
-  // 카테고리별 막대
+  let html='';
   cats.forEach(cat=>{
     const qs=ALL_QS.filter(q=>q.cat===cat);
-    const done=qs.filter(q=>store.done[q.id]!==undefined);
     const cor=qs.filter(q=>store.done[q.id]===true).length;
-    const wrg=done.length-cor;
-    const unseen=qs.length-done.length;
-    const pct=done.length?Math.round(cor/done.length*100):0;
-    const barCor=qs.length?cor/qs.length*100:0;
-    const barWrg=qs.length?wrg/qs.length*100:0;
-
-    // 취약 뱃지
-    let badge='';
-    if(done.length>=5&&pct<50) badge='<span style="font-size:10px;background:rgba(239,68,68,.2);color:#ef4444;border-radius:4px;padding:1px 5px;margin-left:6px">취약</span>';
-    else if(done.length>=5&&pct>=80) badge='<span style="font-size:10px;background:rgba(34,197,94,.2);color:#22c55e;border-radius:4px;padding:1px 5px;margin-left:6px">우수</span>';
-
+    const done=qs.filter(q=>store.done[q.id]!==undefined).length;
+    const pct=done?Math.round(cor/done*100):0;
+    const barW=qs.length?cor/qs.length*100:0;
+    const col=pct>=70?'#22c55e':pct>=50?'#f59e0b':'#ef4444';
     html+=`
     <div onclick="toggleAnalyticsCat('acat-${CSS.escape(cat)}')"
-      style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;
-      margin-bottom:8px;overflow:hidden;cursor:pointer">
-      <div style="padding:14px 14px 10px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-          <div style="font-size:14px;font-weight:600;color:var(--text);flex:1;min-width:0;word-break:break-word">
-            ${escHtml(cat)}${badge}
-          </div>
-          <div style="flex-shrink:0;margin-left:10px;text-align:right">
-            <span style="font-size:18px;font-weight:700;color:${pct>=70?'#22c55e':pct>=50?'#f59e0b':'#ef4444'}">${done.length?pct+'%':'—'}</span>
-            <span style="font-size:11px;color:var(--text3);margin-left:4px">${cor}/${qs.length}</span>
-          </div>
-          <span style="color:var(--text3);font-size:16px;margin-left:10px" id="arr-${CSS.escape(cat)}">▾</span>
-        </div>
-        <div style="background:var(--bg3);border-radius:4px;height:6px;overflow:hidden">
-          <div style="height:100%;display:flex">
-            <div style="background:#22c55e;width:${barCor}%;transition:width .4s"></div>
-            <div style="background:#ef4444;width:${barWrg}%;transition:width .4s"></div>
-          </div>
-        </div>
-        <div style="display:flex;gap:10px;margin-top:5px;font-size:11px;color:var(--text3)">
-          <span>✅ ${cor}</span><span>❌ ${wrg}</span><span>⚪ ${unseen}</span>
-        </div>
+      style="margin-bottom:10px;cursor:pointer">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <div style="flex:1;font-size:13px;font-weight:600;color:var(--text);word-break:break-word">${escHtml(cat)}</div>
+        <div style="font-size:14px;font-weight:700;color:${col};flex-shrink:0">${done?pct+'%':'—'}</div>
+        <span id="arr-${CSS.escape(cat)}" style="color:var(--text3);font-size:13px;flex-shrink:0">▾</span>
       </div>
-      <!-- 서브카테고리 드릴다운 -->
-      <div id="acat-${CSS.escape(cat)}" style="display:none;border-top:1px solid var(--border);padding:10px 14px">
+      <div style="background:var(--bg3);border-radius:4px;height:8px;overflow:hidden">
+        <div style="height:100%;background:${col};width:${barW}%;transition:width .4s"></div>
+      </div>
+      <div id="acat-${CSS.escape(cat)}" style="display:none;margin-top:8px;padding-left:8px;border-left:2px solid var(--border)">
         ${renderSubCats(cat)}
       </div>
     </div>`;
   });
-
-  body.innerHTML=html;
+  body.innerHTML=html||'<div style="color:var(--text3);font-size:14px">풀이 기록이 없습니다.</div>';
 }
 
 function renderSubCats(cat){
   const subs=[...new Set(ALL_QS.filter(q=>q.cat===cat&&q.sub).map(q=>q.sub))].sort();
-  // sub 없는 문제도 별도 행으로
-  const noSub=ALL_QS.filter(q=>q.cat===cat&&!q.sub);
-
-  let rows='';
-  const allSubs=subs.length?subs:[];
-
-  allSubs.forEach(sub=>{
+  if(!subs.length) return '<div style="font-size:12px;color:var(--text3);padding:4px 0">세부 항목 없음</div>';
+  return subs.map(sub=>{
     const qs=ALL_QS.filter(q=>q.cat===cat&&q.sub===sub);
-    rows+=subRow(cat,sub,qs,sub);
-  });
-  if(noSub.length){
-    rows+=subRow(cat,'',noSub,'(기타)');
-  }
-  if(!rows) rows='<div style="font-size:13px;color:var(--text3);padding:4px 0">세부 항목 없음</div>';
-  return rows;
-}
-
-function subRow(cat,sub,qs,label){
-  const cor=qs.filter(q=>store.done[q.id]===true).length;
-  const done=qs.filter(q=>store.done[q.id]!==undefined).length;
-  const wrg=done-cor;
-  const unseen=qs.length-done;
-  const pct=done?Math.round(cor/done*100):0;
-  const barCor=qs.length?cor/qs.length*100:0;
-  const barWrg=qs.length?wrg/qs.length*100:0;
-  const subKey=encodeURIComponent(cat+'||'+sub);
-  return `
-  <div onclick="event.stopPropagation();openAnalyticsModal('${subKey}')"
-    style="border:1px solid var(--border);border-radius:8px;padding:10px 12px;
-    margin-bottom:7px;background:var(--bg3);cursor:pointer;active:opacity:.7">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-      <div style="font-size:13px;color:var(--text2);flex:1;min-width:0;word-break:break-word">${escHtml(label)}</div>
-      <div style="flex-shrink:0;margin-left:8px">
-        <span style="font-size:15px;font-weight:700;color:${pct>=70?'#22c55e':pct>=50?'#f59e0b':'#ef4444'}">${done?pct+'%':'—'}</span>
-        <span style="font-size:11px;color:var(--text3);margin-left:3px">${cor}/${qs.length}</span>
+    const cor=qs.filter(q=>store.done[q.id]===true).length;
+    const done=qs.filter(q=>store.done[q.id]!==undefined).length;
+    const pct=done?Math.round(cor/done*100):0;
+    const barW=qs.length?cor/qs.length*100:0;
+    const col=pct>=70?'#22c55e':pct>=50?'#f59e0b':'#ef4444';
+    const key=encodeURIComponent(cat+'||'+sub);
+    return `
+    <div onclick="event.stopPropagation();openAnalyticsModal('${key}')"
+      style="margin-bottom:8px;cursor:pointer">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+        <div style="flex:1;font-size:12px;color:var(--text2);word-break:break-word">${escHtml(sub)}</div>
+        <div style="font-size:13px;font-weight:700;color:${col};flex-shrink:0">${done?pct+'%':'—'}</div>
+        <span style="font-size:11px;color:var(--accent2);flex-shrink:0">▶</span>
       </div>
-    </div>
-    <div style="background:var(--bg2);border-radius:3px;height:5px;overflow:hidden">
-      <div style="height:100%;display:flex">
-        <div style="background:#22c55e;width:${barCor}%;transition:width .4s"></div>
-        <div style="background:#ef4444;width:${barWrg}%;transition:width .4s"></div>
+      <div style="background:var(--bg3);border-radius:3px;height:5px;overflow:hidden">
+        <div style="height:100%;background:${col};width:${barW}%;transition:width .4s"></div>
       </div>
-    </div>
-    <div style="display:flex;gap:8px;margin-top:4px;font-size:11px;color:var(--text3)">
-      <span>✅${cor}</span><span>❌${wrg}</span><span>⚪${unseen}</span>
-      <span style="margin-left:auto;color:var(--accent2);font-size:11px">탭하여 풀기 →</span>
-    </div>
-  </div>`;
+    </div>`;
+  }).join('');
 }
 
 function toggleAnalyticsCat(id){
@@ -2209,7 +2112,6 @@ function toggleAnalyticsCat(id){
   if(!el)return;
   const open=el.style.display==='block';
   el.style.display=open?'none':'block';
-  // 화살표 회전
   const cat=decodeURIComponent(id.replace('acat-',''));
   const arr=document.getElementById('arr-'+CSS.escape(cat));
   if(arr)arr.textContent=open?'▾':'▴';
@@ -2217,18 +2119,14 @@ function toggleAnalyticsCat(id){
 
 function openAnalyticsModal(subKey){
   const [cat,sub]=decodeURIComponent(subKey).split('||');
-  analyticsTargetCat=cat;
-  analyticsTargetSub=sub;
-  const qs=ALL_QS.filter(q=>q.cat===cat&&(sub?q.sub===sub:!q.sub));
+  analyticsTargetCat=cat; analyticsTargetSub=sub;
+  const qs=ALL_QS.filter(q=>q.cat===cat&&q.sub===sub);
   const cor=qs.filter(q=>store.done[q.id]===true).length;
   const done=qs.filter(q=>store.done[q.id]!==undefined).length;
-  const wrg=done-cor;
-  const unseen=qs.length-done;
+  const wrg=done-cor, unseen=qs.length-done;
   const pct=done?Math.round(cor/done*100):0;
-  document.getElementById('analytics-modal-title').textContent=(sub||cat);
-  document.getElementById('analytics-modal-stat').textContent=
-    `정답률 ${done?pct+'%':'—'} | ✅${cor} ❌${wrg} ⚪${unseen} / 전체 ${qs.length}문제`;
-  // 버튼 비/활성
+  document.getElementById('analytics-modal-title').textContent=sub;
+  document.getElementById('analytics-modal-stat').textContent=`정답률 ${done?pct+'%':'—'} | ✅${cor} ❌${wrg} ⚪${unseen} / ${qs.length}문제`;
   document.querySelector('#analytics-start-modal button[onclick*="wrong"]').disabled=wrg===0;
   document.querySelector('#analytics-start-modal button[onclick*="unseen"]').disabled=unseen===0;
   document.getElementById('analytics-start-modal').style.display='flex';
@@ -2239,14 +2137,12 @@ function closeAnalyticsModal(){
 }
 
 function analyticsStartQuiz(type){
-  closeAnalyticsModal();
-  closeAnalytics();
+  closeAnalyticsModal(); closeAnalytics();
   const cat=analyticsTargetCat, sub=analyticsTargetSub;
-  let pool=ALL_QS.filter(q=>q.cat===cat&&(sub?q.sub===sub:!q.sub));
+  let pool=ALL_QS.filter(q=>q.cat===cat&&q.sub===sub);
   if(type==='wrong')  pool=pool.filter(q=>store.done[q.id]===false);
   if(type==='unseen') pool=pool.filter(q=>store.done[q.id]===undefined);
   if(!pool.length){alert('해당하는 문제가 없습니다.');return;}
-  // 세션 시작
   sessQs=order==='rand'?shuffle([...pool]):[...pool];
   if(sessCount&&sessQs.length>sessCount)sessQs=sessQs.slice(0,sessCount);
   qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];sessionAnswers={};answered=false;
