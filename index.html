@@ -1461,16 +1461,30 @@ function showPostAnswer(q){
   const hasExpl=textContent||q.img_url||q.vid_url;
   if(hasExpl){
     eb.style.display='flex';
-    // 해설 텍스트 자동 노출
+    let html='';
+    // 이미지
+    if(q.img_url){
+      const src=gdImg(q.img_url);
+      html+='<div style="margin-bottom:12px;border-radius:8px;overflow:hidden;background:var(--bg3);cursor:zoom-in" onclick="toggleImgZoom(this.querySelector(\'img\'))">'
+        +'<img src="'+src+'" alt="" style="width:100%;height:auto;display:block"></div>';
+    }
+    // 영상
+    if(q.vid_url){
+      html+='<div style="position:relative;padding-bottom:56.25%;height:0;border-radius:8px;overflow:hidden;background:var(--bg3);margin-bottom:12px">'
+        +'<iframe src="'+gdEmbed(q.vid_url)+'" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;border:none"></iframe></div>';
+    }
+    // 텍스트 해설
     if(textContent){
-      et.innerHTML=textContent
+      html+=textContent
         .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
         .replace(/【([^】]+)】/g,'<strong style="color:#60a5fa">【$1】</strong>')
         .replace(/✅ ?정답/g,'<span style="color:#22c55e;font-weight:700">✅ 정답</span>')
         .replace(/❌ ?오답/g,'<span style="color:#ef4444">❌ 오답</span>')
+        .replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener" style="color:var(--accent2);text-decoration:underline;word-break:break-all">$1</a>')
         .replace(/\n/g,'<br>');
-      et.className='explain-text show';
     }
+    et.innerHTML=html;
+    et.className='explain-text show';
   } else {
     eb.style.display='none';
   }
