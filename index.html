@@ -409,7 +409,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
       </div>
     </div>
     <div class="quiz-nav">
-      <button class="btn-back" onclick="goHome()">← Back</button>
+      <button class="btn-back" onclick="confirmGoHome()">← Back</button>
       <div class="quiz-meta">
         <button class="btn-translate" id="btn-translate" onclick="toggleTranslate()">🌐 한국어</button>
         <button class="btn-translate" id="btn-tts" onclick="toggleTts()" title="자동 읽기">🔊</button>
@@ -617,6 +617,27 @@ html,body{height:100%;background:var(--bg);color:var(--text);
     background:rgba(255,255,255,.05);border-left:2px solid #4f8ef7;
     padding:6px 9px;border-radius:3px;line-height:1.5;margin-top:8px;
     color:#8fa4c8"></div>
+</div>
+
+<!-- 퀴즈 종료 확인 모달 -->
+<div id="exit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);
+  z-index:160;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;
+    padding:24px 20px;width:100%;max-width:320px;text-align:center">
+    <div style="font-size:32px;margin-bottom:10px">🚪</div>
+    <div style="font-size:17px;font-weight:700;margin-bottom:8px">문제 풀이를 종료할까요?</div>
+    <div style="font-size:13px;color:var(--text3);margin-bottom:24px;line-height:1.7">
+      현재까지의 풀이 기록은 저장됩니다.<br>홈으로 돌아가거나 계속 풀 수 있습니다.
+    </div>
+    <div style="display:flex;gap:8px">
+      <button onclick="closeExitModal()"
+        style="flex:1;padding:13px;border:none;border-radius:10px;background:var(--bg3);
+        color:var(--text2);font-size:14px;font-weight:600;cursor:pointer">계속 풀기</button>
+      <button onclick="closeExitModal();goHome()"
+        style="flex:1;padding:13px;border:none;border-radius:10px;background:var(--accent);
+        color:#fff;font-size:14px;font-weight:600;cursor:pointer">홈으로 →</button>
+    </div>
+  </div>
 </div>
 
 <!-- 초기화 확인 모달 -->
@@ -1883,8 +1904,32 @@ function showResult(){clearInterval(timerIv);const tot=sessQs.length,pct=Math.ro
 function retrySame(){const qs=[...sessQs];if(order==='rand')qs.sort(()=>Math.random()-.5);sessQs=qs;qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];seenQIds=new Set();sessStartTime=Date.now();sessionAnswers={};answered=false;showScreen('quiz');showQ();}
 function retryWrong(){const wqs=ALL_QS.filter(q=>sWrongIds.includes(q.id));if(!wqs.length)return;sessQs=wqs;qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];seenQIds=new Set();sessStartTime=Date.now();sessionAnswers={};answered=false;showScreen('quiz');showQ();}
 function goHome(){clearInterval(timerIv);ttsReqId++;ttsOn=false;window.speechSynthesis.cancel();if(window._ttsAudio){window._ttsAudio.pause();window._ttsAudio=null;}updateStats();showScreen('home');updateBtn();}
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function confirmGoHome(){
+  const onQuiz=document.getElementById('quiz').classList.contains('active');
+  if(onQuiz&&sessQs.length){
+    document.getElementById('exit-modal').style.display='flex';
+  } else {
+    goHome();
+  }
+}
+function closeExitModal(){document.getElementById('exit-modal').style.display='none';}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  // quiz 화면 진입 시 history stack에 상태 추가 → 뒤로가기 가로채기용
+  if(id==='quiz'){history.pushState({quiz:true},'','');}
+}
 window.onload=()=>{loadStore();initAuth();};
+// 브라우저/안드로이드 뒤로가기 가로채기
+window.addEventListener('popstate',function(e){
+  const onQuiz=document.getElementById('quiz').classList.contains('active');
+  const exitOpen=document.getElementById('exit-modal').style.display==='flex';
+  if(exitOpen){closeExitModal();history.pushState({quiz:true},'','');return;}
+  if(onQuiz&&sessQs.length){
+    history.pushState({quiz:true},'',''); // stack 유지
+    document.getElementById('exit-modal').style.display='flex';
+  }
+});
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden){
     saveSession(); // 백그라운드 전환 시 저장
