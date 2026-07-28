@@ -518,6 +518,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
       position:relative;padding-bottom:56.25%;height:0;
       border-radius:10px;overflow:hidden;background:var(--bg3)">
       <iframe id="expl-vid" src="" allowfullscreen
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         style="position:absolute;top:0;left:0;width:100%;height:100%;border:none"></iframe>
     </div>
 
@@ -1401,7 +1402,7 @@ function showQ(){const q=sessQs[qIdx];answered=false;translateOn=false;trStem=''
     const med=document.getElementById('q-media');med.innerHTML='';med.className='q-media';
     const imgUrl=getQuestionImageUrl(q);
     if(imgUrl){med.classList.add('show');const img=document.createElement('img');img.src=imgUrl;img.alt='';img.style.cssText='height:auto;display:block;cursor:zoom-in;margin:0 auto';img.classList.add('q-img');img.onclick=function(){toggleImgZoom(img);};med.appendChild(img);}
-    else if(q.q_vid){med.classList.add('show');const fr=document.createElement('iframe');fr.src=gdEmbed(q.q_vid);fr.allowFullscreen=true;fr.style.cssText='width:100%;aspect-ratio:16/9;border:none;display:block';med.appendChild(fr);}
+    else if(q.q_vid){med.classList.add('show');const fr=makeVideoIframe(gdEmbed(q.q_vid));fr.style.cssText='width:100%;aspect-ratio:16/9;border:none;display:block;position:static';med.appendChild(fr);}
     const opts=document.getElementById('options');opts.innerHTML='';q.opts.forEach((txt,i)=>{if(!txt)return;const b=document.createElement('button');b.className='opt-btn';b.innerHTML='<span class="opt-num">'+(i+1)+'</span><span class="opt-text">'+renderStem(txt)+'</span>';b.onclick=()=>pick(i,q.answer,q);opts.appendChild(b);});
     // post-answer 초기화
     document.getElementById('post-answer').className='post-answer';
@@ -1438,7 +1439,8 @@ function gdImg(url){
   }
   return GCS_BASE+url;
 }
-function gdEmbed(url){let m=url.match(/youtu\.be\/([^?]+)/)||url.match(/youtube\.com\/watch\?v=([^&]+)/);if(m)return 'https://www.youtube.com/embed/'+m[1];m=url.match(/\/d\/([^/]+)/);if(m)return 'https://drive.google.com/file/d/'+m[1]+'/preview';return url;}
+function gdEmbed(url){let m=url.match(/youtu\.be\/([^?]+)/)||url.match(/youtube\.com\/watch\?v=([^&]+)/);if(m)return 'https://www.youtube-nocookie.com/embed/'+m[1]+'?playsinline=1&rel=0';m=url.match(/\/d\/([^/]+)/);if(m)return 'https://drive.google.com/file/d/'+m[1]+'/preview';return url;}
+function makeVideoIframe(src){const fr=document.createElement('iframe');fr.src=src;fr.allowFullscreen=true;fr.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';fr.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;border:none';return fr;}
 function startTimer(){clearInterval(timerIv);timerLeft=TIMER_SEC;const track=document.getElementById('timer-track'),fill=document.getElementById('timer-fill'),lbl=document.getElementById('timeout-label');track.classList.remove('timeout');fill.style.display='block';lbl.style.display='none';fill.style.width='100%';fill.style.background='#22c55e';timerIv=setInterval(()=>{if(answered){clearInterval(timerIv);return;}timerLeft--;const pct=Math.max(0,timerLeft/TIMER_SEC*100);fill.style.width=pct+'%';fill.style.background=pct>50?'#22c55e':pct>20?'#f59e0b':'#ef4444';if(timerLeft<=0){clearInterval(timerIv);fill.style.display='none';track.classList.add('timeout');lbl.style.display='flex';if(!answered){answered=true;const q=sessQs[qIdx];document.querySelectorAll('.opt-btn').forEach((b,i)=>{b.disabled=true;if(i===q.answer)b.classList.add('correct');});sWrong++;sWrongIds.push(q.id);store.done[q.id]=false;store.wrongs.add(q.id);saveStore();showPostAnswer(q);document.getElementById('btn-next').classList.add('ready');}}},1000);}
 function pick(chosen,correct,q){
   if(answered)return;
@@ -1499,10 +1501,7 @@ function showPostAnswer(q){
   if(q.vid_url){
     const wrap=document.createElement('div');
     wrap.style.cssText='position:relative;padding-bottom:56.25%;height:0;border-radius:8px;overflow:hidden;background:var(--bg3);margin-bottom:12px';
-    const fr=document.createElement('iframe');
-    fr.src=gdEmbed(q.vid_url);
-    fr.allowFullscreen=true;
-    fr.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;border:none';
+    const fr=makeVideoIframe(gdEmbed(q.vid_url));
     wrap.appendChild(fr);
     et.appendChild(wrap);
   }
