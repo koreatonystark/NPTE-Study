@@ -362,6 +362,7 @@ html,body{height:100%;height:100dvh;background:var(--bg);color:var(--text);
       <div class="mode-tab active" data-mode="cat" onclick="setMode('cat')">Category</div>
       <div class="mode-tab" data-mode="year" onclick="setMode('year')">Year</div>
       <div class="mode-tab" data-mode="src"  onclick="setMode('src')">Version</div>
+      <div class="mode-tab" data-mode="dup"  onclick="setMode('dup')">🔁 Dup <span id="dup-count" style="font-size:11px;opacity:.8"></span></div>
       <div class="mode-tab" data-mode="bm"   onclick="setMode('bm')">⭐ Bookmark</div>
       <div class="mode-tab" data-mode="wr"   onclick="setMode('wr')">❌ Wrong <span id="wr-count" style="font-size:11px;opacity:.8"></span></div>
       <div class="mode-tab" data-mode="skip" onclick="openSkipScreen()">⏭ Skipped</div>
@@ -380,6 +381,13 @@ html,body{height:100%;height:100dvh;background:var(--bg);color:var(--text);
     </div>
     <div id="mode-bm" style="display:none"><div id="bm-list" style="margin-top:8px"></div></div>
     <div id="mode-wr" style="display:none"><div id="wr-list" style="margin-top:8px"></div></div>
+    <div id="mode-dup" style="display:none">
+      <div style="margin-top:10px;padding:12px 14px;background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.3);border-radius:10px;font-size:13px;color:var(--warn);line-height:1.7">
+        🔁 여러 시험에서 반복 출제된 문제만 모았습니다.<br>
+        <span style="font-size:12px;color:var(--text3)">중복 문제는 시험 출제 빈도가 높은 핵심 문제입니다.</span>
+      </div>
+      <div id="dup-list" style="margin-top:8px"></div>
+    </div>
     <div id="mode-opts">
       <div class="filter-label">Order</div>
       <div class="chip-wrap">
@@ -1259,6 +1267,7 @@ function getFiltered(){
   let qs;
   if(mode==='bm')qs=ALL_QS.filter(q=>store.bm.has(q.id)&&!store.skip.has(q.id));
   else if(mode==='wr')qs=ALL_QS.filter(q=>store.wrongs.has(q.id)&&!store.skip.has(q.id));
+  else if(mode==='dup')qs=ALL_QS.filter(q=>q.dupInfo&&q.dupInfo.length&&!store.skip.has(q.id));
   else{
     qs=ALL_QS.filter(q=>!store.skip.has(q.id));
     if(mode==='cat'&&selCats.size)qs=qs.filter(q=>selCats.has(q.cat));
@@ -1278,12 +1287,13 @@ function getFiltered(){
 function setMode(m){
   mode=m;
   document.querySelectorAll('.mode-tab').forEach(t=>t.classList.toggle('active',t.dataset.mode===m));
-  ['cat','year','src','bm','wr'].forEach(id=>document.getElementById('mode-'+id).style.display=(id===m)?'':'none');
-  document.getElementById('mode-opts').style.display=['cat','year','src'].includes(m)?'':'none';
+  ['cat','year','src','bm','wr','dup'].forEach(id=>document.getElementById('mode-'+id).style.display=(id===m)?'':'none');
+  document.getElementById('mode-opts').style.display=['cat','year','src','dup'].includes(m)?'':'none';
   const wrCount=document.getElementById('wr-count');
   if(wrCount)wrCount.textContent=store.wrongs.size?'('+store.wrongs.size+')':'';
   if(m==='bm')renderModeList('bm');
   if(m==='wr')renderModeList('wr');
+  if(m==='dup')renderDupList();
   updateBtn();
 }
 function renderModeList(m){
@@ -1401,7 +1411,7 @@ function mlRemove(m,id){
   if(m==='bm')store.bm.delete(id);else store.wrongs.delete(id);
   saveStore();updateStats();renderModeList(m);updateBtn();
 }
-function updateBtn(){const qs=getFiltered(),n=sessCount===0?qs.length:Math.min(sessCount,qs.length);const btn=document.getElementById('btn-start');document.getElementById('sel-info').textContent=qs.length+' 문항 available · session: '+n;if(!qs.length){btn.disabled=true;btn.textContent='문항 없음';return;}btn.disabled=false;btn.textContent='Start '+n+' Questions →';}
+function updateBtn(){const qs=getFiltered(),n=sessCount===0?qs.length:Math.min(sessCount,qs.length);const btn=document.getElementById('btn-start');const selInfo=document.getElementById('sel-info');if(selInfo)selInfo.textContent=qs.length+' 문항 available · session: '+n;if(!qs.length){btn.disabled=true;btn.textContent=mode==='dup'?'중복 문항 없음':'문항 없음';return;}btn.disabled=false;btn.textContent='Start '+n+' Questions →';}
 function confirmReset(){
   document.getElementById('rst-bm-count').textContent=store.bm.size+'개 북마크';
   document.getElementById('rst-skip-count').textContent=store.skip.size+'개 Skip';
@@ -1429,8 +1439,70 @@ function updateStats(){
   document.getElementById('stat-bm').textContent=store.bm.size+' ⭐';
   const wrCount=document.getElementById('wr-count');
   if(wrCount)wrCount.textContent=store.wrongs.size?'('+store.wrongs.size+')':'';
+  const dupCount=document.getElementById('dup-count');
+  if(dupCount){const n=ALL_QS.filter(q=>q.dupInfo&&q.dupInfo.length).length;dupCount.textContent=n?'('+n+')':'';}
   if(mode==='bm')renderModeList('bm');
   if(mode==='wr')renderModeList('wr');
+  if(mode==='dup')renderDupList();
+}
+function renderDupList(){
+  var el=document.getElementById('dup-list');
+  if(!el)return;
+  if(!ALL_QS.length){el.innerHTML='<p style="color:var(--text2);font-size:14px;padding:12px 0">⏳ 로딩 중...</p>';return;}
+  var items=ALL_QS.filter(function(q){return q.dupInfo&&q.dupInfo.length;}).sort(function(a,b){
+    // 중복 횟수 많은 순 → 같으면 src순
+    var da=a.dupInfo.length,db=b.dupInfo.length;
+    if(db!==da)return db-da;
+    return a.src.localeCompare(b.src)||a.qnum-b.qnum;
+  });
+  if(!items.length){el.innerHTML='<p style="color:var(--text2);font-size:14px;padding:12px 0">중복 문제가 없습니다.</p>';return;}
+  el.innerHTML=items.map(function(q){
+    var badge='<span style="background:rgba(251,191,36,.2);border:1px solid rgba(251,191,36,.5);border-radius:20px;padding:2px 8px;font-size:11px;color:var(--warn);font-weight:700">×'+(q.dupInfo.length+1)+'</span>';
+    var tags=q.dupInfo.map(function(d){return '<span style="font-size:11px;color:var(--text3);background:var(--bg3);border-radius:4px;padding:1px 6px">'+escHtml(d)+'</span>';}).join(' ');
+    return '<div id="dl-'+q.id+'" style="border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden;background:var(--bg2)">'
+      +'<div data-id="'+q.id+'" onclick="toggleDupItem(this.dataset.id)" style="flex:1;padding:12px 14px;cursor:pointer;min-width:0;display:flex;flex-direction:column;gap:5px">'
+        +'<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">'
+          +'<strong style="color:var(--warn);font-size:12px">('+escHtml(q.src)+') Q'+q.qnum+'</strong>'
+          +badge+tags
+          +'<span id="dla-'+q.id+'" style="margin-left:auto;color:var(--accent2);font-size:18px;transition:transform .2s;display:inline-block">▾</span>'
+        +'</div>'
+        +'<div style="font-size:13px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escHtml(q.stem.substring(0,65))+(q.stem.length>65?'…':'')+'</div>'
+      +'</div>'
+      +'<div id="dlb-'+q.id+'" data-id="'+q.id+'" style="display:none;border-top:1px solid var(--border);padding:14px"></div>'
+    +'</div>';
+  }).join('');
+}
+function toggleDupItem(id){
+  var body=document.getElementById('dlb-'+id);
+  var arrow=document.getElementById('dla-'+id);
+  if(!body)return;
+  var isOpen=body.style.display!=='none';
+  document.querySelectorAll('[id^="dlb-"]').forEach(function(b){b.style.display='none';});
+  document.querySelectorAll('[id^="dla-"]').forEach(function(a){a.style.transform='';});
+  if(isOpen)return;
+  var q=ALL_QS.find(function(qq){return qq.id===id;});
+  if(!q)return;
+  var L=['A','B','C','D'];
+  var optsHtml=q.opts.filter(function(o){return o;}).map(function(o,i){
+    return '<div style="display:flex;gap:9px;padding:10px 12px;border:1.5px solid '+(i===q.answer?'var(--success)':'var(--border)')+';border-radius:9px;background:'+(i===q.answer?'var(--success-bg)':'var(--bg)')+';margin-bottom:7px">'
+      +'<span style="min-width:22px;height:22px;border-radius:50%;background:'+(i===q.answer?'var(--success)':'var(--bg3)')+';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:'+(i===q.answer?'#fff':'var(--text2)')+';flex-shrink:0">'+L[i]+'</span>'
+      +'<span style="font-size:14px;line-height:1.5;color:'+(i===q.answer?'var(--success)':'var(--text)')+'">'+escHtml(o)+'</span>'
+    +'</div>';
+  }).join('');
+  var explContent=q.expl_text||'(해설 없음)';
+  var explBtn='<div id="dupexpl-'+id+'" style="display:none;margin-top:10px;padding:12px;background:var(--bg3);border-radius:8px;font-size:14px;line-height:1.7;color:var(--text)">'+renderExpl(explContent)+'</div>'
+    +'<button data-eid="'+id+'" onclick="toggleDupExpl(this);event.stopPropagation()" style="margin-top:10px;width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--accent2);font-size:13px;font-weight:600;cursor:pointer">📖 해설 보기</button>';
+  body.innerHTML='<div style="font-size:15px;line-height:1.75;color:var(--text);margin-bottom:14px">'+escHtml(q.stem)+'</div>'+optsHtml+explBtn;
+  body.style.display='block';
+  arrow.style.transform='rotate(180deg)';
+  setTimeout(function(){var el2=document.getElementById('dl-'+id);if(el2)el2.scrollIntoView({behavior:'smooth',block:'start'});},60);
+}
+function toggleDupExpl(btn){
+  var d=document.getElementById('dupexpl-'+btn.dataset.eid);
+  if(!d)return;
+  var open=d.style.display==='block';
+  d.style.display=open?'none':'block';
+  btn.textContent=open?'📖 해설 보기':'📖 해설 닫기';
 }
 function startQuiz(){let qs=getFiltered();if(!qs.length)return;if(order==='rand')qs=[...qs].sort(()=>Math.random()-.5);const n=sessCount===0?qs.length:Math.min(sessCount,qs.length);sessQs=qs.slice(0,n);qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];seenQIds=new Set();sessStartTime=Date.now();sessionAnswers={};answered=false;translateOn=false;document.getElementById('btn-translate').classList.remove('active');document.getElementById('btn-translate').textContent='🌐 한국어';showScreen('quiz');showQ();}
 function showQ(){const q=sessQs[qIdx];answered=false;translateOn=false;trStem='';trOpts=[];document.getElementById('btn-translate').classList.remove('active');document.getElementById('btn-translate').textContent='🌐 한국어';document.getElementById('q-counter').textContent=(qIdx+1)+' / '+sessQs.length;document.getElementById('prog').style.width=(qIdx/sessQs.length*100)+'%';document.getElementById('q-source').textContent='('+q.src+') Q'+q.qnum+' · '+q.cat+(q.sub?' / '+q.sub:'');
