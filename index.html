@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="NPTE Study">
@@ -22,9 +22,11 @@
   --text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;
   --border:#334155;--radius:12px;--radius-sm:8px;
 }
-html,body{height:100%;background:var(--bg);color:var(--text);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden}
-#app{height:100%;display:flex;flex-direction:column}
+html,body{height:100%;height:100dvh;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden;
+  padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+#app{height:100%;height:100dvh;display:flex;flex-direction:column;
+  padding-bottom:env(safe-area-inset-bottom)}
 .screen{display:none;flex:1;flex-direction:column;overflow:hidden}
 .screen.active{display:flex}
 .home-header{padding:20px 18px 14px;background:linear-gradient(160deg,#0f172a,#1a2f50);flex-shrink:0}
@@ -428,12 +430,27 @@ html,body{height:100%;background:var(--bg);color:var(--text);
       <div id="expl-media-img" style="display:none;margin-bottom:10px;border-radius:8px;overflow:hidden;background:var(--bg3);cursor:zoom-in">
         <img id="expl-media-img-el" src="" alt="" style="width:100%;height:auto;display:block">
       </div>
-      <div id="expl-media-vid" style="display:none;margin-bottom:10px">
-        <a id="expl-media-vid-link" href="" target="_blank" rel="noopener"
-          style="display:flex;align-items:center;justify-content:center;gap:10px;
-          padding:16px;background:#1a1a2e;border:1px solid #ff0000;border-radius:8px;
-          color:#ff4444;font-size:15px;font-weight:600;text-decoration:none">
-          ▶ YouTube에서 영상 보기
+      <div id="expl-media-vid" style="display:none;margin-bottom:10px;border-radius:10px;overflow:hidden;background:var(--bg3)">
+        <!-- 썸네일 (탭하면 인앱 iframe으로 교체) -->
+        <div id="expl-vid-thumb" style="position:relative;cursor:pointer" onclick="playVidInline()">
+          <img id="expl-vid-thumb-img" src="" alt="영상 재생" style="width:100%;display:block;border-radius:10px">
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;border-radius:10px;background:rgba(0,0,0,.35)">
+            <div style="width:56px;height:56px;border-radius:50%;background:rgba(255,0,0,.85);display:flex;align-items:center;justify-content:center">
+              <span style="font-size:22px;margin-left:4px">▶</span>
+            </div>
+          </div>
+        </div>
+        <!-- 인앱 iframe (처음엔 숨김) -->
+        <div id="expl-vid-iframe-wrap" style="display:none;position:relative;padding-bottom:56.25%;height:0">
+          <iframe id="expl-vid-iframe" src="" allowfullscreen
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            style="position:absolute;top:0;left:0;width:100%;height:100%;border:none"></iframe>
+        </div>
+        <!-- 외부 링크 (iframe 불가 시 fallback) -->
+        <a id="expl-vid-link" href="" target="_blank" rel="noopener"
+          style="display:none;align-items:center;justify-content:center;gap:8px;
+          padding:14px;background:#1a1a2e;color:#ff4444;font-size:14px;font-weight:600;text-decoration:none">
+          ▶ YouTube 앱에서 열기
         </a>
       </div>
       <div class="explain-text" id="explain-text"></div>
@@ -511,12 +528,20 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 
 
     <!-- 영상 영역 -->
-    <div id="expl-vid-wrap" style="display:none;margin-bottom:16px;
-      position:relative;padding-bottom:56.25%;height:0;
-      border-radius:10px;overflow:hidden;background:var(--bg3)">
-      <iframe id="expl-vid" src="" allowfullscreen
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        style="position:absolute;top:0;left:0;width:100%;height:100%;border:none"></iframe>
+    <div id="expl-vid-wrap" style="display:none;margin-bottom:16px;border-radius:10px;overflow:hidden;background:var(--bg3)">
+      <div id="expl-ov-thumb" style="position:relative;cursor:pointer" onclick="playOvVidInline()">
+        <img id="expl-ov-thumb-img" src="" alt="영상 재생" style="width:100%;display:block">
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35)">
+          <div style="width:56px;height:56px;border-radius:50%;background:rgba(255,0,0,.85);display:flex;align-items:center;justify-content:center">
+            <span style="font-size:22px;margin-left:4px">▶</span>
+          </div>
+        </div>
+      </div>
+      <div id="expl-ov-iframe-wrap" style="display:none;position:relative;padding-bottom:56.25%;height:0">
+        <iframe id="expl-vid" src="" allowfullscreen
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          style="position:absolute;top:0;left:0;width:100%;height:100%;border:none"></iframe>
+      </div>
     </div>
 
     <!-- 해설 텍스트 영역 -->
@@ -1451,6 +1476,26 @@ function gdImg(url){
   }
   return GCS_BASE+url;
 }
+function playOvVidInline(){
+  const ovThumb=document.getElementById('expl-ov-thumb');
+  const ovIframeWrap=document.getElementById('expl-ov-iframe-wrap');
+  const ovIframe=document.getElementById('expl-vid');
+  const src=ovIframe.dataset.src||'';
+  if(!src)return;
+  ovIframe.src=src;
+  ovThumb.style.display='none';
+  ovIframeWrap.style.display='block';
+}
+function playVidInline(){
+  const thumb=document.getElementById('expl-vid-thumb');
+  const iframeWrap=document.getElementById('expl-vid-iframe-wrap');
+  const iframe=document.getElementById('expl-vid-iframe');
+  const src=iframe.dataset.src||'';
+  if(!src)return;
+  iframe.src=src;
+  thumb.style.display='none';
+  iframeWrap.style.display='block';
+}
 function gdEmbed(url){let m=url.match(/youtu\.be\/([^?]+)/)||url.match(/youtube\.com\/watch\?v=([^&]+)/);if(m)return 'https://www.youtube-nocookie.com/embed/'+m[1]+'?playsinline=1&rel=0';m=url.match(/\/d\/([^/]+)/);if(m)return 'https://drive.google.com/file/d/'+m[1]+'/preview';return url;}
 function getYouTubeId(url){const m=url.match(/youtu\.be\/([^?&]+)/)||url.match(/youtube\.com\/(?:watch\?v=|shorts\/)([^?&]+)/);return m?m[1]:'';}
 function makeVideoIframe(src){const fr=document.createElement('iframe');fr.src=src;fr.allowFullscreen=true;fr.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';fr.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;border:none';return fr;}
@@ -1621,17 +1666,30 @@ function showPostAnswer(q){
     imgWrap.style.display='block';
     imgWrap.onclick=()=>toggleImgZoom(imgEl);
   }
-  // 영상 — 썸네일 + YouTube 링크
+  // 영상 — 썸네일 탭 → 인앱 재생
   if(q.vid_url){
     const vidId=getYouTubeId(q.vid_url);
-    const linkEl=document.getElementById('expl-media-vid-link');
-    linkEl.href=q.vid_url;
+    const thumb=document.getElementById('expl-vid-thumb');
+    const thumbImg=document.getElementById('expl-vid-thumb-img');
+    const iframeWrap=document.getElementById('expl-vid-iframe-wrap');
+    const iframe=document.getElementById('expl-vid-iframe');
+    const fallback=document.getElementById('expl-vid-link');
+    // 초기화
+    thumb.style.display='block';
+    iframeWrap.style.display='none';
+    fallback.style.display='none';
+    iframe.src='';
+    iframe.dataset.src=''; // 재생 URL 저장
+    fallback.href=q.vid_url;
     if(vidId){
-      linkEl.innerHTML='<img src="https://img.youtube.com/vi/'+vidId+'/hqdefault.jpg" alt="YouTube 영상 재생" style="width:100%;display:block;border-radius:6px"><div style="margin-top:8px;text-align:center;font-size:13px;color:#ff4444;font-weight:600">▶ YouTube에서 보기</div>';
-      linkEl.style.cssText='display:block;text-decoration:none;border:1px solid #333;border-radius:8px;overflow:hidden;padding:0';
+      thumbImg.src='https://img.youtube.com/vi/'+vidId+'/hqdefault.jpg';
+      iframe.dataset.src='https://www.youtube-nocookie.com/embed/'+vidId+'?autoplay=1&playsinline=1&rel=0';
     } else {
-      linkEl.innerHTML='▶ YouTube에서 영상 보기';
-      linkEl.style.cssText='display:flex;align-items:center;justify-content:center;gap:10px;padding:16px;background:#1a1a2e;border:1px solid #ff0000;border-radius:8px;color:#ff4444;font-size:15px;font-weight:600;text-decoration:none';
+      // YouTube 아닌 URL (Google Drive 등)
+      thumbImg.src='';
+      thumb.style.display='none';
+      iframeWrap.style.display='block';
+      iframe.src=gdEmbed(q.vid_url);
     }
     vidWrap.style.display='block';
   }
@@ -1664,9 +1722,23 @@ function openExplain(){
     document.getElementById('expl-img').src=gdImg(q.img_url);
     imgW.style.display='block';hasAny=true;
   }
-  // 영상
+  // 영상 — 썸네일 탭 → 인앱 재생
   if(q.vid_url){
-    document.getElementById('expl-vid').src=gdEmbed(q.vid_url);
+    const vidId=getYouTubeId(q.vid_url);
+    const ovThumb=document.getElementById('expl-ov-thumb');
+    const ovThumbImg=document.getElementById('expl-ov-thumb-img');
+    const ovIframeWrap=document.getElementById('expl-ov-iframe-wrap');
+    const ovIframe=document.getElementById('expl-vid');
+    ovIframe.src='';ovIframe.dataset.src='';
+    ovThumb.style.display='block';ovIframeWrap.style.display='none';
+    if(vidId){
+      ovThumbImg.src='https://img.youtube.com/vi/'+vidId+'/hqdefault.jpg';
+      ovIframe.dataset.src='https://www.youtube-nocookie.com/embed/'+vidId+'?autoplay=1&playsinline=1&rel=0';
+    } else {
+      ovThumb.style.display='none';
+      ovIframeWrap.style.display='block';
+      ovIframe.src=gdEmbed(q.vid_url);
+    }
     vidW.style.display='block';hasAny=true;
   }
   // 텍스트 해설 (explanation 컬럼 우선, 없으면 explanation_url)
@@ -1731,8 +1803,13 @@ function initPinchZoom(){
   };
 }
 function closeExplain(){
-  // 영상 멈추기
-  document.getElementById('expl-vid').src='';
+  // 영상 멈추기 + 썸네일 상태 복원
+  const ovIframe=document.getElementById('expl-vid');
+  ovIframe.src='';ovIframe.dataset.src='';
+  const ovThumb=document.getElementById('expl-ov-thumb');
+  const ovIframeWrap=document.getElementById('expl-ov-iframe-wrap');
+  if(ovThumb)ovThumb.style.display='block';
+  if(ovIframeWrap)ovIframeWrap.style.display='none';
   document.getElementById('expl-overlay').style.display='none';
 }
 function toggleTts(){
