@@ -34,7 +34,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 .stat-pill{background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);
   border-radius:20px;padding:3px 10px;font-size:11px;color:var(--accent2)}
 .stat-pill.btn{cursor:pointer}
-.filter-section{padding:0 16px 16px;overflow-y:auto;flex:1}
+.filter-section{padding:0 16px 16px;overflow-y:auto;overflow-x:hidden;flex:1}
 .filter-label{font-size:10px;font-weight:700;color:var(--text3);
   letter-spacing:.09em;text-transform:uppercase;margin:15px 0 8px}
 .mode-tabs{display:flex;gap:6px;margin-top:13px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
@@ -2044,40 +2044,19 @@ document.addEventListener('visibilitychange',()=>{
 let analyticsTargetCat=null,analyticsTargetSub=null;
 
 const NPTE_DOMAINS=[
-  {
-    name:'Musculoskeletal',
-    cats:['Musculoskeletal (Examination / Evaluation / Intervention)']
-  },
-  {
-    name:'Neuromuscular',
-    cats:['Neuromuscular (Examination / Evaluation / Intervention)']
-  },
-  {
-    name:'Cardiovascular & Pulmonary',
-    cats:['Cardiovascular & Pulmonary (Examination / Evaluation / Intervention)']
-  },
-  {
-    name:'Other Systems',
-    cats:[
-      'Integumentary (Examination / Evaluation / Intervention)',
-      'Metabolic & Endocrine ( Evaluation / Intervention)',
-      'Gastrointestinal (Examination / Evaluation / Intervention)',
-      'Genitourinary (Examination / Evaluation / Intervention)',
-      'Lymphatic (Examination / Evaluation / Intervention)',
-      'System Interactions / Differential Diagnosis'
-    ]
-  },
-  {
-    name:'Non-Systems',
-    cats:[
-      'Equipment & Assistive Technology',
-      'Modalities',
-      'Safety',
-      'Professional Issues',
-      'Research'
-    ]
-  }
+  {name:'Musculoskeletal',   key:'musculoskeletal'},
+  {name:'Neuromuscular',     key:'neuromuscular'},
+  {name:'Cardiovascular & Pulmonary', key:'cardiovascular'},
+  {name:'Other Systems',     key:['integumentary','metabolic','gastrointestinal','genitourinary','lymphatic','system interaction','differential']},
+  {name:'Non-Systems',       key:['equipment','modalities','safety','professional','research']}
 ];
+
+function domainMatch(cat,domain){
+  const c=cat.toLowerCase();
+  const k=domain.key;
+  if(Array.isArray(k)) return k.some(kk=>c.includes(kk));
+  return c.includes(k);
+}
 
 function openAnalytics(){
   document.getElementById('analytics-overlay').style.display='flex';
@@ -2089,36 +2068,38 @@ function closeAnalytics(){
 
 function renderAnalytics(){
   const body=document.getElementById('analytics-body');
+  const allCats=[...new Set(ALL_QS.map(q=>q.cat).filter(Boolean))];
   let html='';
   NPTE_DOMAINS.forEach(domain=>{
-    const domQs=ALL_QS.filter(q=>domain.cats.includes(q.cat));
+    const domCats=allCats.filter(cat=>domainMatch(cat,domain));
+    const domQs=ALL_QS.filter(q=>domainMatch(q.cat,domain));
     const domCor=domQs.filter(q=>store.done[q.id]===true).length;
     const domDone=domQs.filter(q=>store.done[q.id]!==undefined).length;
     const domPct=domDone?Math.round(domCor/domDone*100):0;
     const domBar=domQs.length?domCor/domQs.length*100:0;
     const domCol=domPct>=70?'#22c55e':domPct>=50?'#f59e0b':'#ef4444';
-    const domId='domain-'+CSS.escape(domain.name);
+    const domId='domain-'+domain.name.replace(/[^a-z0-9]/gi,'_');
     html+=`
     <div style="margin-bottom:14px">
       <div onclick="toggleAnalyticsCat('${domId}')" style="cursor:pointer">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
           <div style="flex:1;font-size:15px;font-weight:700;color:var(--text)">${escHtml(domain.name)}</div>
           <div style="font-size:14px;font-weight:700;color:${domCol};flex-shrink:0">${domDone?domPct+'%':'—'}</div>
-          <span id="arr-${CSS.escape(domain.name)}" style="color:var(--text3);font-size:13px;flex-shrink:0">▾</span>
+          <span id="arr-${domain.name.replace(/[^a-z0-9]/gi,'_')}" style="color:var(--text3);font-size:13px;flex-shrink:0">▾</span>
         </div>
         <div style="background:var(--bg3);border-radius:4px;height:10px;overflow:hidden">
           <div style="height:100%;background:${domCol};width:${domBar}%;transition:width .4s"></div>
         </div>
       </div>
       <div id="${domId}" style="display:none;margin-top:10px;padding-left:10px;border-left:2px solid var(--border)">
-        ${domain.cats.filter(cat=>ALL_QS.some(q=>q.cat===cat)).map(cat=>{
+        ${domCats.map(cat=>{
           const qs=ALL_QS.filter(q=>q.cat===cat);
           const cor=qs.filter(q=>store.done[q.id]===true).length;
           const done=qs.filter(q=>store.done[q.id]!==undefined).length;
           const pct=done?Math.round(cor/done*100):0;
           const barW=qs.length?cor/qs.length*100:0;
           const col=pct>=70?'#22c55e':pct>=50?'#f59e0b':'#ef4444';
-          const key=encodeURIComponent(cat+'||');
+          const key=encodeURIComponent(cat);
           return `
           <div onclick="event.stopPropagation();openAnalyticsModal('${key}')"
             style="margin-bottom:10px;cursor:pointer">
@@ -2131,7 +2112,7 @@ function renderAnalytics(){
               <div style="height:100%;background:${col};width:${barW}%;transition:width .4s"></div>
             </div>
           </div>`;
-        }).join('')}
+        }).join('')||'<div style="font-size:12px;color:var(--text3);padding:4px 0">문제 없음</div>'}
       </div>
     </div>`;
   });
@@ -2143,14 +2124,14 @@ function toggleAnalyticsCat(id){
   if(!el)return;
   const open=el.style.display==='block';
   el.style.display=open?'none':'block';
-  const name=decodeURIComponent(id.replace('domain-',''));
-  const arr=document.getElementById('arr-'+CSS.escape(name));
+  const arrId='arr-'+id.replace('domain-','');
+  const arr=document.getElementById(arrId);
   if(arr)arr.textContent=open?'▾':'▴';
 }
 
-function openAnalyticsModal(subKey){
-  const [cat,sub]=decodeURIComponent(subKey).split('||');
-  analyticsTargetCat=cat; analyticsTargetSub=sub;
+function openAnalyticsModal(key){
+  const cat=decodeURIComponent(key);
+  analyticsTargetCat=cat;
   const qs=ALL_QS.filter(q=>q.cat===cat);
   const cor=qs.filter(q=>store.done[q.id]===true).length;
   const done=qs.filter(q=>store.done[q.id]!==undefined).length;
