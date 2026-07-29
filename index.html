@@ -2043,6 +2043,42 @@ document.addEventListener('visibilitychange',()=>{
 // ── Analytics ──────────────────────────────────────────
 let analyticsTargetCat=null,analyticsTargetSub=null;
 
+const NPTE_DOMAINS=[
+  {
+    name:'Musculoskeletal',
+    cats:['Musculoskeletal (Examination / Evaluation / Intervention)']
+  },
+  {
+    name:'Neuromuscular',
+    cats:['Neuromuscular (Examination / Evaluation / Intervention)']
+  },
+  {
+    name:'Cardiovascular & Pulmonary',
+    cats:['Cardiovascular & Pulmonary (Examination / Evaluation / Intervention)']
+  },
+  {
+    name:'Other Systems',
+    cats:[
+      'Integumentary (Examination / Evaluation / Intervention)',
+      'Metabolic & Endocrine ( Evaluation / Intervention)',
+      'Gastrointestinal (Examination / Evaluation / Intervention)',
+      'Genitourinary (Examination / Evaluation / Intervention)',
+      'Lymphatic (Examination / Evaluation / Intervention)',
+      'System Interactions / Differential Diagnosis'
+    ]
+  },
+  {
+    name:'Non-Systems',
+    cats:[
+      'Equipment & Assistive Technology',
+      'Modalities',
+      'Safety',
+      'Professional Issues',
+      'Research'
+    ]
+  }
+];
+
 function openAnalytics(){
   document.getElementById('analytics-overlay').style.display='flex';
   renderAnalytics();
@@ -2053,58 +2089,53 @@ function closeAnalytics(){
 
 function renderAnalytics(){
   const body=document.getElementById('analytics-body');
-  const cats=[...new Set(ALL_QS.map(q=>q.cat).filter(Boolean))].sort();
   let html='';
-  cats.forEach(cat=>{
-    const qs=ALL_QS.filter(q=>q.cat===cat);
-    const cor=qs.filter(q=>store.done[q.id]===true).length;
-    const done=qs.filter(q=>store.done[q.id]!==undefined).length;
-    const pct=done?Math.round(cor/done*100):0;
-    const barW=qs.length?cor/qs.length*100:0;
-    const col=pct>=70?'#22c55e':pct>=50?'#f59e0b':'#ef4444';
+  NPTE_DOMAINS.forEach(domain=>{
+    const domQs=ALL_QS.filter(q=>domain.cats.includes(q.cat));
+    const domCor=domQs.filter(q=>store.done[q.id]===true).length;
+    const domDone=domQs.filter(q=>store.done[q.id]!==undefined).length;
+    const domPct=domDone?Math.round(domCor/domDone*100):0;
+    const domBar=domQs.length?domCor/domQs.length*100:0;
+    const domCol=domPct>=70?'#22c55e':domPct>=50?'#f59e0b':'#ef4444';
+    const domId='domain-'+CSS.escape(domain.name);
     html+=`
-    <div onclick="toggleAnalyticsCat('acat-${CSS.escape(cat)}')"
-      style="margin-bottom:10px;cursor:pointer">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-        <div style="flex:1;font-size:13px;font-weight:600;color:var(--text);word-break:break-word">${escHtml(cat)}</div>
-        <div style="font-size:14px;font-weight:700;color:${col};flex-shrink:0">${done?pct+'%':'—'}</div>
-        <span id="arr-${CSS.escape(cat)}" style="color:var(--text3);font-size:13px;flex-shrink:0">▾</span>
+    <div style="margin-bottom:14px">
+      <div onclick="toggleAnalyticsCat('${domId}')" style="cursor:pointer">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <div style="flex:1;font-size:15px;font-weight:700;color:var(--text)">${escHtml(domain.name)}</div>
+          <div style="font-size:14px;font-weight:700;color:${domCol};flex-shrink:0">${domDone?domPct+'%':'—'}</div>
+          <span id="arr-${CSS.escape(domain.name)}" style="color:var(--text3);font-size:13px;flex-shrink:0">▾</span>
+        </div>
+        <div style="background:var(--bg3);border-radius:4px;height:10px;overflow:hidden">
+          <div style="height:100%;background:${domCol};width:${domBar}%;transition:width .4s"></div>
+        </div>
       </div>
-      <div style="background:var(--bg3);border-radius:4px;height:8px;overflow:hidden">
-        <div style="height:100%;background:${col};width:${barW}%;transition:width .4s"></div>
-      </div>
-      <div id="acat-${CSS.escape(cat)}" style="display:none;margin-top:8px;padding-left:8px;border-left:2px solid var(--border)">
-        ${renderSubCats(cat)}
+      <div id="${domId}" style="display:none;margin-top:10px;padding-left:10px;border-left:2px solid var(--border)">
+        ${domain.cats.filter(cat=>ALL_QS.some(q=>q.cat===cat)).map(cat=>{
+          const qs=ALL_QS.filter(q=>q.cat===cat);
+          const cor=qs.filter(q=>store.done[q.id]===true).length;
+          const done=qs.filter(q=>store.done[q.id]!==undefined).length;
+          const pct=done?Math.round(cor/done*100):0;
+          const barW=qs.length?cor/qs.length*100:0;
+          const col=pct>=70?'#22c55e':pct>=50?'#f59e0b':'#ef4444';
+          const key=encodeURIComponent(cat+'||');
+          return `
+          <div onclick="event.stopPropagation();openAnalyticsModal('${key}')"
+            style="margin-bottom:10px;cursor:pointer">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+              <div style="flex:1;font-size:12px;color:var(--text2);word-break:break-word">${escHtml(cat)}</div>
+              <div style="font-size:13px;font-weight:700;color:${col};flex-shrink:0">${done?pct+'%':'—'}</div>
+              <span style="font-size:11px;color:var(--accent2);flex-shrink:0">▶</span>
+            </div>
+            <div style="background:var(--bg3);border-radius:3px;height:6px;overflow:hidden">
+              <div style="height:100%;background:${col};width:${barW}%;transition:width .4s"></div>
+            </div>
+          </div>`;
+        }).join('')}
       </div>
     </div>`;
   });
   body.innerHTML=html||'<div style="color:var(--text3);font-size:14px">풀이 기록이 없습니다.</div>';
-}
-
-function renderSubCats(cat){
-  const subs=[...new Set(ALL_QS.filter(q=>q.cat===cat&&q.sub).map(q=>q.sub))].sort();
-  if(!subs.length) return '<div style="font-size:12px;color:var(--text3);padding:4px 0">세부 항목 없음</div>';
-  return subs.map(sub=>{
-    const qs=ALL_QS.filter(q=>q.cat===cat&&q.sub===sub);
-    const cor=qs.filter(q=>store.done[q.id]===true).length;
-    const done=qs.filter(q=>store.done[q.id]!==undefined).length;
-    const pct=done?Math.round(cor/done*100):0;
-    const barW=qs.length?cor/qs.length*100:0;
-    const col=pct>=70?'#22c55e':pct>=50?'#f59e0b':'#ef4444';
-    const key=encodeURIComponent(cat+'||'+sub);
-    return `
-    <div onclick="event.stopPropagation();openAnalyticsModal('${key}')"
-      style="margin-bottom:8px;cursor:pointer">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
-        <div style="flex:1;font-size:12px;color:var(--text2);word-break:break-word">${escHtml(sub)}</div>
-        <div style="font-size:13px;font-weight:700;color:${col};flex-shrink:0">${done?pct+'%':'—'}</div>
-        <span style="font-size:11px;color:var(--accent2);flex-shrink:0">▶</span>
-      </div>
-      <div style="background:var(--bg3);border-radius:3px;height:5px;overflow:hidden">
-        <div style="height:100%;background:${col};width:${barW}%;transition:width .4s"></div>
-      </div>
-    </div>`;
-  }).join('');
 }
 
 function toggleAnalyticsCat(id){
@@ -2112,20 +2143,20 @@ function toggleAnalyticsCat(id){
   if(!el)return;
   const open=el.style.display==='block';
   el.style.display=open?'none':'block';
-  const cat=decodeURIComponent(id.replace('acat-',''));
-  const arr=document.getElementById('arr-'+CSS.escape(cat));
+  const name=decodeURIComponent(id.replace('domain-',''));
+  const arr=document.getElementById('arr-'+CSS.escape(name));
   if(arr)arr.textContent=open?'▾':'▴';
 }
 
 function openAnalyticsModal(subKey){
   const [cat,sub]=decodeURIComponent(subKey).split('||');
   analyticsTargetCat=cat; analyticsTargetSub=sub;
-  const qs=ALL_QS.filter(q=>q.cat===cat&&q.sub===sub);
+  const qs=ALL_QS.filter(q=>q.cat===cat);
   const cor=qs.filter(q=>store.done[q.id]===true).length;
   const done=qs.filter(q=>store.done[q.id]!==undefined).length;
   const wrg=done-cor, unseen=qs.length-done;
   const pct=done?Math.round(cor/done*100):0;
-  document.getElementById('analytics-modal-title').textContent=sub;
+  document.getElementById('analytics-modal-title').textContent=cat;
   document.getElementById('analytics-modal-stat').textContent=`정답률 ${done?pct+'%':'—'} | ✅${cor} ❌${wrg} ⚪${unseen} / ${qs.length}문제`;
   document.querySelector('#analytics-start-modal button[onclick*="wrong"]').disabled=wrg===0;
   document.querySelector('#analytics-start-modal button[onclick*="unseen"]').disabled=unseen===0;
@@ -2138,8 +2169,8 @@ function closeAnalyticsModal(){
 
 function analyticsStartQuiz(type){
   closeAnalyticsModal(); closeAnalytics();
-  const cat=analyticsTargetCat, sub=analyticsTargetSub;
-  let pool=ALL_QS.filter(q=>q.cat===cat&&q.sub===sub);
+  const cat=analyticsTargetCat;
+  let pool=ALL_QS.filter(q=>q.cat===cat);
   if(type==='wrong')  pool=pool.filter(q=>store.done[q.id]===false);
   if(type==='unseen') pool=pool.filter(q=>store.done[q.id]===undefined);
   if(!pool.length){alert('해당하는 문제가 없습니다.');return;}
