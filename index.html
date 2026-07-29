@@ -1014,48 +1014,69 @@ function renderStem(text){
 function escHtml(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function escAttr(t){return String(t).replace(/'/g,'&#39;');}
 function renderMd(text){
-  // HTML 이스케이프 먼저
+  if(!text)return '';
+  // 1. 코드블록 먼저 추출 보호 (이스케이프 영향 안 받게)
+  const codeBlocks=[];
+  text=text.replace(/```[\w]*\n?([\s\S]*?)```/g,(_,code)=>{
+    codeBlocks.push(code);
+    return '\x00CODE'+(codeBlocks.length-1)+'\x00';
+  });
+  const inlineCodes=[];
+  text=text.replace(/`([^`\n]+)`/g,(_,code)=>{
+    inlineCodes.push(code);
+    return '\x00ICODE'+(inlineCodes.length-1)+'\x00';
+  });
+
+  // 2. HTML 이스케이프
   let t=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  // 테이블 처리 (| col | col | 형태)
+
+  // 3. 테이블 (| col | 형태) — 이스케이프 후
   t=t.replace(/((?:\|.+\|\n?)+)/g,function(table){
     const rows=table.trim().split('\n').filter(r=>r.trim());
     let html='<table style="border-collapse:collapse;width:100%;margin:8px 0;font-size:13px">';
-    rows.forEach((row,i)=>{
-      if(/^\|[-| :]+\|$/.test(row.trim()))return; // separator 줄 스킵
+    let isFirst=true;
+    rows.forEach(row=>{
+      if(/^\|[-| :]+\|$/.test(row.trim()))return;
       const cells=row.split('|').filter((_,idx,arr)=>idx>0&&idx<arr.length-1);
-      const tag=i===0?'th':'td';
-      html+='<tr>'+cells.map(c=>`<${tag} style="border:1px solid var(--border);padding:5px 8px;text-align:left">${c.trim()}</${tag}>`).join('')+'</tr>';
+      const tag=isFirst?'th':'td';
+      const bg=isFirst?'background:var(--bg3);':'';
+      html+='<tr>'+cells.map(c=>`<${tag} style="border:1px solid var(--border);padding:5px 8px;text-align:left;${bg}">${c.trim()}</${tag}>`).join('')+'</tr>';
+      isFirst=false;
     });
     return html+'</table>';
   });
-  // 제목 ### ## #
-  t=t.replace(/^### (.+)$/gm,'<div style="font-size:13px;font-weight:700;color:var(--accent2);margin:10px 0 4px">$1</div>');
-  t=t.replace(/^## (.+)$/gm,'<div style="font-size:14px;font-weight:700;color:var(--text);margin:12px 0 4px;border-bottom:1px solid var(--border);padding-bottom:4px">$1</div>');
+
+  // 4. 제목
+  t=t.replace(/^### (.+)$/gm,'<div style="font-size:13px;font-weight:700;color:var(--accent2);margin:10px 0 3px">$1</div>');
+  t=t.replace(/^## (.+)$/gm,'<div style="font-size:14px;font-weight:700;color:var(--text);margin:12px 0 4px;border-bottom:1px solid var(--border);padding-bottom:3px">$1</div>');
   t=t.replace(/^# (.+)$/gm,'<div style="font-size:15px;font-weight:700;color:var(--text);margin:12px 0 6px">$1</div>');
-  // 코드블록 ```
-  t=t.replace(/```[\w]*\n?([\s\S]*?)```/g,'<pre style="background:var(--bg3);border-radius:6px;padding:10px;font-size:12px;overflow-x:auto;margin:6px 0;white-space:pre-wrap">$1</pre>');
-  // 인라인 코드 `code`
-  t=t.replace(/`([^`]+)`/g,'<code style="background:var(--bg3);border-radius:3px;padding:1px 5px;font-size:12px;font-family:monospace">$1</code>');
-  // bold+italic ***
+
+  // 5. 인라인 서식
   t=t.replace(/\*\*\*(.+?)\*\*\*/g,'<strong><em>$1</em></strong>');
-  // bold **
   t=t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
-  // italic *
   t=t.replace(/\*(.+?)\*/g,'<em>$1</em>');
-  // 취소선 ~~
   t=t.replace(/~~(.+?)~~/g,'<span style="text-decoration:line-through;color:var(--text3)">$1</span>');
-  // 리스트 - / * / 숫자.
-  t=t.replace(/^(\d+)\. (.+)$/gm,'<div style="display:flex;gap:6px;margin:3px 0;padding-left:4px"><span style="color:var(--text3);flex-shrink:0">$1.</span><span>$2</span></div>');
-  t=t.replace(/^[-*] (.+)$/gm,'<div style="display:flex;gap:6px;margin:3px 0;padding-left:4px"><span style="color:var(--accent2);flex-shrink:0">•</span><span>$1</span></div>');
-  // 구분선 ---
+
+  // 6. 리스트
+  t=t.replace(/^(\d+)\. (.+)$/gm,'<div style="display:flex;gap:6px;margin:2px 0;padding-left:4px"><span style="color:var(--text3);flex-shrink:0;min-width:16px">$1.</span><span>$2</span></div>');
+  t=t.replace(/^[-*] (.+)$/gm,'<div style="display:flex;gap:6px;margin:2px 0;padding-left:4px"><span style="color:var(--accent2);flex-shrink:0">•</span><span>$1</span></div>');
+
+  // 7. 구분선
   t=t.replace(/^---+$/gm,'<hr style="border:none;border-top:1px solid var(--border);margin:8px 0">');
-  // 기존 특수 패턴
+
+  // 8. 특수 패턴
   t=t.replace(/【([^】]+)】/g,'<strong style="color:#60a5fa">【$1】</strong>');
   t=t.replace(/✅ ?정답/g,'<span style="color:#22c55e;font-weight:700">✅ 정답</span>');
   t=t.replace(/❌ ?오답/g,'<span style="color:#ef4444">❌ 오답</span>');
-  // URL 링크
-  t=t.replace(/(https?:\/\/[^\s&lt;]+)/g,'<a href="$1" target="_blank" rel="noopener" style="color:var(--accent2);text-decoration:underline;word-break:break-all">$1</a>');
-  // 줄바꿈
+
+  // 9. URL 링크 (이스케이프 후라 &amp; 포함)
+  t=t.replace(/(https?:\/\/[^\s<"]+)/g,'<a href="$1" target="_blank" rel="noopener" style="color:var(--accent2);text-decoration:underline;word-break:break-all">$1</a>');
+
+  // 10. 코드블록 복원
+  t=t.replace(/\x00CODE(\d+)\x00/g,(_,i)=>`<pre style="background:var(--bg3);border-radius:6px;padding:10px;font-size:12px;overflow-x:auto;margin:6px 0;white-space:pre-wrap">${escHtml(codeBlocks[i])}</pre>`);
+  t=t.replace(/\x00ICODE(\d+)\x00/g,(_,i)=>`<code style="background:var(--bg3);border-radius:3px;padding:1px 5px;font-size:12px;font-family:monospace">${escHtml(inlineCodes[i])}</code>`);
+
+  // 11. 줄바꿈 (블록 태그 사이는 제외)
   t=t.replace(/\n/g,'<br>');
   return t;
 }
