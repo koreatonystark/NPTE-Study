@@ -13,6 +13,8 @@
 <title>NPTE-PT Study</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+/* 이모지 컬러 강제 */
+.explain-text *,.expl-body *{font-variant-emoji:emoji;}
 :root{
   --bg:#0f172a;--bg2:#1e293b;--bg3:#334155;
   --accent:#3b82f6;--accent2:#60a5fa;
@@ -1082,7 +1084,7 @@ function renderExpl(text){
       var lvl=hm[1].length;
       var sz=['18px','16px','15px','14px'][lvl-1]||'14px';
       var mt=lvl===1?'16px':'12px';
-      out.push('<div style="font-size:'+sz+';font-weight:700;color:var(--accent2);margin:'+mt+' 0 6px">'+inline(hm[2])+'</div>');return;
+      out.push('<div style="font-size:'+sz+';font-weight:700;color:var(--accent2);margin:'+mt+' 0 6px;font-variant-emoji:emoji">'+inline(hm[2])+'</div>');return;
     }
 
     var qm=trimmed.match(/^>\s*(.*)/);
