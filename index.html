@@ -2069,53 +2069,64 @@ function closeAnalytics(){
 function renderAnalytics(){
   const body=document.getElementById('analytics-body');
   const allCats=[...new Set(ALL_QS.map(q=>q.cat).filter(Boolean))];
+  const pctColor=p=>p>=70?'#22c55e':'#ef4444';
+  const barColor=p=>p>=70?'rgba(34,197,94,.35)':'rgba(239,68,68,.35)';
+  const barFill=p=>p>=70?'#22c55e':'#ef4444';
   let html='';
+
   NPTE_DOMAINS.forEach(domain=>{
     const domCats=allCats.filter(cat=>domainMatch(cat,domain));
     const domQs=ALL_QS.filter(q=>domainMatch(q.cat,domain));
     const domCor=domQs.filter(q=>store.done[q.id]===true).length;
     const domDone=domQs.filter(q=>store.done[q.id]!==undefined).length;
-    const domPct=domDone?Math.round(domCor/domDone*100):0;
-    const domBar=domQs.length?domCor/domQs.length*100:0;
-    const domCol=domPct>=70?'#22c55e':domPct>=50?'#f59e0b':'#ef4444';
+    const domPct=domDone?Math.round(domCor/domDone*100):null;
+    const domBarW=domDone?domCor/domDone*100:0;
     const domId='domain-'+domain.name.replace(/[^a-z0-9]/gi,'_');
-    html+=`
-    <div style="margin-bottom:14px">
-      <div onclick="toggleAnalyticsCat('${domId}')" style="cursor:pointer">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-          <div style="flex:1;font-size:15px;font-weight:700;color:var(--text)">${escHtml(domain.name)}</div>
-          <div style="font-size:14px;font-weight:700;color:${domCol};flex-shrink:0">${domDone?domPct+'%':'—'}</div>
-          <span id="arr-${domain.name.replace(/[^a-z0-9]/gi,'_')}" style="color:var(--text3);font-size:13px;flex-shrink:0">▾</span>
-        </div>
-        <div style="background:var(--bg3);border-radius:4px;height:10px;overflow:hidden">
-          <div style="height:100%;background:${domCol};width:${domBar}%;transition:width .4s"></div>
-        </div>
+
+    // 하위 cat이 1개이고 domain명과 실질적으로 같은 경우 → 드릴다운 없음
+    const hasSub=domCats.length>1||(domCats.length===1&&!domainMatch(domCats[0],{...domain,key:domain.key}));
+    // Musculoskeletal처럼 cat이 1개만 있는 도메인은 드릴다운 숨김
+    const showSub=domCats.length>1;
+
+    html+=`<div style="margin-bottom:18px">`;
+
+    // 상위 도메인 행
+    html+=`<div onclick="${showSub?`toggleAnalyticsCat('${domId}')`:''}"
+      style="display:flex;align-items:center;gap:10px;${showSub?'cursor:pointer':''}">
+      <div style="font-size:14px;font-weight:700;color:var(--text);flex-shrink:0;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px">${escHtml(domain.name)}</div>
+      <div style="flex:1;background:${domPct!==null?barColor(domPct):'var(--bg3)'};border-radius:4px;height:10px;overflow:hidden">
+        <div style="height:100%;background:${domPct!==null?barFill(domPct):'transparent'};width:${domBarW}%;transition:width .4s"></div>
       </div>
-      <div id="${domId}" style="display:none;margin-top:10px;padding-left:10px;border-left:2px solid var(--border)">
-        ${domCats.map(cat=>{
-          const qs=ALL_QS.filter(q=>q.cat===cat);
-          const cor=qs.filter(q=>store.done[q.id]===true).length;
-          const done=qs.filter(q=>store.done[q.id]!==undefined).length;
-          const pct=done?Math.round(cor/done*100):0;
-          const barW=qs.length?cor/qs.length*100:0;
-          const col=pct>=70?'#22c55e':pct>=50?'#f59e0b':'#ef4444';
-          const key=encodeURIComponent(cat);
-          return `
-          <div onclick="event.stopPropagation();openAnalyticsModal('${key}')"
-            style="margin-bottom:10px;cursor:pointer">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
-              <div style="flex:1;font-size:12px;color:var(--text2);word-break:break-word">${escHtml(cat)}</div>
-              <div style="font-size:13px;font-weight:700;color:${col};flex-shrink:0">${done?pct+'%':'—'}</div>
-              <span style="font-size:11px;color:var(--accent2);flex-shrink:0">▶</span>
-            </div>
-            <div style="background:var(--bg3);border-radius:3px;height:6px;overflow:hidden">
-              <div style="height:100%;background:${col};width:${barW}%;transition:width .4s"></div>
-            </div>
-          </div>`;
-        }).join('')||'<div style="font-size:12px;color:var(--text3);padding:4px 0">문제 없음</div>'}
-      </div>
+      <div style="font-size:13px;font-weight:700;color:${domPct!==null?pctColor(domPct):'var(--text3)'};flex-shrink:0;width:36px;text-align:right">${domPct!==null?domPct+'%':'—'}</div>
+      ${showSub?`<span id="arr-${domain.name.replace(/[^a-z0-9]/gi,'_')}" style="color:var(--text3);font-size:12px;flex-shrink:0">▾</span>`:''}
     </div>`;
+
+    // 하위 카테고리 (showSub인 경우만)
+    if(showSub){
+      html+=`<div id="${domId}" style="display:none;margin-top:8px">`;
+      domCats.forEach(cat=>{
+        const qs=ALL_QS.filter(q=>q.cat===cat);
+        const cor=qs.filter(q=>store.done[q.id]===true).length;
+        const done=qs.filter(q=>store.done[q.id]!==undefined).length;
+        const pct=done?Math.round(cor/done*100):null;
+        const barW=done?cor/done*100:0;
+        const key=encodeURIComponent(cat);
+        html+=`<div onclick="event.stopPropagation();openAnalyticsModal('${key}')"
+          style="display:flex;align-items:center;gap:8px;margin-bottom:7px;padding-left:12px;cursor:pointer">
+          <div style="font-size:12px;color:var(--text3);flex-shrink:0;max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(cat)}</div>
+          <div style="flex:1;background:rgba(51,65,85,.7);border-radius:3px;height:7px;overflow:hidden">
+            <div style="height:100%;background:${pct!==null?(pct>=70?'rgba(34,197,94,.6)':'rgba(239,68,68,.6)'):'transparent'};width:${barW}%;transition:width .4s"></div>
+          </div>
+          <div style="font-size:12px;font-weight:600;color:${pct!==null?pctColor(pct):'var(--text3)'};flex-shrink:0;width:32px;text-align:right">${pct!==null?pct+'%':'—'}</div>
+          <span style="font-size:10px;color:var(--text3);flex-shrink:0">▶</span>
+        </div>`;
+      });
+      html+=`</div>`;
+    }
+
+    html+=`</div>`;
   });
+
   body.innerHTML=html||'<div style="color:var(--text3);font-size:14px">풀이 기록이 없습니다.</div>';
 }
 
