@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="NPTE Study">
@@ -22,11 +22,9 @@
   --text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;
   --border:#334155;--radius:12px;--radius-sm:8px;
 }
-html,body{height:100%;height:100dvh;background:var(--bg);color:var(--text);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden;
-  padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
-#app{height:100%;height:100dvh;display:flex;flex-direction:column;
-  padding-bottom:env(safe-area-inset-bottom)}
+html,body{height:100%;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden}
+#app{height:100%;display:flex;flex-direction:column}
 .screen{display:none;flex:1;flex-direction:column;overflow:hidden}
 .screen.active{display:flex}
 .home-header{padding:20px 18px 14px;background:linear-gradient(160deg,#0f172a,#1a2f50);flex-shrink:0}
@@ -36,7 +34,7 @@ html,body{height:100%;height:100dvh;background:var(--bg);color:var(--text);
 .stat-pill{background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);
   border-radius:20px;padding:3px 10px;font-size:11px;color:var(--accent2)}
 .stat-pill.btn{cursor:pointer}
-.filter-section{padding:0 16px 16px;overflow-y:auto;flex:1}
+.filter-section{padding:0 16px 16px;overflow-y:auto;overflow-x:hidden;flex:1;box-sizing:border-box;width:100%}
 .filter-label{font-size:10px;font-weight:700;color:var(--text3);
   letter-spacing:.09em;text-transform:uppercase;margin:15px 0 8px}
 .mode-tabs{display:flex;gap:6px;margin-top:13px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
@@ -44,9 +42,10 @@ html,body{height:100%;height:100dvh;background:var(--bg);color:var(--text);
 .mode-tab{flex:0 0 auto;padding:7px 14px;border:1px solid var(--border);border-radius:20px;
   background:var(--bg2);color:var(--text2);font-size:12px;cursor:pointer;white-space:nowrap;transition:all .15s}
 .mode-tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
-.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
 .cat-btn{background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;
-  padding:14px 12px;cursor:pointer;transition:all .15s;text-align:left;position:relative}
+  padding:14px 12px;cursor:pointer;transition:all .15s;text-align:left;position:relative;
+  min-width:0;overflow:hidden}
 .cat-btn.selected{border-color:var(--accent);background:rgba(59,130,246,.12)}
 .cat-btn .em{font-size:22px;display:block;margin-bottom:5px}
 .cat-btn .nm{font-size:15px;font-weight:600;color:var(--text);line-height:1.4;word-break:keep-all}
@@ -55,6 +54,33 @@ html,body{height:100%;height:100dvh;background:var(--bg);color:var(--text);
   background:var(--accent);display:none;align-items:center;justify-content:center;font-size:10px;color:#fff}
 .cat-btn.selected .ck{display:flex}
 .chip-wrap{display:flex;flex-wrap:wrap;gap:6px}
+/* Analytics */
+.an-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.an-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 8px;text-align:center}
+.an-card .val{font-size:22px;font-weight:700;color:var(--accent2)}
+.an-card .lbl{font-size:10px;color:var(--text3);margin-top:3px;letter-spacing:.05em}
+.an-bar-row{margin-bottom:10px;cursor:pointer;border-radius:10px;padding:10px 12px;
+  background:var(--bg2);border:1px solid var(--border);transition:border-color .15s}
+.an-bar-row:active{border-color:var(--accent)}
+.an-bar-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.an-bar-name{font-size:13px;font-weight:600;color:var(--text)}
+.an-bar-stat{font-size:11px;color:var(--text3)}
+.an-bar-track{height:8px;background:var(--bg3);border-radius:4px;overflow:hidden}
+.an-bar-fill{height:100%;border-radius:4px;transition:width .4s}
+.an-back{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--accent2);
+  cursor:pointer;margin-bottom:14px;font-weight:600}
+.an-drill-title{font-size:15px;font-weight:700;margin-bottom:12px;color:var(--text)}
+.an-action-sheet{position:fixed;inset:0;z-index:170;background:rgba(0,0,0,.7);
+  display:flex;align-items:flex-end;justify-content:center}
+.an-action-box{background:var(--bg2);border-radius:16px 16px 0 0;padding:20px 16px 32px;
+  width:100%;max-width:480px}
+.an-action-title{font-size:14px;font-weight:700;margin-bottom:4px;color:var(--text)}
+.an-action-sub{font-size:12px;color:var(--text3);margin-bottom:16px}
+.an-action-btn{width:100%;padding:14px;border:none;border-radius:10px;font-size:14px;
+  font-weight:600;cursor:pointer;margin-bottom:8px;text-align:left;display:flex;
+  align-items:center;gap:10px}
+.an-action-cancel{background:var(--bg3);color:var(--text2)}
+.an-empty{text-align:center;padding:32px 16px;color:var(--text3);font-size:13px}
 .chip{padding:6px 12px;border:1px solid var(--border);border-radius:20px;background:var(--bg2);
   color:var(--text2);font-size:12px;cursor:pointer;transition:all .15s;white-space:nowrap}
 .chip.selected{border-color:var(--accent);background:rgba(59,130,246,.15);color:var(--accent2)}
@@ -335,34 +361,33 @@ html,body{height:100%;height:100dvh;background:var(--bg);color:var(--text);
   <div class="filter-section">
     <!-- ── 다른 앱 런처 ── -->
     <div class="filter-label">Study Tools</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px">
-      <a href="english.html" style="text-decoration:none">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:4px;width:100%">
+      <a href="english.html" style="text-decoration:none;min-width:0">
         <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;
-          padding:12px 14px;cursor:pointer;transition:all .15s;
-          display:flex;align-items:center;gap:10px"
-          onmouseover="this.style.borderColor='var(--accent)'"
-          onmouseout="this.style.borderColor='var(--border)'">
-          <span style="font-size:22px">📝</span>
-          <div style="font-size:14px;font-weight:700;color:var(--text)">English Mastery</div>
+          padding:12px 6px;cursor:pointer;transition:all .15s;text-align:center">
+          <div style="font-size:22px;margin-bottom:5px">📝</div>
+          <div style="font-size:11px;font-weight:700;color:var(--text);line-height:1.3">English<br>Mastery</div>
         </div>
       </a>
-      <a href="chart.html" style="text-decoration:none">
+      <a href="chart.html" style="text-decoration:none;min-width:0">
         <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;
-          padding:12px 14px;cursor:pointer;transition:all .15s;
-          display:flex;align-items:center;gap:10px"
-          onmouseover="this.style.borderColor='var(--accent)'"
-          onmouseout="this.style.borderColor='var(--border)'">
-          <span style="font-size:22px">📊</span>
-          <div style="font-size:14px;font-weight:700;color:var(--text)">Chart Reading</div>
+          padding:12px 6px;cursor:pointer;transition:all .15s;text-align:center">
+          <div style="font-size:22px;margin-bottom:5px">📊</div>
+          <div style="font-size:11px;font-weight:700;color:var(--text);line-height:1.3">Chart<br>Reading</div>
         </div>
       </a>
+      <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;
+        padding:12px 6px;cursor:pointer;transition:all .15s;text-align:center;min-width:0"
+        onclick="openAnalytics()">
+        <div style="font-size:22px;margin-bottom:5px">📈</div>
+        <div style="font-size:11px;font-weight:700;color:var(--text);line-height:1.3">Score<br>Analytics</div>
+      </div>
     </div>
     <div class="filter-label">Mode</div>
     <div class="mode-tabs">
       <div class="mode-tab active" data-mode="cat" onclick="setMode('cat')">Category</div>
       <div class="mode-tab" data-mode="year" onclick="setMode('year')">Year</div>
       <div class="mode-tab" data-mode="src"  onclick="setMode('src')">Version</div>
-      <div class="mode-tab" data-mode="dup"  onclick="setMode('dup')">🔁 Dup <span id="dup-count" style="font-size:11px;opacity:.8"></span></div>
       <div class="mode-tab" data-mode="bm"   onclick="setMode('bm')">⭐ Bookmark</div>
       <div class="mode-tab" data-mode="wr"   onclick="setMode('wr')">❌ Wrong <span id="wr-count" style="font-size:11px;opacity:.8"></span></div>
       <div class="mode-tab" data-mode="skip" onclick="openSkipScreen()">⏭ Skipped</div>
@@ -381,12 +406,7 @@ html,body{height:100%;height:100dvh;background:var(--bg);color:var(--text);
     </div>
     <div id="mode-bm" style="display:none"><div id="bm-list" style="margin-top:8px"></div></div>
     <div id="mode-wr" style="display:none"><div id="wr-list" style="margin-top:8px"></div></div>
-    <div id="mode-dup" style="display:none">
-      <div style="margin-top:12px;padding:13px 15px;background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.3);border-radius:10px;font-size:13px;color:var(--warn);line-height:1.8">
-        🔁 <strong>반복 출제 문제 모음</strong><br>
-        <span style="font-size:12px;color:var(--text3)">여러 시험 버전에서 중복 출제된 핵심 문제들입니다.<br>각 그룹에서 대표 문제 1개로 풀이합니다.</span>
-      </div>
-    </div>
+
     <div id="mode-opts">
       <div class="filter-label">Order</div>
       <div class="chip-wrap">
@@ -437,27 +457,12 @@ html,body{height:100%;height:100dvh;background:var(--bg);color:var(--text);
       <div id="expl-media-img" style="display:none;margin-bottom:10px;border-radius:8px;overflow:hidden;background:var(--bg3);cursor:zoom-in">
         <img id="expl-media-img-el" src="" alt="" style="width:100%;height:auto;display:block">
       </div>
-      <div id="expl-media-vid" style="display:none;margin-bottom:10px;border-radius:10px;overflow:hidden;background:var(--bg3)">
-        <!-- 썸네일 (탭하면 인앱 iframe으로 교체) -->
-        <div id="expl-vid-thumb" style="position:relative;cursor:pointer" onclick="playVidInline()">
-          <img id="expl-vid-thumb-img" src="" alt="영상 재생" style="width:100%;display:block;border-radius:10px">
-          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;border-radius:10px;background:rgba(0,0,0,.35)">
-            <div style="width:56px;height:56px;border-radius:50%;background:rgba(255,0,0,.85);display:flex;align-items:center;justify-content:center">
-              <span style="font-size:22px;margin-left:4px">▶</span>
-            </div>
-          </div>
-        </div>
-        <!-- 인앱 iframe (처음엔 숨김) -->
-        <div id="expl-vid-iframe-wrap" style="display:none;position:relative;padding-bottom:56.25%;height:0">
-          <iframe id="expl-vid-iframe" src="" allowfullscreen
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            style="position:absolute;top:0;left:0;width:100%;height:100%;border:none"></iframe>
-        </div>
-        <!-- 외부 링크 (iframe 불가 시 fallback) -->
-        <a id="expl-vid-link" href="" target="_blank" rel="noopener"
-          style="display:none;align-items:center;justify-content:center;gap:8px;
-          padding:14px;background:#1a1a2e;color:#ff4444;font-size:14px;font-weight:600;text-decoration:none">
-          ▶ YouTube 앱에서 열기
+      <div id="expl-media-vid" style="display:none;margin-bottom:10px">
+        <a id="expl-media-vid-link" href="" target="_blank" rel="noopener"
+          style="display:flex;align-items:center;justify-content:center;gap:10px;
+          padding:16px;background:#1a1a2e;border:1px solid #ff0000;border-radius:8px;
+          color:#ff4444;font-size:15px;font-weight:600;text-decoration:none">
+          ▶ YouTube에서 영상 보기
         </a>
       </div>
       <div class="explain-text" id="explain-text"></div>
@@ -535,20 +540,12 @@ html,body{height:100%;height:100dvh;background:var(--bg);color:var(--text);
 
 
     <!-- 영상 영역 -->
-    <div id="expl-vid-wrap" style="display:none;margin-bottom:16px;border-radius:10px;overflow:hidden;background:var(--bg3)">
-      <div id="expl-ov-thumb" style="position:relative;cursor:pointer" onclick="playOvVidInline()">
-        <img id="expl-ov-thumb-img" src="" alt="영상 재생" style="width:100%;display:block">
-        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35)">
-          <div style="width:56px;height:56px;border-radius:50%;background:rgba(255,0,0,.85);display:flex;align-items:center;justify-content:center">
-            <span style="font-size:22px;margin-left:4px">▶</span>
-          </div>
-        </div>
-      </div>
-      <div id="expl-ov-iframe-wrap" style="display:none;position:relative;padding-bottom:56.25%;height:0">
-        <iframe id="expl-vid" src="" allowfullscreen
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          style="position:absolute;top:0;left:0;width:100%;height:100%;border:none"></iframe>
-      </div>
+    <div id="expl-vid-wrap" style="display:none;margin-bottom:16px;
+      position:relative;padding-bottom:56.25%;height:0;
+      border-radius:10px;overflow:hidden;background:var(--bg3)">
+      <iframe id="expl-vid" src="" allowfullscreen
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        style="position:absolute;top:0;left:0;width:100%;height:100%;border:none"></iframe>
     </div>
 
     <!-- 해설 텍스트 영역 -->
@@ -647,6 +644,50 @@ html,body{height:100%;height:100dvh;background:var(--bg);color:var(--text);
     background:rgba(255,255,255,.05);border-left:2px solid #4f8ef7;
     padding:6px 9px;border-radius:3px;line-height:1.5;margin-top:8px;
     color:#8fa4c8"></div>
+</div>
+
+<!-- Analytics 오버레이 -->
+<div id="analytics-overlay" style="display:none;position:fixed;inset:0;z-index:150;
+  background:var(--bg);flex-direction:column;overflow:hidden">
+  <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;
+    background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0">
+    <button onclick="closeAnalytics()" style="background:none;border:none;color:var(--text2);
+      font-size:20px;cursor:pointer;padding:0;line-height:1">←</button>
+    <div style="font-size:17px;font-weight:700">📈 Score Analytics</div>
+  </div>
+  <div id="analytics-body" style="flex:1;overflow-y:auto;padding:16px"></div>
+</div>
+
+<!-- 문제풀기 선택 모달 (Analytics 드릴다운용) -->
+<div id="analytics-start-modal" style="display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;
+    padding:24px 20px;width:100%;max-width:320px">
+    <div id="analytics-modal-title" style="font-size:16px;font-weight:700;margin-bottom:4px"></div>
+    <div id="analytics-modal-stat" style="font-size:13px;color:var(--text3);margin-bottom:20px"></div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button onclick="analyticsStartQuiz('wrong')"
+        style="padding:13px;border:none;border-radius:10px;background:rgba(239,68,68,.15);
+        border:1px solid rgba(239,68,68,.4);color:#ef4444;font-size:14px;font-weight:600;cursor:pointer">
+        ❌ 틀린 문제만
+      </button>
+      <button onclick="analyticsStartQuiz('unseen')"
+        style="padding:13px;border:none;border-radius:10px;background:rgba(251,191,36,.1);
+        border:1px solid rgba(251,191,36,.4);color:#f59e0b;font-size:14px;font-weight:600;cursor:pointer">
+        ○ 안 푼 문제만
+      </button>
+      <button onclick="analyticsStartQuiz('all')"
+        style="padding:13px;border:none;border-radius:10px;background:rgba(59,130,246,.15);
+        border:1px solid rgba(59,130,246,.4);color:var(--accent2);font-size:14px;font-weight:600;cursor:pointer">
+        🔄 전체 다시 풀기
+      </button>
+      <button onclick="closeAnalyticsModal()"
+        style="padding:11px;border:none;border-radius:10px;background:var(--bg3);
+        color:var(--text3);font-size:13px;cursor:pointer;margin-top:4px">
+        취소
+      </button>
+    </div>
+  </div>
 </div>
 
 <!-- 이미지 확대 오버레이 (핀치줌 지원) — body 최상위 -->
@@ -970,8 +1011,104 @@ function renderStem(text){
   }
   return result;
 }
-function escHtml(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function escAttr(t){return t.replace(/'/g,'&#39;');}
+function escHtml(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function escAttr(t){return String(t).replace(/'/g,'&#39;');}
+function renderExpl(text){
+  var lines=text.split('\n');
+  var out=[];
+  var tbl=[];
+  var inTable=false;
+  var inList=false;
+
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+  function inline(s){
+    s=esc(s);
+    s=s.replace(/\*\*\*([^*]+)\*\*\*/g,'<strong><em>$1</em></strong>');
+    s=s.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+    s=s.replace(/\*([^*]+)\*/g,'<em>$1</em>');
+    s=s.replace(/~~([^~]+)~~/g,'<span style="text-decoration:line-through;color:var(--text3)">$1</span>');
+    s=s.replace(/`([^`]+)`/g,'<code style="background:rgba(255,255,255,.1);padding:1px 5px;border-radius:4px;font-size:.92em">$1</code>');
+    s=s.replace(/【([^】]+)】/g,'<strong style="color:#60a5fa">【$1】</strong>');
+    s=s.replace(/✅ ?정답/g,'<span style="color:#22c55e;font-weight:700">✅ 정답</span>');
+    s=s.replace(/❌ ?오답/g,'<span style="color:#ef4444">❌ 오답</span>');
+    s=s.replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener" style="color:var(--accent2);text-decoration:underline;word-break:break-all">$1</a>');
+    return s;
+  }
+
+  function flushTable(){
+    if(!tbl.length)return;
+    var html='<div style="overflow-x:auto;margin:10px 0"><table style="border-collapse:collapse;width:100%;font-size:14px;line-height:1.6">';
+    var dataRows=tbl.filter(function(r){return !/^\|[\s\-\|:]+\|$/.test(r.replace(/\s/g,''));});
+    dataRows.forEach(function(row,ri){
+      var cells=row.split('|').slice(1,-1);
+      var tag=ri===0?'th':'td';
+      var altBg=ri>0&&ri%2===0?'background:rgba(255,255,255,.03)':'';
+      html+='<tr style="border-bottom:1px solid var(--border);'+altBg+'">';
+      cells.forEach(function(c){
+        html+='<'+tag+' style="padding:7px 10px;text-align:left;'+
+          (ri===0?'font-weight:700;color:var(--accent2);border-bottom:2px solid rgba(59,130,246,.6)':'color:var(--text)')+
+          '">'+inline(c.trim())+'</'+tag+'>';
+      });
+      html+='</tr>';
+    });
+    html+='</table></div>';
+    out.push(html);
+    tbl=[];inTable=false;
+  }
+
+  function flushList(){
+    if(!inList)return;
+    out.push('</ul>');
+    inList=false;
+  }
+
+  lines.forEach(function(line){
+    var trimmed=line.trim();
+
+    if(trimmed.startsWith('|')&&trimmed.endsWith('|')){
+      flushList();inTable=true;tbl.push(trimmed);return;
+    }
+    if(inTable){flushTable();}
+
+    if(/^-{3,}$/.test(trimmed)){
+      flushList();
+      out.push('<hr style="border:none;border-top:1px solid var(--border);margin:10px 0">');return;
+    }
+
+    var hm=trimmed.match(/^(#{1,4})\s+(.+)/);
+    if(hm){
+      flushList();
+      var lvl=hm[1].length;
+      var sz=['18px','16px','15px','14px'][lvl-1]||'14px';
+      var mt=lvl===1?'16px':'12px';
+      out.push('<div style="font-size:'+sz+';font-weight:700;color:var(--accent2);margin:'+mt+' 0 6px">'+inline(hm[2])+'</div>');return;
+    }
+
+    var qm=trimmed.match(/^>\s*(.*)/);
+    if(qm){
+      flushList();
+      out.push('<div style="border-left:3px solid var(--accent);padding:6px 12px;margin:6px 0;background:rgba(59,130,246,.08);border-radius:0 6px 6px 0;font-size:14px;color:var(--text2)">'+inline(qm[1])+'</div>');return;
+    }
+
+    var lm=trimmed.match(/^[-*]\s+(.+)/);
+    if(lm){
+      if(!inList){out.push('<ul style="margin:6px 0 6px 16px;padding:0;list-style:disc">');inList=true;}
+      out.push('<li style="margin:3px 0;font-size:15px;line-height:1.7;color:var(--text)">'+inline(lm[1])+'</li>');return;
+    }
+
+    if(!trimmed){flushList();out.push('<br>');return;}
+
+    flushList();
+    out.push('<div style="font-size:15px;line-height:1.8;color:var(--text);margin:2px 0">'+inline(trimmed)+'</div>');
+  });
+
+  flushTable();flushList();
+  return out.join('');
+}
+// renderMd는 renderExpl의 alias
+function renderMd(text){return renderExpl(text||'');}
+function inlineFmt(t){return t;}
 function showVocab(e,word){
   e.stopPropagation();
   const entry=VOCAB.find(v=>v.word===word);
@@ -1266,17 +1403,6 @@ function getFiltered(){
   let qs;
   if(mode==='bm')qs=ALL_QS.filter(q=>store.bm.has(q.id)&&!store.skip.has(q.id));
   else if(mode==='wr')qs=ALL_QS.filter(q=>store.wrongs.has(q.id)&&!store.skip.has(q.id));
-  else if(mode==='dup'){
-    // 중복 그룹별 대표 1개 추출 (stem 앞 80자 기준, src 알파벳 순 첫 번째)
-    const seen=new Set();
-    qs=[];
-    ALL_QS.filter(q=>q.dupInfo&&q.dupInfo.length&&!store.skip.has(q.id))
-      .sort((a,b)=>a.src.localeCompare(b.src)||a.qnum-b.qnum)
-      .forEach(q=>{
-        const key=q.stem.trim().substring(0,80);
-        if(!seen.has(key)){seen.add(key);qs.push(q);}
-      });
-  }
   else{
     qs=ALL_QS.filter(q=>!store.skip.has(q.id));
     if(mode==='cat'&&selCats.size)qs=qs.filter(q=>selCats.has(q.cat));
@@ -1296,8 +1422,8 @@ function getFiltered(){
 function setMode(m){
   mode=m;
   document.querySelectorAll('.mode-tab').forEach(t=>t.classList.toggle('active',t.dataset.mode===m));
-  ['cat','year','src','bm','wr','dup'].forEach(id=>document.getElementById('mode-'+id).style.display=(id===m)?'':'none');
-  document.getElementById('mode-opts').style.display=['cat','year','src','dup'].includes(m)?'':'none';
+  ['cat','year','src','bm','wr'].forEach(id=>document.getElementById('mode-'+id).style.display=(id===m)?'':'none');
+  document.getElementById('mode-opts').style.display=['cat','year','src'].includes(m)?'':'none';
   const wrCount=document.getElementById('wr-count');
   if(wrCount)wrCount.textContent=store.wrongs.size?'('+store.wrongs.size+')':'';
   if(m==='bm')renderModeList('bm');
@@ -1368,7 +1494,7 @@ function toggleMlItem(m,id){
       +'</div>';
     }).join('');
     var explContent=q.expl_text||'(해설 없음)';
-    var explBtn='<div id="bmexpl-'+id+'" style="display:none;margin-top:10px;padding:12px;background:var(--bg3);border-radius:8px;font-size:14px;line-height:1.7;color:var(--text)">'+renderExpl(explContent)+'</div>'
+    var explBtn='<div id="bmexpl-'+id+'" style="display:none;margin-top:10px;padding:12px;background:var(--bg3);border-radius:8px;font-size:14px;line-height:1.7;color:var(--text)">'+escHtml(explContent)+'</div>'
       +'<button data-eid="'+id+'" onclick="toggleBmExpl(this);event.stopPropagation()" style="margin-top:10px;width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--accent2);font-size:13px;font-weight:600;cursor:pointer">📖 해설 보기</button>';
     body.innerHTML='<div style="font-size:15px;line-height:1.75;color:var(--text);margin-bottom:14px">'+escHtml(q.stem)+'</div>'+optsHtml+explBtn;
   }
@@ -1419,7 +1545,7 @@ function mlRemove(m,id){
   if(m==='bm')store.bm.delete(id);else store.wrongs.delete(id);
   saveStore();updateStats();renderModeList(m);updateBtn();
 }
-function updateBtn(){const qs=getFiltered(),n=sessCount===0?qs.length:Math.min(sessCount,qs.length);const btn=document.getElementById('btn-start');const selInfo=document.getElementById('sel-info');if(selInfo)selInfo.textContent=qs.length+' 문항 available · session: '+n;if(!qs.length){btn.disabled=true;btn.textContent=mode==='dup'?'중복 문항 없음':'문항 없음';return;}btn.disabled=false;btn.textContent='Start '+n+' Questions →';}
+function updateBtn(){const qs=getFiltered(),n=sessCount===0?qs.length:Math.min(sessCount,qs.length);const btn=document.getElementById('btn-start');document.getElementById('sel-info').textContent=qs.length+' 문항 available · session: '+n;if(!qs.length){btn.disabled=true;btn.textContent='문항 없음';return;}btn.disabled=false;btn.textContent='Start '+n+' Questions →';}
 function confirmReset(){
   document.getElementById('rst-bm-count').textContent=store.bm.size+'개 북마크';
   document.getElementById('rst-skip-count').textContent=store.skip.size+'개 Skip';
@@ -1447,27 +1573,11 @@ function updateStats(){
   document.getElementById('stat-bm').textContent=store.bm.size+' ⭐';
   const wrCount=document.getElementById('wr-count');
   if(wrCount)wrCount.textContent=store.wrongs.size?'('+store.wrongs.size+')':'';
-  const dupCount=document.getElementById('dup-count');
-  if(dupCount){
-    // 고유 중복 그룹 수 계산
-    const seen=new Set();
-    ALL_QS.filter(q=>q.dupInfo&&q.dupInfo.length).forEach(q=>seen.add(q.stem.trim().substring(0,80)));
-    dupCount.textContent=seen.size?'('+seen.size+')':'';
-  }
   if(mode==='bm')renderModeList('bm');
   if(mode==='wr')renderModeList('wr');
 }
 function startQuiz(){let qs=getFiltered();if(!qs.length)return;if(order==='rand')qs=[...qs].sort(()=>Math.random()-.5);const n=sessCount===0?qs.length:Math.min(sessCount,qs.length);sessQs=qs.slice(0,n);qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];seenQIds=new Set();sessStartTime=Date.now();sessionAnswers={};answered=false;translateOn=false;document.getElementById('btn-translate').classList.remove('active');document.getElementById('btn-translate').textContent='🌐 한국어';showScreen('quiz');showQ();}
-function showQ(){const q=sessQs[qIdx];answered=false;translateOn=false;trStem='';trOpts=[];document.getElementById('btn-translate').classList.remove('active');document.getElementById('btn-translate').textContent='🌐 한국어';document.getElementById('q-counter').textContent=(qIdx+1)+' / '+sessQs.length;document.getElementById('prog').style.width=(qIdx/sessQs.length*100)+'%';
-  // q-source: dup 모드이면 중복 버전 뱃지 함께 표시
-  const srcEl=document.getElementById('q-source');
-  const baseLabel='('+q.src+') Q'+q.qnum+' · '+q.cat+(q.sub?' / '+q.sub:'');
-  if(mode==='dup'&&q.dupInfo&&q.dupInfo.length){
-    const tags=q.dupInfo.map(d=>'<span style="background:rgba(251,191,36,.2);border:1px solid rgba(251,191,36,.4);border-radius:4px;padding:1px 6px;font-size:11px;color:var(--warn);margin-left:4px">'+escHtml(d)+'</span>').join('');
-    srcEl.innerHTML=escHtml(baseLabel)+' <span style="color:var(--warn)">🔁×'+(q.dupInfo.length+1)+'</span>'+tags;
-  } else {
-    srcEl.textContent=baseLabel;
-  }
+function showQ(){const q=sessQs[qIdx];answered=false;translateOn=false;trStem='';trOpts=[];document.getElementById('btn-translate').classList.remove('active');document.getElementById('btn-translate').textContent='🌐 한국어';document.getElementById('q-counter').textContent=(qIdx+1)+' / '+sessQs.length;document.getElementById('prog').style.width=(qIdx/sessQs.length*100)+'%';document.getElementById('q-source').textContent='('+q.src+') Q'+q.qnum+' · '+q.cat+(q.sub?' / '+q.sub:'');
     document.getElementById('q-stem').innerHTML=renderStem(q.stem);
     // 미디어 (이미지 or 영상)
     const med=document.getElementById('q-media');med.innerHTML='';med.className='q-media';
@@ -1510,26 +1620,6 @@ function gdImg(url){
   }
   return GCS_BASE+url;
 }
-function playOvVidInline(){
-  const ovThumb=document.getElementById('expl-ov-thumb');
-  const ovIframeWrap=document.getElementById('expl-ov-iframe-wrap');
-  const ovIframe=document.getElementById('expl-vid');
-  const src=ovIframe.dataset.src||'';
-  if(!src)return;
-  ovIframe.src=src;
-  ovThumb.style.display='none';
-  ovIframeWrap.style.display='block';
-}
-function playVidInline(){
-  const thumb=document.getElementById('expl-vid-thumb');
-  const iframeWrap=document.getElementById('expl-vid-iframe-wrap');
-  const iframe=document.getElementById('expl-vid-iframe');
-  const src=iframe.dataset.src||'';
-  if(!src)return;
-  iframe.src=src;
-  thumb.style.display='none';
-  iframeWrap.style.display='block';
-}
 function gdEmbed(url){let m=url.match(/youtu\.be\/([^?]+)/)||url.match(/youtube\.com\/watch\?v=([^&]+)/);if(m)return 'https://www.youtube-nocookie.com/embed/'+m[1]+'?playsinline=1&rel=0';m=url.match(/\/d\/([^/]+)/);if(m)return 'https://drive.google.com/file/d/'+m[1]+'/preview';return url;}
 function getYouTubeId(url){const m=url.match(/youtu\.be\/([^?&]+)/)||url.match(/youtube\.com\/(?:watch\?v=|shorts\/)([^?&]+)/);return m?m[1]:'';}
 function makeVideoIframe(src){const fr=document.createElement('iframe');fr.src=src;fr.allowFullscreen=true;fr.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';fr.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;border:none';return fr;}
@@ -1568,117 +1658,6 @@ function pick(chosen,correct,q){
     document.getElementById('quiz-body').appendChild(badge);
   }
 }
-/* ── 해설 텍스트 렌더러 (full markdown 지원) ── */
-function renderExpl(text){
-  // 줄 단위 처리
-  var lines=text.split('\n');
-  var out=[];
-  var tbl=[];
-  var inTable=false;
-  var inList=false;
-
-  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-
-  // 인라인 마크다운: bold, italic, code, 특수마커, URL
-  function inline(s){
-    s=esc(s);
-    // **bold**
-    s=s.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
-    // *italic*
-    s=s.replace(/\*([^*]+)\*/g,'<em>$1</em>');
-    // `code`
-    s=s.replace(/`([^`]+)`/g,'<code style="background:rgba(255,255,255,.1);padding:1px 5px;border-radius:4px;font-size:.92em">$1</code>');
-    // 특수 마커
-    s=s.replace(/【([^】]+)】/g,'<strong style="color:#60a5fa">【$1】</strong>');
-    s=s.replace(/✅ ?정답/g,'<span style="color:#22c55e;font-weight:700">✅ 정답</span>');
-    s=s.replace(/❌ ?오답/g,'<span style="color:#ef4444">❌ 오답</span>');
-    // URL
-    s=s.replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener" style="color:var(--accent2);text-decoration:underline;word-break:break-all">$1</a>');
-    return s;
-  }
-
-  function flushTable(){
-    if(!tbl.length)return;
-    var html='<div style="overflow-x:auto;margin:10px 0"><table style="border-collapse:collapse;width:100%;font-size:14px;line-height:1.6">';
-    var dataRows=tbl.filter(function(r){return !/^\|[\s\-\|:]+\|$/.test(r.replace(/\s/g,''));});
-    dataRows.forEach(function(row,ri){
-      var cells=row.split('|').slice(1,-1);
-      var tag=ri===0?'th':'td';
-      var altBg=ri>0&&ri%2===0?'background:rgba(255,255,255,.03)':'';
-      html+='<tr style="border-bottom:1px solid var(--border);'+altBg+'">';
-      cells.forEach(function(c){
-        html+='<'+tag+' style="padding:7px 10px;text-align:left;'+
-          (ri===0?'font-weight:700;color:var(--accent2);border-bottom:2px solid rgba(59,130,246,.6)':'color:var(--text)')+
-          '">'+inline(c.trim())+'</'+tag+'>';
-      });
-      html+='</tr>';
-    });
-    html+='</table></div>';
-    out.push(html);
-    tbl=[];inTable=false;
-  }
-
-  function flushList(){
-    if(!inList)return;
-    out.push('</ul>');
-    inList=false;
-  }
-
-  lines.forEach(function(line){
-    var trimmed=line.trim();
-
-    // 표
-    if(trimmed.startsWith('|')&&trimmed.endsWith('|')){
-      flushList();
-      inTable=true;tbl.push(trimmed);return;
-    }
-    if(inTable){flushTable();}
-
-    // 구분선 ---
-    if(/^-{3,}$/.test(trimmed)){
-      flushList();
-      out.push('<hr style="border:none;border-top:1px solid var(--border);margin:10px 0">');return;
-    }
-
-    // ### heading
-    var hm=trimmed.match(/^(#{1,4})\s+(.+)/);
-    if(hm){
-      flushList();
-      var lvl=hm[1].length;
-      var sz=['18px','16px','15px','14px'][lvl-1]||'14px';
-      var mt=lvl===1?'16px':'12px';
-      out.push('<div style="font-size:'+sz+';font-weight:700;color:var(--accent2);margin:'+mt+' 0 6px">'+inline(hm[2])+'</div>');return;
-    }
-
-    // > blockquote
-    var qm=trimmed.match(/^>\s*(.*)/);
-    if(qm){
-      flushList();
-      out.push('<div style="border-left:3px solid var(--accent);padding:6px 12px;margin:6px 0;background:rgba(59,130,246,.08);border-radius:0 6px 6px 0;font-size:14px;color:var(--text2)">'+inline(qm[1])+'</div>');return;
-    }
-
-    // - list item
-    var lm=trimmed.match(/^[-*]\s+(.+)/);
-    if(lm){
-      if(!inList){out.push('<ul style="margin:6px 0 6px 16px;padding:0;list-style:disc">');inList=true;}
-      out.push('<li style="margin:3px 0;font-size:15px;line-height:1.7;color:var(--text)">'+inline(lm[1])+'</li>');return;
-    }
-
-    // 빈 줄
-    if(!trimmed){
-      flushList();
-      out.push('<br>');return;
-    }
-
-    // 일반 텍스트
-    flushList();
-    out.push('<div style="font-size:15px;line-height:1.8;color:var(--text);margin:2px 0">'+inline(trimmed)+'</div>');
-  });
-
-  flushTable();
-  flushList();
-  return out.join('');
-}
 function showPostAnswer(q){
   document.getElementById('post-answer').className='post-answer show';
   const eb=document.getElementById('explain-btn');
@@ -1700,36 +1679,23 @@ function showPostAnswer(q){
     imgWrap.style.display='block';
     imgWrap.onclick=()=>toggleImgZoom(imgEl);
   }
-  // 영상 — 썸네일 탭 → 인앱 재생
+  // 영상 — 썸네일 + YouTube 링크
   if(q.vid_url){
     const vidId=getYouTubeId(q.vid_url);
-    const thumb=document.getElementById('expl-vid-thumb');
-    const thumbImg=document.getElementById('expl-vid-thumb-img');
-    const iframeWrap=document.getElementById('expl-vid-iframe-wrap');
-    const iframe=document.getElementById('expl-vid-iframe');
-    const fallback=document.getElementById('expl-vid-link');
-    // 초기화
-    thumb.style.display='block';
-    iframeWrap.style.display='none';
-    fallback.style.display='none';
-    iframe.src='';
-    iframe.dataset.src=''; // 재생 URL 저장
-    fallback.href=q.vid_url;
+    const linkEl=document.getElementById('expl-media-vid-link');
+    linkEl.href=q.vid_url;
     if(vidId){
-      thumbImg.src='https://img.youtube.com/vi/'+vidId+'/hqdefault.jpg';
-      iframe.dataset.src='https://www.youtube-nocookie.com/embed/'+vidId+'?autoplay=1&playsinline=1&rel=0';
+      linkEl.innerHTML='<img src="https://img.youtube.com/vi/'+vidId+'/hqdefault.jpg" alt="YouTube 영상 재생" style="width:100%;display:block;border-radius:6px"><div style="margin-top:8px;text-align:center;font-size:13px;color:#ff4444;font-weight:600">▶ YouTube에서 보기</div>';
+      linkEl.style.cssText='display:block;text-decoration:none;border:1px solid #333;border-radius:8px;overflow:hidden;padding:0';
     } else {
-      // YouTube 아닌 URL (Google Drive 등)
-      thumbImg.src='';
-      thumb.style.display='none';
-      iframeWrap.style.display='block';
-      iframe.src=gdEmbed(q.vid_url);
+      linkEl.innerHTML='▶ YouTube에서 영상 보기';
+      linkEl.style.cssText='display:flex;align-items:center;justify-content:center;gap:10px;padding:16px;background:#1a1a2e;border:1px solid #ff0000;border-radius:8px;color:#ff4444;font-size:15px;font-weight:600;text-decoration:none';
     }
     vidWrap.style.display='block';
   }
   // 텍스트 해설
   if(textContent){
-    et.innerHTML=renderExpl(textContent);
+    et.innerHTML=renderMd(textContent);
     et.className='explain-text show';
   }
 }
@@ -1756,29 +1722,15 @@ function openExplain(){
     document.getElementById('expl-img').src=gdImg(q.img_url);
     imgW.style.display='block';hasAny=true;
   }
-  // 영상 — 썸네일 탭 → 인앱 재생
+  // 영상
   if(q.vid_url){
-    const vidId=getYouTubeId(q.vid_url);
-    const ovThumb=document.getElementById('expl-ov-thumb');
-    const ovThumbImg=document.getElementById('expl-ov-thumb-img');
-    const ovIframeWrap=document.getElementById('expl-ov-iframe-wrap');
-    const ovIframe=document.getElementById('expl-vid');
-    ovIframe.src='';ovIframe.dataset.src='';
-    ovThumb.style.display='block';ovIframeWrap.style.display='none';
-    if(vidId){
-      ovThumbImg.src='https://img.youtube.com/vi/'+vidId+'/hqdefault.jpg';
-      ovIframe.dataset.src='https://www.youtube-nocookie.com/embed/'+vidId+'?autoplay=1&playsinline=1&rel=0';
-    } else {
-      ovThumb.style.display='none';
-      ovIframeWrap.style.display='block';
-      ovIframe.src=gdEmbed(q.vid_url);
-    }
+    document.getElementById('expl-vid').src=gdEmbed(q.vid_url);
     vidW.style.display='block';hasAny=true;
   }
   // 텍스트 해설 (explanation 컬럼 우선, 없으면 explanation_url)
   const textContent=q.expl_text||q.expl_url||'';
   if(textContent){
-    document.getElementById('expl-text').innerHTML=renderExpl(textContent);
+    document.getElementById('expl-text').innerHTML=renderMd(textContent);
     txtW.style.display='block';hasAny=true;
   }
   if(!hasAny)empty.style.display='block';
@@ -1837,13 +1789,8 @@ function initPinchZoom(){
   };
 }
 function closeExplain(){
-  // 영상 멈추기 + 썸네일 상태 복원
-  const ovIframe=document.getElementById('expl-vid');
-  ovIframe.src='';ovIframe.dataset.src='';
-  const ovThumb=document.getElementById('expl-ov-thumb');
-  const ovIframeWrap=document.getElementById('expl-ov-iframe-wrap');
-  if(ovThumb)ovThumb.style.display='block';
-  if(ovIframeWrap)ovIframeWrap.style.display='none';
+  // 영상 멈추기
+  document.getElementById('expl-vid').src='';
   document.getElementById('expl-overlay').style.display='none';
 }
 function toggleTts(){
@@ -2178,6 +2125,162 @@ document.addEventListener('visibilitychange',()=>{
   }
   // visible로 돌아올 때 loadData() 호출하지 않음 - 데이터는 최초 1회만 로드
 });
+// ── Analytics ──────────────────────────────────────────
+let analyticsTargetCat=null,analyticsTargetSub=null;
+
+const NPTE_DOMAINS=[
+  {name:'Musculoskeletal',      label:'Musculoskeletal', key:'musculoskeletal'},
+  {name:'Neuromuscular',        label:'Neuromuscular',   key:'neuromuscular'},
+  {name:'Cardiovascular & Pulmonary', label:'Cardio & Pulmo', key:'cardiovascular'},
+  {name:'Other Systems',        label:'Other Systems',   key:['integumentary','metabolic','gastrointestinal','genitourinary','lymphatic','system interaction','differential']},
+  {name:'Non-Systems',          label:'Non-Systems',     key:['equipment','modalities','safety','professional','research']}
+];
+
+function domainMatch(cat,domain){
+  const c=cat.toLowerCase();
+  const k=domain.key;
+  if(Array.isArray(k)) return k.some(kk=>c.includes(kk));
+  return c.includes(k);
+}
+
+function openAnalytics(){
+  document.getElementById('analytics-overlay').style.display='flex';
+  renderAnalytics();
+}
+function closeAnalytics(){
+  document.getElementById('analytics-overlay').style.display='none';
+}
+
+function renderAnalytics(){
+  const body=document.getElementById('analytics-body');
+  const allCats=[...new Set(ALL_QS.map(q=>q.cat).filter(Boolean))];
+  const pctColor=p=>p>=70?'#22c55e':'#ef4444';
+  const bgBar=p=>p>=70?'rgba(34,197,94,.25)':'rgba(239,68,68,.25)';
+  const fillBar=p=>p>=70?'#22c55e':'#ef4444';
+  // 라벨 고정 너비 (가장 긴 "Cardio & Pulmo" 기준 ~ 110px)
+  const LBL_W='110px';
+  let html='';
+
+  NPTE_DOMAINS.forEach(domain=>{
+    const domCats=allCats.filter(cat=>domainMatch(cat,domain));
+    const domQs=ALL_QS.filter(q=>domainMatch(q.cat,domain));
+    const domCor=domQs.filter(q=>store.done[q.id]===true).length;
+    const domDone=domQs.filter(q=>store.done[q.id]!==undefined).length;
+    const domPct=domDone?Math.round(domCor/domDone*100):null;
+    const domBarW=domDone?domCor/domDone*100:0;
+    const domId='domain-'+domain.name.replace(/[^a-z0-9]/gi,'_');
+    const showSub=domCats.length>1;
+    const domKey=encodeURIComponent('__domain__'+domain.name);
+
+    html+=`<div style="margin-bottom:16px">`;
+
+    // 상위 도메인 행: 라벨(고정) | 바(flex) | %(클릭→문제풀기) | ▾(하위있을때)
+    html+=`<div style="display:flex;align-items:center;gap:8px">
+      <div onclick="${showSub?`toggleAnalyticsCat('${domId}')`:''}"
+        style="width:${LBL_W};flex-shrink:0;font-size:14px;font-weight:700;color:var(--text);
+        white-space:nowrap;overflow:hidden;text-overflow:ellipsis;${showSub?'cursor:pointer':''}">
+        ${escHtml(domain.label)}${showSub?`<span id="arr-${domain.name.replace(/[^a-z0-9]/gi,'_')}" style="color:var(--text3);font-size:11px;margin-left:4px">▾</span>`:''}
+      </div>
+      <div style="flex:1;background:${domPct!==null?bgBar(domPct):'var(--bg3)'};border-radius:4px;height:10px;overflow:hidden">
+        <div style="height:100%;background:${domPct!==null?fillBar(domPct):'transparent'};width:${domBarW}%;transition:width .5s"></div>
+      </div>
+      <div onclick="openAnalyticsModal('${domKey}')"
+        style="font-size:13px;font-weight:700;color:${domPct!==null?pctColor(domPct):'var(--text3)'};
+        flex-shrink:0;width:38px;text-align:right;cursor:pointer;${domPct!==null?'text-decoration:underline dotted;text-underline-offset:2px':''}">
+        ${domPct!==null?domPct+'%':'—'}
+      </div>
+    </div>`;
+
+    // 하위 카테고리
+    if(showSub){
+      html+=`<div id="${domId}" style="display:none;margin-top:6px">`;
+      domCats.forEach(cat=>{
+        const qs=ALL_QS.filter(q=>q.cat===cat);
+        const cor=qs.filter(q=>store.done[q.id]===true).length;
+        const done=qs.filter(q=>store.done[q.id]!==undefined).length;
+        const pct=done?Math.round(cor/done*100):null;
+        const barW=done?cor/done*100:0;
+        const key=encodeURIComponent(cat);
+        // 하위 라벨: 동일 너비에서 들여쓰기
+        html+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;padding-left:8px">
+          <div style="width:calc(${LBL_W} - 8px);flex-shrink:0;font-size:11px;color:var(--text3);
+            white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(cat)}</div>
+          <div style="flex:1;background:rgba(30,41,59,.9);border-radius:3px;height:7px;overflow:hidden">
+            <div style="height:100%;background:${pct!==null?(pct>=70?'rgba(34,197,94,.55)':'rgba(239,68,68,.55)'):'transparent'};width:${barW}%;transition:width .5s"></div>
+          </div>
+          <div onclick="openAnalyticsModal('${key}')"
+            style="font-size:12px;font-weight:600;color:${pct!==null?pctColor(pct):'var(--text3)'};
+            flex-shrink:0;width:38px;text-align:right;cursor:pointer;${pct!==null?'text-decoration:underline dotted;text-underline-offset:2px':''}">
+            ${pct!==null?pct+'%':'—'}
+          </div>
+        </div>`;
+      });
+      html+=`</div>`;
+    }
+    html+=`</div>`;
+  });
+
+  body.innerHTML=html||'<div style="color:var(--text3);font-size:14px">풀이 기록이 없습니다.</div>';
+}
+
+function toggleAnalyticsCat(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  const open=el.style.display==='block';
+  el.style.display=open?'none':'block';
+  const arrId='arr-'+id.replace('domain-','');
+  const arr=document.getElementById(arrId);
+  if(arr)arr.textContent=open?'▾':'▴';
+}
+
+function openAnalyticsModal(key){
+  const decoded=decodeURIComponent(key);
+  let qs, title;
+  if(decoded.startsWith('__domain__')){
+    const domName=decoded.replace('__domain__','');
+    const domain=NPTE_DOMAINS.find(d=>d.name===domName);
+    qs=domain?ALL_QS.filter(q=>domainMatch(q.cat,domain)):[];
+    title=domain?domain.label:domName;
+    analyticsTargetCat='__domain__';
+    analyticsTargetSub=domName;
+  } else {
+    const cat=decoded;
+    analyticsTargetCat=cat; analyticsTargetSub='';
+    qs=ALL_QS.filter(q=>q.cat===cat);
+    title=cat;
+  }
+  const cor=qs.filter(q=>store.done[q.id]===true).length;
+  const done=qs.filter(q=>store.done[q.id]!==undefined).length;
+  const wrg=done-cor, unseen=qs.length-done;
+  const pct=done?Math.round(cor/done*100):0;
+  document.getElementById('analytics-modal-title').textContent=title;
+  document.getElementById('analytics-modal-stat').textContent=`정답률 ${done?pct+'%':'—'} | ✅${cor} ❌${wrg} ⚪${unseen} / ${qs.length}문제`;
+  document.querySelector('#analytics-start-modal button[onclick*="wrong"]').disabled=wrg===0;
+  document.querySelector('#analytics-start-modal button[onclick*="unseen"]').disabled=unseen===0;
+  document.getElementById('analytics-start-modal').style.display='flex';
+}
+
+function closeAnalyticsModal(){
+  document.getElementById('analytics-start-modal').style.display='none';
+}
+
+function analyticsStartQuiz(type){
+  closeAnalyticsModal(); closeAnalytics();
+  let pool;
+  if(analyticsTargetCat==='__domain__'){
+    const domain=NPTE_DOMAINS.find(d=>d.name===analyticsTargetSub);
+    pool=domain?ALL_QS.filter(q=>domainMatch(q.cat,domain)):[];
+  } else {
+    pool=ALL_QS.filter(q=>q.cat===analyticsTargetCat);
+  }
+  if(type==='wrong')  pool=pool.filter(q=>store.done[q.id]===false);
+  if(type==='unseen') pool=pool.filter(q=>store.done[q.id]===undefined);
+  if(!pool.length){alert('해당하는 문제가 없습니다.');return;}
+  sessQs=order==='rand'?shuffle([...pool]):[...pool];
+  if(sessCount&&sessQs.length>sessCount)sessQs=sessQs.slice(0,sessCount);
+  qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];sessionAnswers={};answered=false;
+  showScreen('quiz');showQ();
+}
 </script>
 </body>
 </html>
