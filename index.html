@@ -921,8 +921,8 @@ function resetBiometric(){
   showPwScreen();
 }
 
-const SHEETS_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vSxL_twK0WV9AXDTX6__YYFxpcfRl_kNaC6ripaS-BK3gpklyk51Qoit4azoThAT4ww3rvx880jprgU/pub?gid=1021898635&single=true&output=tsv";
-const VOCAB_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vSxL_twK0WV9AXDTX6__YYFxpcfRl_kNaC6ripaS-BK3gpklyk51Qoit4azoThAT4ww3rvx880jprgU/pub?gid=1703682275&single=true&output=tsv";
+const SHEETS_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vSxL_twK0WV9AXDTX6__YYFxpcfRl_kNaC6ripaS-BK3gpklyk51Qoit4azoThAT4ww3rvx880jprgU/pub?gid=1021898635&single=true&output=csv";
+const VOCAB_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vSxL_twK0WV9AXDTX6__YYFxpcfRl_kNaC6ripaS-BK3gpklyk51Qoit4azoThAT4ww3rvx880jprgU/pub?gid=1703682275&single=true&output=csv";
 const GCS_BASE='https://storage.googleapis.com/imgn/';
 let gcsFiles=new Set(); // 앱 시작 시 1회 로드되는 GCS 파일 목록
 async function loadGCSFileList(){
@@ -1073,6 +1073,8 @@ function renderExpl(text){
 
   lines.forEach(function(line){
     var trimmed=line.trim();
+    // 줄 시작 깨진 이모지(?) 제거
+    trimmed=trimmed.replace(/^\?+\s*/,'');
 
     if(trimmed.startsWith('|')&&trimmed.endsWith('|')){
       flushList();inTable=true;tbl.push(trimmed);return;
@@ -1145,7 +1147,7 @@ function showVocab(e,word){
 }
 document.addEventListener('click',()=>document.getElementById('vocab-bubble').style.display='none');
 function parseCSV(t){
-  // TSV 파서 (output=tsv - 이모지/특수문자 정상 보존)
+  // RFC 4180 CSV 파서 - 따옴표 안의 \n은 셀 내용으로 처리
   t=t.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
   const rows=[];
   let cur=[],cell='',inQ=false;
@@ -1157,7 +1159,7 @@ function parseCSV(t){
       else{cell+=ch;}
     }else{
       if(ch==='"'){inQ=true;}
-      else if(ch==='\t'){cur.push(cell);cell='';}
+      else if(ch===','){cur.push(cell);cell='';}
       else if(ch==='\n'){cur.push(cell);cell='';if(cur.some(c=>c))rows.push(cur);cur=[];}
       else{cell+=ch;}
     }
