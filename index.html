@@ -386,11 +386,11 @@ html,body{height:100%;background:var(--bg);color:var(--text);
     <div class="filter-label">Mode</div>
     <div class="mode-tabs">
       <div class="mode-tab active" data-mode="cat" onclick="setMode('cat')">Category</div>
+      <div class="mode-tab" data-mode="dup" onclick="setMode('dup')">🔁 Duplicate</div>
+      <div class="mode-tab" data-mode="unique" onclick="setMode('unique')">1️⃣ Unique</div>
       <div class="mode-tab" data-mode="bm"   onclick="setMode('bm')">⭐ Bookmark</div>
       <div class="mode-tab" data-mode="wr"   onclick="setMode('wr')">❌ Wrong <span id="wr-count" style="font-size:11px;opacity:.8"></span></div>
       <div class="mode-tab" data-mode="skip" onclick="openSkipScreen()">⏭ Skipped</div>
-      <div class="mode-tab" data-mode="dup" onclick="setMode('dup')">🔁 Duplicate</div>
-      <div class="mode-tab" data-mode="unique" onclick="setMode('unique')">1️⃣ Unique</div>
     </div>
     <div id="mode-cat">
       <div class="filter-label">Category <span id="cat-sel-n" style="color:var(--accent2)"></span></div>
