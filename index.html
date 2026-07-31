@@ -1029,8 +1029,8 @@ function renderExpl(text){
   function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
   function inline(s){
-    s=esc(s);
     s=fixEmojiNumbers(s);
+    s=esc(s);
     s=s.replace(/\*\*\*([^*]+)\*\*\*/g,'<strong><em>$1</em></strong>');
     s=s.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
     s=s.replace(/\*([^*]+)\*/g,'<em>$1</em>');
@@ -2173,6 +2173,7 @@ document.addEventListener('visibilitychange',()=>{
 });
 // 이모지 숫자 → 컬러 텍스트 변환 (안드로이드 흑백 이모지 우회)
 function fixEmojiNumbers(text){
+  if(!text)return text;
   return text
     .replace(/1️⃣/g,'<span style="color:#3b82f6;font-weight:700">①</span>')
     .replace(/2️⃣/g,'<span style="color:#3b82f6;font-weight:700">②</span>')
@@ -2183,7 +2184,9 @@ function fixEmojiNumbers(text){
     .replace(/7️⃣/g,'<span style="color:#3b82f6;font-weight:700">⑦</span>')
     .replace(/8️⃣/g,'<span style="color:#3b82f6;font-weight:700">⑧</span>')
     .replace(/9️⃣/g,'<span style="color:#3b82f6;font-weight:700">⑨</span>')
-    .replace(/🔟/g,'<span style="color:#3b82f6;font-weight:700">⑩</span>');
+    .replace(/🔟/g,'<span style="color:#3b82f6;font-weight:700">⑩</span>')
+    // 구글시트에서 깨진 이모지 숫자 (??) 처리
+    .replace(/(\d+)\?\?/g,'<span style="color:#3b82f6;font-weight:700">$1.</span>');
 }
 let analyticsTargetCat=null,analyticsTargetSub=null;
 
