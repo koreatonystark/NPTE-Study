@@ -1418,7 +1418,7 @@ function setMode(m){
   if(wrCount)wrCount.textContent=store.wrongs.size?'('+store.wrongs.size+')':'';
   if(m==='bm')renderModeList('bm');
   if(m==='wr')renderModeList('wr');
-  if(m==='dup'||m==='unique')buildCatGrid();
+  if(m==='cat'||m==='dup'||m==='unique')buildCatGrid();
   updateBtn();
 }
 function renderModeList(m){
