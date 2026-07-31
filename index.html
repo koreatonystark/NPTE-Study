@@ -945,6 +945,20 @@ function getQuestionImageUrl(q){
   return '';
 }
 let VOCAB=[];
+const CAT_NORMALIZE={
+  'Cardiopulmonary':'Cardiovascular & Pulmonary',
+  'Metabolic/Endocrine':'Metabolic & Endocrine',
+  'Professional Responsibilities':'Professional Issues',
+  'System Interactions':'System Interactions / Differential Diagnosis',
+  'Therapeutic Exercise':'Modalities',
+  'Therapeutic Modalities':'Modalities',
+  'Other Systems':null
+};
+function normalizeCat(cat){
+  if(!cat)return '';
+  if(cat in CAT_NORMALIZE)return CAT_NORMALIZE[cat]||'';
+  return cat;
+}
 const CAT_ORDER=["Musculoskeletal","Neuromuscular","Cardiovascular & Pulmonary","Integumentary","Metabolic & Endocrine","Gastrointestinal","Genitourinary","Lymphatic","System Interactions / Differential Diagnosis","Equipment & Assistive Technology","Modalities","Safety","Professional Issues","Research"];
 const CAT_EMOJI={"Musculoskeletal":"🦴","Neuromuscular":"🧠","Cardiovascular & Pulmonary":"❤️","Integumentary":"🩹","Metabolic & Endocrine":"🔬","Gastrointestinal":"🫃","Genitourinary":"🫀","Lymphatic":"💧","System Interactions / Differential Diagnosis":"🔍","Equipment & Assistive Technology":"🦽","Modalities":"⚡","Safety":"🚨","Professional Issues":"📋","Research":"📊"};
 const TIMER_SEC=80,STORE_KEY='npte_v5';
@@ -1215,7 +1229,9 @@ async function loadData(forceReload=false){
     ALL_QS=[];
     rows.forEach((r,i)=>{
       const stem=(r.stem||r.question||'').trim();if(!stem)return;
-      ALL_QS.push({id:String(i),cat:r.cat||'',sub:r.sub||'',src:r.src||'',
+      const normCat=normalizeCat(r.cat||'');
+      if(!normCat)return; // Other Systems 등 매핑 없는 cat 스킵
+      ALL_QS.push({id:String(i),cat:normCat,sub:r.sub||'',src:r.src||'',
         year:(r.year||(r.src||'').replace(/[^0-9]/g,'').substring(0,4)||'').toString(),
         qnum:parseInt(r.qnum||i+1)||i+1,stem,
         appeared_in:r.appeared_in||'',
