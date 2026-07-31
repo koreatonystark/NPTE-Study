@@ -390,6 +390,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
       <div class="mode-tab" data-mode="wr"   onclick="setMode('wr')">❌ Wrong <span id="wr-count" style="font-size:11px;opacity:.8"></span></div>
       <div class="mode-tab" data-mode="skip" onclick="openSkipScreen()">⏭ Skipped</div>
       <div class="mode-tab" data-mode="dup" onclick="startDupQuiz()">🔁 Duplicate</div>
+      <div class="mode-tab" data-mode="unique" onclick="startUniqueQuiz()">1️⃣ Unique</div>
     </div>
     <div id="mode-cat">
       <div class="filter-label">Category <span id="cat-sel-n" style="color:var(--accent2)"></span></div>
@@ -1475,7 +1476,7 @@ function toggleMlItem(m,id){
       +'</div>';
     }).join('');
     var explContent=q.expl_text||'(해설 없음)';
-    var explBtn='<div id="bmexpl-'+id+'" style="display:none;margin-top:10px;padding:12px;background:var(--bg3);border-radius:8px;font-size:14px;line-height:1.7;color:var(--text)">'+escHtml(explContent)+'</div>'
+    var explBtn='<div id="bmexpl-'+id+'" style="display:none;margin-top:10px;padding:12px;background:var(--bg3);border-radius:8px;font-size:14px;line-height:1.7;color:var(--text)">'+renderExpl(explContent)+'</div>'
       +'<button data-eid="'+id+'" onclick="toggleBmExpl(this);event.stopPropagation()" style="margin-top:10px;width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--accent2);font-size:13px;font-weight:600;cursor:pointer">📖 해설 보기</button>';
     body.innerHTML='<div style="font-size:15px;line-height:1.75;color:var(--text);margin-bottom:14px">'+escHtml(q.stem)+'</div>'+optsHtml+explBtn;
   }
@@ -2160,8 +2161,18 @@ function fixEmojiNumbers(text){
     .replace(/🔟/g,'<span style="color:#3b82f6;font-weight:700">⑩</span>');
 }
 function startDupQuiz(){
-  const pool=ALL_QS.filter(q=>q.isDup);
+  document.querySelectorAll('.mode-tab').forEach(t=>t.classList.toggle('active',t.dataset.mode==='dup'));
+  const pool=ALL_QS.filter(q=>q.isDup&&!store.skip.has(q.id));
   if(!pool.length){alert('중복 출제 문제가 없습니다.');return;}
+  sessQs=order==='rand'?shuffle([...pool]):[...pool];
+  if(sessCount&&sessQs.length>sessCount)sessQs=sessQs.slice(0,sessCount);
+  qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];sessionAnswers={};answered=false;
+  showScreen('quiz');showQ();
+}
+function startUniqueQuiz(){
+  document.querySelectorAll('.mode-tab').forEach(t=>t.classList.toggle('active',t.dataset.mode==='unique'));
+  const pool=ALL_QS.filter(q=>!q.isDup&&!store.skip.has(q.id));
+  if(!pool.length){alert('단독 출제 문제가 없습니다.');return;}
   sessQs=order==='rand'?shuffle([...pool]):[...pool];
   if(sessCount&&sessQs.length>sessCount)sessQs=sessQs.slice(0,sessCount);
   qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];sessionAnswers={};answered=false;
