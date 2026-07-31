@@ -2175,8 +2175,8 @@ document.addEventListener('visibilitychange',()=>{
 // 이모지 숫자 → 컬러 텍스트 변환 (안드로이드 흑백 이모지 우회)
 function fixEmojiNumbers(text){
   if(!text)return text;
-  // esc() 이전에 호출 — 순수 텍스트에서 이모지/깨진패턴 → 플레이스홀더로 교체
   return text
+    // 숫자 이모지 → 플레이스홀더
     .replace(/1️⃣/g,'\x01N1\x01')
     .replace(/2️⃣/g,'\x01N2\x01')
     .replace(/3️⃣/g,'\x01N3\x01')
@@ -2189,8 +2189,19 @@ function fixEmojiNumbers(text){
     .replace(/🔟/g,'\x01N10\x01')
     // 구글시트에서 깨진 숫자이모지: 1?? 2?? 등
     .replace(/(\d+)\?\?/g,'\x01N$1\x01')
+    // 깨진 이모지 패턴 복원
+    .replace(/\? 오답 분석/g,'❌ 오답 분석')
+    .replace(/\? 오답/g,'❌ 오답')
+    .replace(/\? 정답/g,'✅ 정답')
+    .replace(/\? NPTE/g,'🎯 NPTE')
+    .replace(/\? 임상/g,'🏥 임상')
+    .replace(/\? 병태생리/g,'🔬 병태생리')
+    .replace(/\? 연상/g,'🔗 연상')
+    .replace(/번 \?/g,'번 —')
     // 단독 ?? → 제거
-    .replace(/\?\?/g,'');
+    .replace(/\?\?/g,'')
+    // 단독 ? (단어 앞) → 제거
+    .replace(/\? ([A-Z가-힣])/g,'$1');
 }
 function applyEmojiTokens(s){
   // esc() 이후에 호출 — 플레이스홀더 → 컬러 스팬
