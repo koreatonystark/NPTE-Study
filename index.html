@@ -1019,6 +1019,23 @@ function renderStem(text){
 }
 function escHtml(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function escAttr(t){return String(t).replace(/'/g,'&#39;');}
+function restoreHeadingEmoji(s){
+  // 구글시트 CSV에서 ## 제목의 이모지가 ?/?? 로 깨지는 경우 복원
+  const map=[
+    [/^\?+\s*(임상|Clinical\s*Application)/i,'🏥 $1'],
+    [/^\?+\s*(오답|Wrong|Incorrect)/i,'❌ $1'],
+    [/^\?+\s*(병태생리|Pathophysiology)/i,'🔬 $1'],
+    [/^\?+\s*(연상|Summary|요약)/i,'🔗 $1'],
+    [/^\?+\s*(NPTE|빈출)/i,'🎯 $1'],
+    [/^\?+\s*(문제\s*분석|Analysis)/i,'🧠 $1'],
+    [/^\?+\s*(정답|Correct)/i,'✅ $1'],
+    [/^\?+\s*/,''],  // 나머지 ?? 제거
+  ];
+  for(var i=0;i<map.length;i++){
+    if(map[i][0].test(s))return s.replace(map[i][0],map[i][1]);
+  }
+  return s;
+}
 function renderExpl(text){
   var lines=text.split('\n');
   var out=[];
@@ -1092,7 +1109,8 @@ function renderExpl(text){
       var lvl=hm[1].length;
       var sz=['18px','16px','15px','14px'][lvl-1]||'14px';
       var mt=lvl===1?'16px':'12px';
-      out.push('<div style="font-size:'+sz+';font-weight:700;color:var(--accent2);margin:'+mt+' 0 6px">'+inline(hm[2])+'</div>');return;
+      var htxt=restoreHeadingEmoji(hm[2]);
+      out.push('<div style="font-size:'+sz+';font-weight:700;color:var(--accent2);margin:'+mt+' 0 6px">'+inline(htxt)+'</div>');return;
     }
 
     var qm=trimmed.match(/^>\s*(.*)/);
@@ -2190,7 +2208,9 @@ function fixEmojiNumbers(text){
     .replace(/9️⃣/g,'\x01N9\x01')
     .replace(/🔟/g,'\x01N10\x01')
     // 혹시 남아있을 깨진 숫자이모지: 1?? 2?? 등
-    .replace(/(\d+)\?\?/g,'\x01N$1\x01');
+    .replace(/(\d+)\?\?/g,'\x01N$1\x01')
+    // ~~**2번 ?**~~ 패턴의 ? → — (오답 취소선)
+    .replace(/(\d+번)\s*\?/g,'$1 —');
 }
 function applyEmojiTokens(s){
   // esc() 이후에 호출 — 플레이스홀더 → 컬러 스팬
