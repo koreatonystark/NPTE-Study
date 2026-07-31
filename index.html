@@ -961,6 +961,8 @@ function normalizeCat(cat){
 }
 const CAT_ORDER=["Musculoskeletal","Neuromuscular","Cardiovascular & Pulmonary","Integumentary","Metabolic & Endocrine","Gastrointestinal","Genitourinary","Lymphatic","System Interactions / Differential Diagnosis","Equipment & Assistive Technology","Modalities","Safety","Professional Issues","Research"];
 const CAT_EMOJI={"Musculoskeletal":"🦴","Neuromuscular":"🧠","Cardiovascular & Pulmonary":"❤️","Integumentary":"🩹","Metabolic & Endocrine":"🔬","Gastrointestinal":"🫃","Genitourinary":"🫀","Lymphatic":"💧","System Interactions / Differential Diagnosis":"🔍","Equipment & Assistive Technology":"🦽","Modalities":"⚡","Safety":"🚨","Professional Issues":"📋","Research":"📊"};
+// sub 칩을 표시하지 않을 카테고리 (단일 주제 카테고리)
+const CAT_NO_SUB=new Set(["Equipment & Assistive Technology","Modalities","Safety","Professional Issues","Research"]);
 const TIMER_SEC=80,STORE_KEY='npte_v5';
 let ALL_QS=[],mode='cat',order='seq',sessCount=50;
 let selCats=new Set(),selYears=new Set(),selSrcs=new Set(),selSubs=new Set();
@@ -1335,7 +1337,7 @@ function buildCatGrid(){
   cats.forEach(function(cat){
     var cnt=ALL_QS.filter(function(q){return q.cat===cat&&qFilter(q);}).length;
     if(!cnt)return;
-    var subs=CAT_SUBS[cat]||[];
+    var subs=CAT_NO_SUB.has(cat)?[]:(CAT_SUBS[cat]||[]);
     var catId='sc_'+cat.replace(/[^a-z0-9]/gi,'_');
     var d=document.createElement('div');
     d.className='cat-btn'+(selCats.has(cat)?' selected':'');
