@@ -389,8 +389,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);
       <div class="mode-tab" data-mode="bm"   onclick="setMode('bm')">⭐ Bookmark</div>
       <div class="mode-tab" data-mode="wr"   onclick="setMode('wr')">❌ Wrong <span id="wr-count" style="font-size:11px;opacity:.8"></span></div>
       <div class="mode-tab" data-mode="skip" onclick="openSkipScreen()">⏭ Skipped</div>
-      <div class="mode-tab" data-mode="dup" onclick="startDupQuiz()">🔁 Duplicate</div>
-      <div class="mode-tab" data-mode="unique" onclick="startUniqueQuiz()">1️⃣ Unique</div>
+      <div class="mode-tab" data-mode="dup" onclick="setMode('dup')">🔁 Duplicate</div>
+      <div class="mode-tab" data-mode="unique" onclick="setMode('unique')">1️⃣ Unique</div>
     </div>
     <div id="mode-cat">
       <div class="filter-label">Category <span id="cat-sel-n" style="color:var(--accent2)"></span></div>
@@ -1272,7 +1272,13 @@ async function loadData(forceReload=false){
 function buildCatGrid(){
   var g=document.getElementById('cat-grid');
   g.innerHTML='';
-  var totalCnt=ALL_QS.filter(function(q){return !store.skip.has(q.id);}).length;
+  function qFilter(q){
+    if(store.skip.has(q.id))return false;
+    if(mode==='dup')return q.isDup;
+    if(mode==='unique')return !q.isDup;
+    return true;
+  }
+  var totalCnt=ALL_QS.filter(qFilter).length;
   var allCard=document.createElement('div');
   allCard.className='cat-btn cat-all-btn'+(selCats.size===0?' selected':'');
   allCard.innerHTML='<span class="em">📚</span><div class="nm">All Categories</div><div class="ct">'+totalCnt+' Qs</div><div class="ck">✓</div>';
@@ -1289,7 +1295,7 @@ function buildCatGrid(){
     return (ia<0?99:ia)-(ib<0?99:ib);
   });
   cats.forEach(function(cat){
-    var cnt=ALL_QS.filter(function(q){return q.cat===cat&&!store.skip.has(q.id);}).length;
+    var cnt=ALL_QS.filter(function(q){return q.cat===cat&&qFilter(q);}).length;
     if(!cnt)return;
     var subs=CAT_SUBS[cat]||[];
     var catId='sc_'+cat.replace(/[^a-z0-9]/gi,'_');
@@ -1387,11 +1393,10 @@ function getFiltered(){
   else if(mode==='wr')qs=ALL_QS.filter(q=>store.wrongs.has(q.id)&&!store.skip.has(q.id));
   else{
     qs=ALL_QS.filter(q=>!store.skip.has(q.id));
-    if(mode==='cat'&&selCats.size)qs=qs.filter(q=>selCats.has(q.cat));
-    // sub 필터: selSubs가 있으면 해당 sub만, 없으면 선택된 cat 전체
-    if(mode==='cat'&&selSubs.size)qs=qs.filter(q=>selSubs.has(q.sub));
-    if(mode==='year'&&selYears.size)qs=qs.filter(q=>selYears.has(q.year));
-    if(mode==='src'&&selSrcs.size)qs=qs.filter(q=>selSrcs.has(q.src));
+    if(mode==='dup')qs=qs.filter(q=>q.isDup);
+    if(mode==='unique')qs=qs.filter(q=>!q.isDup);
+    if(selCats.size)qs=qs.filter(q=>selCats.has(q.cat));
+    if(selSubs.size)qs=qs.filter(q=>selSubs.has(q.sub));
   }
   if(order==='seq'){
     qs=[...qs].sort((a,b)=>{
@@ -1404,12 +1409,16 @@ function getFiltered(){
 function setMode(m){
   mode=m;
   document.querySelectorAll('.mode-tab').forEach(t=>t.classList.toggle('active',t.dataset.mode===m));
-  ['cat','bm','wr'].forEach(id=>document.getElementById('mode-'+id).style.display=(id===m)?'':'none');
-  document.getElementById('mode-opts').style.display=m==='cat'?'':'none';
+  ['cat','bm','wr'].forEach(id=>document.getElementById('mode-'+id).style.display=(id===m||m==='dup'||m==='unique')?((id==='cat')?'':'none'):'none');
+  document.getElementById('mode-cat').style.display=(m==='cat'||m==='dup'||m==='unique')?'':'none';
+  document.getElementById('mode-opts').style.display=(m==='cat'||m==='dup'||m==='unique')?'':'none';
+  document.getElementById('mode-bm').style.display=m==='bm'?'':'none';
+  document.getElementById('mode-wr').style.display=m==='wr'?'':'none';
   const wrCount=document.getElementById('wr-count');
   if(wrCount)wrCount.textContent=store.wrongs.size?'('+store.wrongs.size+')':'';
   if(m==='bm')renderModeList('bm');
   if(m==='wr')renderModeList('wr');
+  if(m==='dup'||m==='unique')buildCatGrid();
   updateBtn();
 }
 function renderModeList(m){
@@ -2159,24 +2168,6 @@ function fixEmojiNumbers(text){
     .replace(/8️⃣/g,'<span style="color:#3b82f6;font-weight:700">⑧</span>')
     .replace(/9️⃣/g,'<span style="color:#3b82f6;font-weight:700">⑨</span>')
     .replace(/🔟/g,'<span style="color:#3b82f6;font-weight:700">⑩</span>');
-}
-function startDupQuiz(){
-  document.querySelectorAll('.mode-tab').forEach(t=>t.classList.toggle('active',t.dataset.mode==='dup'));
-  const pool=ALL_QS.filter(q=>q.isDup&&!store.skip.has(q.id));
-  if(!pool.length){alert('중복 출제 문제가 없습니다.');return;}
-  sessQs=order==='rand'?shuffle([...pool]):[...pool];
-  if(sessCount&&sessQs.length>sessCount)sessQs=sessQs.slice(0,sessCount);
-  qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];sessionAnswers={};answered=false;
-  showScreen('quiz');showQ();
-}
-function startUniqueQuiz(){
-  document.querySelectorAll('.mode-tab').forEach(t=>t.classList.toggle('active',t.dataset.mode==='unique'));
-  const pool=ALL_QS.filter(q=>!q.isDup&&!store.skip.has(q.id));
-  if(!pool.length){alert('단독 출제 문제가 없습니다.');return;}
-  sessQs=order==='rand'?shuffle([...pool]):[...pool];
-  if(sessCount&&sessQs.length>sessCount)sessQs=sessQs.slice(0,sessCount);
-  qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];sessionAnswers={};answered=false;
-  showScreen('quiz');showQ();
 }
 let analyticsTargetCat=null,analyticsTargetSub=null;
 
