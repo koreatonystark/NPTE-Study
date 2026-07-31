@@ -921,8 +921,8 @@ function resetBiometric(){
   showPwScreen();
 }
 
-const SHEETS_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vSxL_twK0WV9AXDTX6__YYFxpcfRl_kNaC6ripaS-BK3gpklyk51Qoit4azoThAT4ww3rvx880jprgU/pub?gid=1021898635&single=true&output=csv";
-const VOCAB_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vSxL_twK0WV9AXDTX6__YYFxpcfRl_kNaC6ripaS-BK3gpklyk51Qoit4azoThAT4ww3rvx880jprgU/pub?gid=1703682275&single=true&output=csv";
+const SHEETS_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vSxL_twK0WV9AXDTX6__YYFxpcfRl_kNaC6ripaS-BK3gpklyk51Qoit4azoThAT4ww3rvx880jprgU/pub?gid=1021898635&single=true&output=tsv";
+const VOCAB_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vSxL_twK0WV9AXDTX6__YYFxpcfRl_kNaC6ripaS-BK3gpklyk51Qoit4azoThAT4ww3rvx880jprgU/pub?gid=1703682275&single=true&output=tsv";
 const GCS_BASE='https://storage.googleapis.com/imgn/';
 let gcsFiles=new Set(); // 앱 시작 시 1회 로드되는 GCS 파일 목록
 async function loadGCSFileList(){
@@ -1145,9 +1145,10 @@ function showVocab(e,word){
 }
 document.addEventListener('click',()=>document.getElementById('vocab-bubble').style.display='none');
 function parseCSV(t){
-  // RFC 4180: 따옴표 안의 \n은 셀 내용으로 처리 (행 구분 아님)
-  const rows=[];let cur=[],cell='',inQ=false;
+  // TSV 파서 (output=tsv - 이모지/특수문자 정상 보존)
   t=t.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  const rows=[];
+  let cur=[],cell='',inQ=false;
   for(let i=0;i<t.length;i++){
     const ch=t[i],nx=t[i+1];
     if(inQ){
@@ -1156,7 +1157,7 @@ function parseCSV(t){
       else{cell+=ch;}
     }else{
       if(ch==='"'){inQ=true;}
-      else if(ch===','){cur.push(cell);cell='';}
+      else if(ch==='\t'){cur.push(cell);cell='';}
       else if(ch==='\n'){cur.push(cell);cell='';if(cur.some(c=>c))rows.push(cur);cur=[];}
       else{cell+=ch;}
     }
@@ -2176,7 +2177,6 @@ document.addEventListener('visibilitychange',()=>{
 function fixEmojiNumbers(text){
   if(!text)return text;
   return text
-    // 숫자 이모지 → 플레이스홀더
     .replace(/1️⃣/g,'\x01N1\x01')
     .replace(/2️⃣/g,'\x01N2\x01')
     .replace(/3️⃣/g,'\x01N3\x01')
@@ -2187,21 +2187,8 @@ function fixEmojiNumbers(text){
     .replace(/8️⃣/g,'\x01N8\x01')
     .replace(/9️⃣/g,'\x01N9\x01')
     .replace(/🔟/g,'\x01N10\x01')
-    // 구글시트에서 깨진 숫자이모지: 1?? 2?? 등
-    .replace(/(\d+)\?\?/g,'\x01N$1\x01')
-    // 깨진 이모지 패턴 복원
-    .replace(/\? 오답 분석/g,'❌ 오답 분석')
-    .replace(/\? 오답/g,'❌ 오답')
-    .replace(/\? 정답/g,'✅ 정답')
-    .replace(/\? NPTE/g,'🎯 NPTE')
-    .replace(/\? 임상/g,'🏥 임상')
-    .replace(/\? 병태생리/g,'🔬 병태생리')
-    .replace(/\? 연상/g,'🔗 연상')
-    .replace(/번 \?/g,'번 —')
-    // 단독 ?? → 제거
-    .replace(/\?\?/g,'')
-    // 단독 ? (단어 앞) → 제거
-    .replace(/\? ([A-Z가-힣])/g,'$1');
+    // 혹시 남아있을 깨진 숫자이모지: 1?? 2?? 등
+    .replace(/(\d+)\?\?/g,'\x01N$1\x01');
 }
 function applyEmojiTokens(s){
   // esc() 이후에 호출 — 플레이스홀더 → 컬러 스팬
