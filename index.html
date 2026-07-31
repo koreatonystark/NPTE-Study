@@ -386,8 +386,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);
     <div class="filter-label">Mode</div>
     <div class="mode-tabs">
       <div class="mode-tab active" data-mode="cat" onclick="setMode('cat')">Category</div>
-      <div class="mode-tab" data-mode="year" onclick="setMode('year')">Year</div>
-      <div class="mode-tab" data-mode="src"  onclick="setMode('src')">Version</div>
       <div class="mode-tab" data-mode="bm"   onclick="setMode('bm')">⭐ Bookmark</div>
       <div class="mode-tab" data-mode="wr"   onclick="setMode('wr')">❌ Wrong <span id="wr-count" style="font-size:11px;opacity:.8"></span></div>
       <div class="mode-tab" data-mode="skip" onclick="openSkipScreen()">⏭ Skipped</div>
@@ -396,14 +394,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);
     <div id="mode-cat">
       <div class="filter-label">Category <span id="cat-sel-n" style="color:var(--accent2)"></span></div>
       <div class="cat-grid" id="cat-grid"></div>
-    </div>
-    <div id="mode-year" style="display:none">
-      <div class="filter-label">Year</div>
-      <div class="chip-wrap" id="year-chips"></div>
-    </div>
-    <div id="mode-src" style="display:none">
-      <div class="filter-label">Version / Source</div>
-      <div class="chip-wrap" id="src-chips"></div>
     </div>
     <div id="mode-bm" style="display:none"><div id="bm-list" style="margin-top:8px"></div></div>
     <div id="mode-wr" style="display:none"><div id="wr-list" style="margin-top:8px"></div></div>
@@ -469,7 +459,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
       <div class="explain-text" id="explain-text"></div>
     </div>
     <div class="dup-area" id="dup-area">
-      <div class="dup-label">같은 문제 · 다른 버전</div>
+      <div class="dup-label" id="dup-label">출제 이력</div>
       <div class="dup-tags" id="dup-tags"></div>
     </div>
   </div>
@@ -1227,6 +1217,7 @@ async function loadData(forceReload=false){
       ALL_QS.push({id:String(i),cat:r.cat||'',sub:r.sub||'',src:r.src||'',
         year:(r.year||(r.src||'').replace(/[^0-9]/g,'').substring(0,4)||'').toString(),
         qnum:parseInt(r.qnum||i+1)||i+1,stem,
+        appeared_in:r.appeared_in||'',
         opts:[r.opt1||'',r.opt2||'',r.opt3||'',r.opt4||''],
         answer:Math.max(0,(parseInt(r.answer)||1)-1),
         media_url:r.media_url||'',media_type:r.media_type||'none',
@@ -1235,23 +1226,13 @@ async function loadData(forceReload=false){
         expl_text:r.explanation||'',
         img_url:r.img||'',vid_url:r.vid||''});
     });
-    // 같은 stem의 중복 문제 → 버전 목록 빌드
-    // 중복 문제 감지: 같은 stem → 다른 src/qnum 정보 매핑
-    const stemMap={};
+    // appeared_in 컬럼 기반 중복 출제 정보 빌드
     ALL_QS.forEach(q=>{
-      const key=q.stem.trim().substring(0,80);
-      if(!stemMap[key])stemMap[key]=[];
-      stemMap[key].push({src:q.src,qnum:q.qnum,id:q.id});
-    });
-    ALL_QS.forEach(q=>{
-      const key=q.stem.trim().substring(0,80);
-      const group=stemMap[key];
-      if(group.length>1){
-        // 이 문제와 다른 것들만 (자기 자신 제외)
-        q.dupInfo=group.filter(g=>g.id!==q.id).map(g=>'('+g.src+') Q'+g.qnum);
-      } else {
-        q.dupInfo=null;
-      }
+      const ai=(q.appeared_in||'').trim();
+      if(!ai){q.dupInfo=null;q.isDup=false;return;}
+      const entries=ai.split(',').map(s=>s.trim()).filter(Boolean);
+      q.isDup=entries.length>1; // 2번 이상 출제
+      q.dupInfo=entries; // "2014A_1", "2017C_160" 형태 배열
     });
     if(!ALL_QS.length)throw new Error('유효한 문항 없음');
     // CAT_SUBS 동적 빌드: Sheets의 cat(A열), sub(B열) 값으로 구성
@@ -1424,8 +1405,8 @@ function getFiltered(){
 function setMode(m){
   mode=m;
   document.querySelectorAll('.mode-tab').forEach(t=>t.classList.toggle('active',t.dataset.mode===m));
-  ['cat','year','src','bm','wr'].forEach(id=>document.getElementById('mode-'+id).style.display=(id===m)?'':'none');
-  document.getElementById('mode-opts').style.display=['cat','year','src'].includes(m)?'':'none';
+  ['cat','bm','wr'].forEach(id=>document.getElementById('mode-'+id).style.display=(id===m)?'':'none');
+  document.getElementById('mode-opts').style.display=m==='cat'?'':'none';
   const wrCount=document.getElementById('wr-count');
   if(wrCount)wrCount.textContent=store.wrongs.size?'('+store.wrongs.size+')':'';
   if(m==='bm')renderModeList('bm');
@@ -1595,8 +1576,19 @@ function showQ(){const q=sessQs[qIdx];answered=false;translateOn=false;trStem=''
     // 중복 버전 — 보기 아래 별도 영역
     const dupArea=document.getElementById('dup-area');
     const dupTags=document.getElementById('dup-tags');
-    if(q.dupInfo&&q.dupInfo.length){
-      dupTags.innerHTML=q.dupInfo.map(d=>'<span class="dup-tag">'+escHtml(d)+'</span>').join('');
+    const dupLabel=document.getElementById('dup-label');
+    const ai=q.appeared_in||'';
+    if(ai){
+      const entries=ai.split(',').map(s=>s.trim()).filter(Boolean);
+      if(entries.length>1){
+        // 중복 출제
+        dupLabel.textContent='중복 출제 이력';
+        dupTags.innerHTML=entries.map(d=>'<span class="dup-tag">'+escHtml(d)+'</span>').join('');
+      } else {
+        // 단독 출제
+        dupLabel.textContent='출제 이력';
+        dupTags.innerHTML='<span class="dup-tag" style="color:var(--text3)">단독 출제 — '+escHtml(entries[0]||ai)+'</span>';
+      }
       dupArea.className='dup-area show';
     } else {
       dupArea.className='dup-area';
@@ -2170,8 +2162,8 @@ function fixEmojiNumbers(text){
     .replace(/🔟/g,'<span style="color:#3b82f6;font-weight:700">⑩</span>');
 }
 function startDupQuiz(){
-  const pool=ALL_QS.filter(q=>q.dupInfo&&q.dupInfo.length);
-  if(!pool.length){alert('중복 문제가 없습니다.');return;}
+  const pool=ALL_QS.filter(q=>q.isDup);
+  if(!pool.length){alert('중복 출제 문제가 없습니다.');return;}
   sessQs=order==='rand'?shuffle([...pool]):[...pool];
   if(sessCount&&sessQs.length>sessCount)sessQs=sessQs.slice(0,sessCount);
   qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];sessionAnswers={};answered=false;
