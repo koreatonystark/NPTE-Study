@@ -1029,8 +1029,9 @@ function renderExpl(text){
   function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
   function inline(s){
-    s=fixEmojiNumbers(s);
-    s=esc(s);
+    s=fixEmojiNumbers(s);  // 1. 이모지/??를 플레이스홀더로
+    s=esc(s);              // 2. HTML 이스케이프
+    s=applyEmojiTokens(s); // 3. 플레이스홀더 → 컬러 스팬
     s=s.replace(/\*\*\*([^*]+)\*\*\*/g,'<strong><em>$1</em></strong>');
     s=s.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
     s=s.replace(/\*([^*]+)\*/g,'<em>$1</em>');
@@ -2174,19 +2175,26 @@ document.addEventListener('visibilitychange',()=>{
 // 이모지 숫자 → 컬러 텍스트 변환 (안드로이드 흑백 이모지 우회)
 function fixEmojiNumbers(text){
   if(!text)return text;
+  // esc() 이전에 호출 — 순수 텍스트에서 이모지/깨진패턴 → 플레이스홀더로 교체
   return text
-    .replace(/1️⃣/g,'<span style="color:#3b82f6;font-weight:700">①</span>')
-    .replace(/2️⃣/g,'<span style="color:#3b82f6;font-weight:700">②</span>')
-    .replace(/3️⃣/g,'<span style="color:#3b82f6;font-weight:700">③</span>')
-    .replace(/4️⃣/g,'<span style="color:#3b82f6;font-weight:700">④</span>')
-    .replace(/5️⃣/g,'<span style="color:#3b82f6;font-weight:700">⑤</span>')
-    .replace(/6️⃣/g,'<span style="color:#3b82f6;font-weight:700">⑥</span>')
-    .replace(/7️⃣/g,'<span style="color:#3b82f6;font-weight:700">⑦</span>')
-    .replace(/8️⃣/g,'<span style="color:#3b82f6;font-weight:700">⑧</span>')
-    .replace(/9️⃣/g,'<span style="color:#3b82f6;font-weight:700">⑨</span>')
-    .replace(/🔟/g,'<span style="color:#3b82f6;font-weight:700">⑩</span>')
-    // 구글시트에서 깨진 이모지 숫자 (??) 처리
-    .replace(/(\d+)\?\?/g,'<span style="color:#3b82f6;font-weight:700">$1.</span>');
+    .replace(/1️⃣/g,'\x01N1\x01')
+    .replace(/2️⃣/g,'\x01N2\x01')
+    .replace(/3️⃣/g,'\x01N3\x01')
+    .replace(/4️⃣/g,'\x01N4\x01')
+    .replace(/5️⃣/g,'\x01N5\x01')
+    .replace(/6️⃣/g,'\x01N6\x01')
+    .replace(/7️⃣/g,'\x01N7\x01')
+    .replace(/8️⃣/g,'\x01N8\x01')
+    .replace(/9️⃣/g,'\x01N9\x01')
+    .replace(/🔟/g,'\x01N10\x01')
+    // 구글시트에서 깨진 숫자이모지: 1?? 2?? 등
+    .replace(/(\d+)\?\?/g,'\x01N$1\x01')
+    // 단독 ?? → 제거
+    .replace(/\?\?/g,'');
+}
+function applyEmojiTokens(s){
+  // esc() 이후에 호출 — 플레이스홀더 → 컬러 스팬
+  return s.replace(/\x01N(\d+)\x01/g,(_,n)=>'<span style="color:#3b82f6;font-weight:700">'+n+'.</span>');
 }
 let analyticsTargetCat=null,analyticsTargetSub=null;
 
