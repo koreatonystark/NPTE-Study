@@ -1026,6 +1026,29 @@ function renderStem(text){
 }
 function escHtml(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function escAttr(t){return String(t).replace(/'/g,'&#39;');}
+// 해설 텍스트 노드에 vocab 연동 적용 (HTML 태그 제외)
+function renderStemText(text){
+  if(!VOCAB.length)return text;
+  const tokens=text.match(/[\w'-]+|[^\w'-]+/g)||[];
+  let result='',i=0;
+  while(i<tokens.length){
+    const tok=tokens[i];
+    if(/^[\w'-]+$/.test(tok)){
+      let matched=false;
+      for(let len=Math.min(5,Math.floor((tokens.length-i+1)/2));len>=1;len--){
+        const phrase=tokens.slice(i,i+len*2-1).join('').toLowerCase().replace(/[^a-z0-9\s'-]/g,'').trim();
+        const entry=VOCAB.find(v=>v.word===phrase||v.word===phrase.replace(/-/g,' '));
+        if(entry){
+          const display=tokens.slice(i,i+len*2-1).join('');
+          result+='<span class="vw" onclick="showVocab(event,\''+escAttr(entry.word)+'\')">'+escHtml(display)+'</span>';
+          i+=len*2-1;matched=true;break;
+        }
+      }
+      if(!matched){result+=escHtml(tok);i++;}
+    }else{result+=escHtml(tok);i++;}
+  }
+  return result;
+}
 function restoreHeadingEmoji(s){
   // 구글시트 CSV에서 ## 제목의 이모지가 ?/?? 로 깨지는 경우 복원
   const map=[
@@ -1064,7 +1087,21 @@ function renderExpl(text){
     s=s.replace(/【([^】]+)】/g,'<strong style="color:#60a5fa">【$1】</strong>');
     s=s.replace(/✅ ?정답/g,'<span style="color:#22c55e;font-weight:700">✅ 정답</span>');
     s=s.replace(/❌ ?오답/g,'<span style="color:#ef4444">❌ 오답</span>');
-    s=s.replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener" style="color:var(--accent2);text-decoration:underline;word-break:break-all">$1</a>');
+    // URL: 이미지이면 <img>, 아니면 링크
+    s=s.replace(/(https?:\/\/[^\s&lt;"]+)/g,function(url){
+      if(/\.(png|jpg|jpeg|gif|webp|svg)(\?[^\s]*)?$/i.test(url)){
+        return '</span><div style="margin:8px 0"><img src="'+url+'" alt="" style="max-width:100%;height:auto;display:block;border-radius:6px;cursor:zoom-in" onclick="toggleImgZoom(this)"></div><span>';
+      }
+      return '<a href="'+url+'" target="_blank" rel="noopener" style="color:var(--accent2);text-decoration:underline;word-break:break-all">'+url+'</a>';
+    });
+    // VOCAB 단어 연동 (renderStem 적용)
+    if(VOCAB.length){
+      s=s.replace(/(<[^>]+>)|([^<]+)/g,function(m,tag,txt){
+        if(tag)return tag;
+        if(!txt)return '';
+        return renderStemText(txt);
+      });
+    }
     return s;
   }
 
