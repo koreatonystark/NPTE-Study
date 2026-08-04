@@ -1171,6 +1171,25 @@ function renderExpl(text){
 
     if(!trimmed){flushList();out.push('<br>');return;}
 
+    // URL 단독 줄 처리
+    if(/^https?:\/\/\S+$/.test(trimmed)){
+      flushList();
+      var url=trimmed;
+      if(/\.(png|jpg|jpeg|gif|webp|svg)(\?[^\s]*)?$/i.test(url)){
+        // 이미지 URL → 인라인 이미지 (모바일: 화면폭, PC: 원본)
+        out.push('<div style="margin:10px 0;line-height:0">'
+          +'<img src="'+escHtml(url)+'" alt="" '
+          +'style="max-width:100%;height:auto;display:block;border-radius:6px;cursor:zoom-in" '
+          +'onclick="toggleImgZoom(this)">'
+          +'</div>');
+      } else {
+        out.push('<div style="margin:4px 0"><a href="'+escHtml(url)+'" target="_blank" rel="noopener" '
+          +'style="color:var(--accent2);text-decoration:underline;word-break:break-all;font-size:14px">'
+          +escHtml(url)+'</a></div>');
+      }
+      return;
+    }
+
     flushList();
     out.push('<div style="font-size:15px;line-height:1.8;color:var(--text);margin:2px 0">'+inline(trimmed)+'</div>');
   });
