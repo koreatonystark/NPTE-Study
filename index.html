@@ -142,6 +142,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);
   border-radius:var(--radius-sm);padding:16px;font-size:16px;line-height:1.8;
   color:var(--text);word-break:break-word;display:none}
 .explain-text.show{display:block}
+.expl-img-inline{width:100%;max-width:100%;height:auto;display:block;border-radius:6px;cursor:zoom-in}
+@media(min-width:600px){.expl-img-inline{max-width:50%}}
 .dup-area{margin-top:18px;padding-top:14px;border-top:1px solid var(--border);display:none}
 .dup-area.show{display:block}
 .dup-label{font-size:11px;color:var(--text3);font-weight:700;letter-spacing:.07em;
@@ -689,16 +691,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 
 <!-- 이미지 확대 오버레이 (핀치줌 지원) — body 최상위 -->
 <div id="img-zoom-overlay" style="display:none;position:fixed;inset:0;z-index:300;
-  background:rgba(0,0,0,0.92);overflow:hidden">
-  <button onclick="toggleImgZoom()" style="position:absolute;top:14px;right:14px;
-    z-index:301;background:rgba(255,255,255,0.15);border:none;border-radius:50%;
-    width:36px;height:36px;color:#fff;font-size:18px;cursor:pointer;
-    display:flex;align-items:center;justify-content:center">✕</button>
+  background:rgba(0,0,0,0.92);overflow:hidden;cursor:zoom-out"
+  onclick="if(event.target===this||event.target===document.getElementById('img-zoom-big'))toggleImgZoom()">
   <div id="img-zoom-container" style="width:100%;height:100%;
-    display:flex;align-items:center;justify-content:center;overflow:hidden">
+    display:flex;align-items:center;justify-content:center;overflow:hidden;pointer-events:none">
     <img id="img-zoom-big" src="" alt="" style="max-width:100%;max-height:100%;
       object-fit:contain;transform-origin:center center;
-      transition:transform 0.1s;user-select:none;-webkit-user-select:none">
+      transition:transform 0.1s;user-select:none;-webkit-user-select:none;pointer-events:auto;cursor:zoom-out">
   </div>
 </div>
 
@@ -1178,9 +1177,7 @@ function renderExpl(text){
       if(/\.(png|jpg|jpeg|gif|webp|svg)(\?[^\s]*)?$/i.test(url)){
         // 이미지 URL → 인라인 이미지 (모바일: 화면폭, PC: 원본)
         out.push('<div style="margin:10px 0;line-height:0">'
-          +'<img src="'+escHtml(url)+'" alt="" '
-          +'style="max-width:50%;height:auto;display:block;border-radius:6px;cursor:zoom-in" '
-          +'onclick="toggleImgZoom(this)">'
+          +'<img src="'+escHtml(url)+'" alt="" class="expl-img-inline" onclick="toggleImgZoom(this)">'
           +'</div>');
       } else {
         out.push('<div style="margin:4px 0"><a href="'+escHtml(url)+'" target="_blank" rel="noopener" '
