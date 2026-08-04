@@ -386,6 +386,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
     <div class="filter-label">Mode</div>
     <div class="mode-tabs">
       <div class="mode-tab active" data-mode="cat" onclick="setMode('cat')">Category</div>
+      <div class="mode-tab" data-mode="year" onclick="setMode('year')">Year</div>
       <div class="mode-tab" data-mode="dup" onclick="setMode('dup')">🔁 Duplicate</div>
       <div class="mode-tab" data-mode="unique" onclick="setMode('unique')">1️⃣ Unique</div>
       <div class="mode-tab" data-mode="bm"   onclick="setMode('bm')">⭐ Bookmark</div>
@@ -398,6 +399,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);
     </div>
     <div id="mode-bm" style="display:none"><div id="bm-list" style="margin-top:8px"></div></div>
     <div id="mode-wr" style="display:none"><div id="wr-list" style="margin-top:8px"></div></div>
+    <div id="mode-year" style="display:none">
+      <div class="filter-label">Year</div>
+      <div class="chip-wrap" id="year-chips"></div>
+    </div>
 
     <div id="mode-opts">
       <div class="filter-label">Order</div>
@@ -962,7 +967,7 @@ function normalizeCat(cat){
 const CAT_ORDER=["Musculoskeletal","Neuromuscular","Cardiovascular & Pulmonary","Integumentary","Metabolic & Endocrine","Gastrointestinal","Genitourinary","Lymphatic","System Interactions / Differential Diagnosis","Equipment & Assistive Technology","Modalities","Safety","Professional Issues","Research"];
 const CAT_EMOJI={"Musculoskeletal":"🦴","Neuromuscular":"🧠","Cardiovascular & Pulmonary":"❤️","Integumentary":"🩹","Metabolic & Endocrine":"🔬","Gastrointestinal":"🫃","Genitourinary":"🫀","Lymphatic":"💧","System Interactions / Differential Diagnosis":"🔍","Equipment & Assistive Technology":"🦽","Modalities":"⚡","Safety":"🚨","Professional Issues":"📋","Research":"📊"};
 // sub 칩을 표시하지 않을 카테고리 (단일 주제 카테고리)
-const CAT_NO_SUB=new Set(["Equipment & Assistive Technology","Modalities","Safety","Professional Issues","Research"]);
+const CAT_NO_SUB=new Set(["System Interactions / Differential Diagnosis","Equipment & Assistive Technology","Modalities","Safety","Professional Issues","Research"]);
 const TIMER_SEC=80,STORE_KEY='npte_v5';
 let ALL_QS=[],mode='cat',order='seq',sessCount=50;
 let selCats=new Set(),selYears=new Set(),selSrcs=new Set(),selSubs=new Set();
@@ -1297,7 +1302,7 @@ async function loadData(forceReload=false){
     }).catch(()=>{});
     loadGCSFileList(); // GCS 파일 목록 백그라운드 로드 (1회)
     document.getElementById('loading').style.display='none';
-    buildCatGrid();
+    buildCatGrid();buildYearChips();
     document.getElementById('home-sub').textContent=ALL_QS.length.toLocaleString()+' 문항 · Google Sheets 연결됨';
     updateStats();if(mode==='bm'||mode==='wr')setTimeout(()=>renderModeList(mode),100);if(restoreSession()){
       showScreen('quiz');showQ();
@@ -1308,6 +1313,19 @@ async function loadData(forceReload=false){
     document.getElementById('load-msg').textContent='❌ 불러오기 실패\n'+e.message+'\n\n인터넷 연결을 확인하고 다시 시도하세요.';
     document.getElementById('retry-btn').style.display='block';
   }
+}
+function buildYearChips(){
+  const years=[...new Set(ALL_QS.map(q=>q.year).filter(Boolean))].sort();
+  const w=document.getElementById('year-chips');
+  w.innerHTML='';
+  years.forEach(y=>{
+    const d=document.createElement('div');
+    d.className='chip';
+    d.dataset.year=y;
+    d.textContent=y+' ('+ALL_QS.filter(q=>q.year===y).length+')';
+    d.onclick=()=>toggleChip(selYears,y,d);
+    w.appendChild(d);
+  });
 }
 function buildCatGrid(){
   var g=document.getElementById('cat-grid');
@@ -1435,6 +1453,7 @@ function getFiltered(){
     qs=ALL_QS.filter(q=>!store.skip.has(q.id));
     if(mode==='dup')qs=qs.filter(q=>q.isDup);
     if(mode==='unique')qs=qs.filter(q=>!q.isDup);
+    if(mode==='year'&&selYears.size)qs=qs.filter(q=>selYears.has(q.year));
     if(selCats.size)qs=qs.filter(q=>selCats.has(q.cat));
     if(selSubs.size)qs=qs.filter(q=>selSubs.has(q.sub));
   }
@@ -1449,16 +1468,17 @@ function getFiltered(){
 function setMode(m){
   mode=m;
   document.querySelectorAll('.mode-tab').forEach(t=>t.classList.toggle('active',t.dataset.mode===m));
-  ['cat','bm','wr'].forEach(id=>document.getElementById('mode-'+id).style.display=(id===m||m==='dup'||m==='unique')?((id==='cat')?'':'none'):'none');
   document.getElementById('mode-cat').style.display=(m==='cat'||m==='dup'||m==='unique')?'':'none';
-  document.getElementById('mode-opts').style.display=(m==='cat'||m==='dup'||m==='unique')?'':'none';
+  document.getElementById('mode-year').style.display=m==='year'?'':'none';
   document.getElementById('mode-bm').style.display=m==='bm'?'':'none';
   document.getElementById('mode-wr').style.display=m==='wr'?'':'none';
+  document.getElementById('mode-opts').style.display=(m==='cat'||m==='dup'||m==='unique'||m==='year')?'':'none';
   const wrCount=document.getElementById('wr-count');
   if(wrCount)wrCount.textContent=store.wrongs.size?'('+store.wrongs.size+')':'';
   if(m==='bm')renderModeList('bm');
   if(m==='wr')renderModeList('wr');
   if(m==='cat'||m==='dup'||m==='unique')buildCatGrid();
+  if(m==='year')buildYearChips();
   updateBtn();
 }
 function renderModeList(m){
@@ -1482,7 +1502,7 @@ function renderModeList(m){
         +'<div data-m="'+m+'" data-id="'+q.id+'" onclick="toggleMlItem(this.dataset.m,this.dataset.id)" style="flex:1;padding:12px 14px;cursor:pointer;min-width:0">'
           +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'
             +'<strong style="color:'+color+';font-size:12px">('+q.src+') Q'+q.qnum+'</strong>'
-            +'<span style="font-size:11px;color:var(--text3)">'+escHtml(q.cat+(q.sub?' / '+q.sub:''))+'</span>'
+            +'<span style="font-size:11px;color:var(--text3)">'+escHtml(q.cat+(q.sub&&!CAT_NO_SUB.has(q.cat)?' / '+q.sub:''))+'</span>'
             +'<span id="mla-'+m+'-'+q.id+'" style="margin-left:auto;color:var(--accent2);font-size:18px;transition:transform .2s;display:inline-block">▾</span>'
           +'</div>'
           +'<div style="font-size:13px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escHtml(q.stem.substring(0,65))+(q.stem.length>65?'…':'')+'</div>'
@@ -1608,7 +1628,7 @@ function updateStats(){
   if(mode==='wr')renderModeList('wr');
 }
 function startQuiz(){let qs=getFiltered();if(!qs.length)return;if(order==='rand')qs=[...qs].sort(()=>Math.random()-.5);const n=sessCount===0?qs.length:Math.min(sessCount,qs.length);sessQs=qs.slice(0,n);qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];seenQIds=new Set();sessStartTime=Date.now();sessionAnswers={};answered=false;translateOn=false;document.getElementById('btn-translate').classList.remove('active');document.getElementById('btn-translate').textContent='🌐 한국어';showScreen('quiz');showQ();}
-function showQ(){const q=sessQs[qIdx];answered=false;translateOn=false;trStem='';trOpts=[];document.getElementById('btn-translate').classList.remove('active');document.getElementById('btn-translate').textContent='🌐 한국어';document.getElementById('q-counter').textContent=(qIdx+1)+' / '+sessQs.length;document.getElementById('prog').style.width=(qIdx/sessQs.length*100)+'%';document.getElementById('q-source').textContent='('+q.src+') Q'+q.qnum+' · '+q.cat+(q.sub?' / '+q.sub:'');
+function showQ(){const q=sessQs[qIdx];answered=false;translateOn=false;trStem='';trOpts=[];document.getElementById('btn-translate').classList.remove('active');document.getElementById('btn-translate').textContent='🌐 한국어';document.getElementById('q-counter').textContent=(qIdx+1)+' / '+sessQs.length;document.getElementById('prog').style.width=(qIdx/sessQs.length*100)+'%';document.getElementById('q-source').textContent='('+q.src+') Q'+q.qnum+' · '+q.cat+(q.sub&&!CAT_NO_SUB.has(q.cat)?' / '+q.sub:'');
     document.getElementById('q-stem').innerHTML=renderStem(q.stem);
     // 미디어 (이미지 or 영상)
     const med=document.getElementById('q-media');med.innerHTML='';med.className='q-media';
@@ -2074,7 +2094,7 @@ function openSkipScreen(){
           '<div data-id="'+q.id+'" onclick="toggleSkipItem(this.dataset.id)" style="flex:1;padding:13px 14px;cursor:pointer;min-width:0">'+
             '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">'+
               '<strong style="color:var(--warn);font-size:13px">'+(q.allSrcs?q.allSrcs.join(' · '):q.src)+' Q'+q.qnum+'</strong>'+
-              '<span style="font-size:11px;color:var(--text3)">'+(q.cat+(q.sub?' / '+q.sub:''))+'</span>'+
+              '<span style="font-size:11px;color:var(--text3)">'+(q.cat+(q.sub&&!CAT_NO_SUB.has(q.cat)?' / '+q.sub:''))+'</span>'+
               '<span id="sia-'+q.id+'" style="color:var(--accent2);font-size:18px;margin-left:auto;transition:transform .25s;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--bg3);flex-shrink:0">▾</span>'+
             '</div>'+
             '<div style="font-size:13px;color:var(--text2);line-height:1.5;word-break:break-word">'+escHtml(q.stem.substring(0,80))+(q.stem.length>80?'…':'')+'</div>'+
