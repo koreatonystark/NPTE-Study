@@ -223,7 +223,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
   border-radius:var(--radius-sm);color:var(--danger);font-size:13px;font-weight:600;
   cursor:pointer;flex-shrink:0}
 /* Skip 관리 화면 */
-#skip-screen{position:fixed;inset:0;background:var(--bg);z-index:150;display:none;flex-direction:column}
+#skip-screen{display:none}
 .skip-header{background:var(--bg2);border-bottom:1px solid var(--border);
   padding:14px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0}
 .skip-header h2{font-size:16px;font-weight:700;flex:1}
@@ -453,7 +453,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
       <div class="mode-tab" data-mode="unique" onclick="setMode('unique')">1️⃣ Unique</div>
       <div class="mode-tab" data-mode="bm"   onclick="setMode('bm')">⭐ Bookmark</div>
       <div class="mode-tab" data-mode="wr"   onclick="setMode('wr')">❌ Wrong <span id="wr-count" style="font-size:11px;opacity:.8"></span></div>
-      <div class="mode-tab" data-mode="skip" onclick="openSkipScreen()">⏭ Skipped</div>
+      <div class="mode-tab" data-mode="skip" onclick="setMode('skip')">⏭ Skipped</div>
     </div>
     <div id="mode-cat">
       <div class="filter-label">Year <span id="year-sel-n" style="color:var(--accent2)"></span></div>
@@ -463,6 +463,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
     </div>
     <div id="mode-bm" style="display:none"><div id="bm-list" style="margin-top:8px"></div></div>
     <div id="mode-wr" style="display:none"><div id="wr-list" style="margin-top:8px"></div></div>
+    <div id="mode-skip" style="display:none"><div id="skip-list" style="margin-top:8px"></div></div>
 
     <div id="mode-opts">
       <div class="filter-label">Order</div>
@@ -1481,7 +1482,7 @@ async function loadData(forceReload=false){
     loadGCSFileList(); // GCS 파일 목록 백그라운드 로드 (1회)
     document.getElementById('loading').style.display='none';
     buildCatGrid();buildYearChips();
-    document.getElementById('home-sub').textContent=ALL_QS.length.toLocaleString()+' 문항 · Google Sheets 연결';
+    document.getElementById('home-sub').textContent=ALL_QS.length.toLocaleString()+' 문항';
     updateStats();if(mode==='bm'||mode==='wr')setTimeout(()=>renderModeList(mode),100);if(restoreSession()){
       showScreen('quiz');showQ();
     } else {
@@ -1680,12 +1681,14 @@ function setMode(m){
   document.getElementById('mode-cat').style.display=(m==='cat'||m==='dup'||m==='unique')?'':'none';
   document.getElementById('mode-bm').style.display=m==='bm'?'':'none';
   document.getElementById('mode-wr').style.display=m==='wr'?'':'none';
+  document.getElementById('mode-skip').style.display=m==='skip'?'':'none';
   document.getElementById('mode-opts').style.display=(m==='cat'||m==='dup'||m==='unique')?'':'none';
-  var sb=document.getElementById('start-bar');if(sb)sb.style.display=(m==='bm'||m==='wr')?'none':'';
+  var sb=document.getElementById('start-bar');if(sb)sb.style.display=(m==='bm'||m==='wr'||m==='skip')?'none':'';
   const wrCount=document.getElementById('wr-count');
   if(wrCount)wrCount.textContent=store.wrongs.size?'('+store.wrongs.size+')':'';
   if(m==='bm')renderModeList('bm');
   if(m==='wr')renderModeList('wr');
+  if(m==='skip')renderSkipList();
   if(m==='cat'||m==='dup'||m==='unique')buildCatGrid();
   updateBtn();
 }
@@ -2309,36 +2312,35 @@ function endQuiz(){
 }
 function closeEndModal(){document.getElementById('end-modal').style.display='none';}
 
-function openSkipScreen(){
+function renderSkipList(){
   const list=document.getElementById('skip-list');
+  if(!list)return;
   const skipped=[...store.skip];
-  document.getElementById('skip-count').textContent=skipped.length+'문제';
   if(!skipped.length){
-    list.innerHTML='<div class="skip-empty">⏭ Skipped 문제가 없습니다.<br><span style="font-size:12px">문제 풀이 중 Skip 버튼을 누르면 여기에 표시됩니다.</span></div>';
-  } else {
-    const items=ALL_QS.filter(q=>store.skip.has(q.id)).sort((a,b)=>{
-      if(a.src!==b.src)return a.src.localeCompare(b.src);return a.qnum-b.qnum;
-    });
-    list.innerHTML=items.map(q=>
-      '<div id="si-'+q.id+'" style="border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden;background:var(--bg2)">'+
-        '<div style="display:flex;align-items:stretch">'+
-          '<div data-id="'+q.id+'" onclick="toggleSkipItem(this.dataset.id)" style="flex:1;padding:13px 14px;cursor:pointer;min-width:0">'+
-            '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">'+
-              '<strong style="color:var(--warn);font-size:13px">'+(q.allSrcs?q.allSrcs.join(' · '):q.src)+' Q'+q.qnum+'</strong>'+
-              '<span style="font-size:11px;color:var(--text3)">'+(q.cat+(q.sub&&!CAT_NO_SUB.has(q.cat)?' / '+q.sub:''))+'</span>'+
-              '<span id="sia-'+q.id+'" style="color:var(--accent2);font-size:18px;margin-left:auto;transition:transform .25s;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--bg3);flex-shrink:0">▾</span>'+
-            '</div>'+
-            '<div style="font-size:13px;color:var(--text2);line-height:1.5;word-break:break-word">'+escHtml(q.stem.substring(0,80))+(q.stem.length>80?'…':'')+'</div>'+
-          '</div>'+
-          '<button data-id="'+q.id+'" onclick="unskip(this.dataset.id)" style="flex-shrink:0;border-radius:0;border:none;border-left:1px solid var(--border);padding:0 14px;margin:0;writing-mode:vertical-lr;font-size:12px;letter-spacing:.05em;background:rgba(239,68,68,.1);color:var(--danger);cursor:pointer">해제</button>'+
-        '</div>'+
-        '<div id="sib-'+q.id+'" data-id="'+q.id+'" onclick="toggleSkipItem(this.dataset.id)" style="display:none;border-top:1px solid var(--border);padding:14px;cursor:pointer"></div>'+
-      '</div>'
-    ).join('');
+    list.innerHTML='<p style="color:var(--text2);font-size:14px;padding:12px 0;line-height:1.7">⏭ Skip한 문제가 없습니다.<br><span style="font-size:12px">문제 풀이 중 Skip 버튼을 누르면 여기에 표시됩니다.</span></p>';
+    return;
   }
-  document.getElementById('skip-screen').style.display='flex';
-  history.pushState({page:'skip'},'','');
+  const items=ALL_QS.filter(q=>store.skip.has(q.id)).sort((a,b)=>{
+    if(a.src!==b.src)return a.src.localeCompare(b.src);return a.qnum-b.qnum;
+  });
+  list.innerHTML=items.map(q=>
+    '<div id="si-'+q.id+'" style="border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden;background:var(--bg2)">'+
+      '<div style="display:flex;align-items:stretch">'+
+        '<div data-id="'+q.id+'" onclick="toggleSkipItem(this.dataset.id)" style="flex:1;padding:13px 14px;cursor:pointer;min-width:0">'+
+          '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">'+
+            '<strong style="color:var(--warn);font-size:13px">'+(q.allSrcs?q.allSrcs.join(' · '):q.src)+' Q'+q.qnum+'</strong>'+
+            '<span style="font-size:11px;color:var(--text3)">'+(q.cat+(q.sub&&!CAT_NO_SUB.has(q.cat)?' / '+q.sub:''))+'</span>'+
+            '<span id="sia-'+q.id+'" style="color:var(--accent2);font-size:18px;margin-left:auto;transition:transform .25s;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--bg3);flex-shrink:0">▾</span>'+
+          '</div>'+
+          '<div style="font-size:13px;color:var(--text2);line-height:1.5;word-break:break-word">'+escHtml(q.stem.substring(0,80))+(q.stem.length>80?'…':'')+'</div>'+
+        '</div>'+
+        '<button data-id="'+q.id+'" onclick="unskip(this.dataset.id)" style="flex-shrink:0;border-radius:0;border:none;border-left:1px solid var(--border);padding:0 14px;margin:0;writing-mode:vertical-lr;font-size:12px;letter-spacing:.05em;background:rgba(239,68,68,.1);color:var(--danger);cursor:pointer">해제</button>'+
+      '</div>'+
+      '<div id="sib-'+q.id+'" data-id="'+q.id+'" onclick="toggleSkipItem(this.dataset.id)" style="display:none;border-top:1px solid var(--border);padding:14px;cursor:pointer"></div>'+
+    '</div>'
+  ).join('');
 }
+function openSkipScreen(){setMode('skip');}  // 하위 호환
 function toggleSkipItem(id){
   const body=document.getElementById('sib-'+id);
   const arrow=document.getElementById('sia-'+id);
@@ -2363,10 +2365,10 @@ function toggleSkipItem(id){
   arrow.style.transform='rotate(180deg)';
   setTimeout(()=>document.getElementById('si-'+id).scrollIntoView({behavior:'smooth',block:'start'}),60);
 }
-function closeSkipScreen(){document.getElementById('skip-screen').style.display='none';updateBtn();}
+function closeSkipScreen(){setMode('cat');updateBtn();}
 function unskip(id){
   store.skip.delete(id);saveStore();
-  openSkipScreen();updateBtn();
+  renderSkipList();updateBtn();
 }
 function nextQ(){
   // Wrong 모드에서 방금 맞춘 문제는 세션 목록에서 제거
@@ -2413,9 +2415,7 @@ window.addEventListener('popstate',function(e){
   const analyticsOpen=document.getElementById('analytics-overlay').style.display==='flex';
   if(analyticsOpen){closeAnalytics();history.pushState({page:'home'},'','');return;}
 
-  // 3. skip 화면
-  const skipOpen=document.getElementById('skip-screen').style.display==='flex';
-  if(skipOpen){closeSkipScreen();history.pushState({page:'home'},'','');return;}
+  // 3. (skip은 인라인 모드로 전환, 팝스테이트 불필요)
 
   // 4. analytics start 모달
   const aModalOpen=document.getElementById('analytics-start-modal').style.display==='flex';
