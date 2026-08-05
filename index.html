@@ -48,7 +48,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
   min-width:0;overflow:hidden}
 .cat-btn.selected{border-color:var(--accent);background:rgba(59,130,246,.12)}
 .cat-btn .em{font-size:22px;display:block;margin-bottom:5px}
-.cat-btn .nm{font-size:15px;font-weight:600;color:var(--text);line-height:1.4;word-break:keep-all}
+.cat-btn .nm{font-size:15px;font-weight:600;color:var(--text);line-height:0.5;word-break:keep-all}
 .cat-btn .ct{font-size:13px;color:var(--text3);margin-top:3px}
 .cat-btn .ck{position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;
   background:var(--accent);display:none;align-items:center;justify-content:center;font-size:10px;color:#fff}
@@ -1428,7 +1428,7 @@ function buildCatGrid(){
   var totalCnt=ALL_QS.filter(qFilter).length;
   var allCard=document.createElement('div');
   allCard.className='cat-btn cat-all-btn'+(selCats.size===0?' selected':'');
-  allCard.innerHTML='<span class="em">📚</span><div class="nm">All Categories</div><div class="ct">'+totalCnt+' Qs</div><div class="ck">✓</div>';
+  allCard.innerHTML='<span class="em">📚</span><div class="nm">All Categories</div><div class="ct">'+totalCnt+'</div><div class="ck">✓</div>';
   allCard.onclick=function(){
     selCats.clear();selSubs.clear();
     document.querySelectorAll('.cat-btn').forEach(function(b){b.classList.remove('selected');});
@@ -1445,11 +1445,20 @@ function buildCatGrid(){
     var cnt=ALL_QS.filter(function(q){return q.cat===cat&&qFilter(q);}).length;
     if(!cnt)return;
     var subs=CAT_NO_SUB.has(cat)?[]:(CAT_SUBS[cat]||[]);
+    var catQs=ALL_QS.filter(function(q){return q.cat===cat;});
+    var done=catQs.filter(function(q){return store.done[q.id]!==undefined;}).length;
+    var cor=catQs.filter(function(q){return store.done[q.id]===true;}).length;
+    var pct=done?Math.round(cor/done*100):0;
+    var barW=catQs.length?done/catQs.length*100:0;
+    var barCol=pct>=50?'#2563eb':'#1e3a5f';
     var catId='sc_'+cat.replace(/[^a-z0-9]/gi,'_');
     var d=document.createElement('div');
     d.className='cat-btn'+(selCats.has(cat)?' selected':'');
     d.dataset.cat=cat;
-    var html='<div style="display:flex;align-items:center;gap:6px"><span class="em">'+(CAT_EMOJI[cat]||'📚')+'</span><div class="nm">'+cat+'</div><div class="ct">'+cnt+' Qs</div><div class="ck">✓</div></div>';
+    var html='<div style="display:flex;align-items:center;gap:6px"><span class="em">'+(CAT_EMOJI[cat]||'📚')+'</span><div class="nm">'+cat+'</div><div class="ct">'+cnt+'</div><div class="ck">✓</div></div>';
+    // 진행 바
+    html+='<div style="margin-top:6px;background:var(--bg3);border-radius:3px;height:4px;overflow:hidden">'
+      +'<div style="height:100%;width:'+barW+'%;background:'+barCol+';transition:width .4s"></div></div>';
     if(subs.length){
       html+='<div class="sub-chips" id="'+catId+'" style="display:'+(selCats.has(cat)?'flex':'none')+'">';
       html+='<span class="sub-chip sub-all" data-sub="" data-cid="'+catId+'" data-cat="'+cat+'">All</span>';
