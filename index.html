@@ -48,7 +48,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
   min-width:0;overflow:hidden}
 .cat-btn.selected{border-color:var(--accent);background:rgba(59,130,246,.12)}
 .cat-btn .em{font-size:22px;display:block;margin-bottom:5px}
-.cat-btn .nm{font-size:15px;font-weight:600;color:var(--text);line-height:0.5;word-break:keep-all}
+.cat-btn .nm{font-size:15px;font-weight:600;color:var(--text);line-height:0.8;word-break:keep-all}
 .cat-btn .ct{font-size:13px;color:var(--text3);margin-top:3px}
 .cat-btn .ck{position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;
   background:var(--accent);display:none;align-items:center;justify-content:center;font-size:10px;color:#fff}
@@ -1445,7 +1445,7 @@ function buildCatGrid(){
     var cnt=ALL_QS.filter(function(q){return q.cat===cat&&qFilter(q);}).length;
     if(!cnt)return;
     var subs=CAT_NO_SUB.has(cat)?[]:(CAT_SUBS[cat]||[]);
-    var catQs=ALL_QS.filter(function(q){return q.cat===cat;});
+    var catQs=ALL_QS.filter(function(q){return q.cat===cat&&qFilter(q);});
     var done=catQs.filter(function(q){return store.done[q.id]!==undefined;}).length;
     var cor=catQs.filter(function(q){return store.done[q.id]===true;}).length;
     var pct=done?Math.round(cor/done*100):0;
