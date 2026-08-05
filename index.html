@@ -1726,7 +1726,35 @@ function updateStats(){
   if(document.getElementById('home').classList.contains('active')&&
      (mode==='cat'||mode==='dup'||mode==='unique'))buildCatGrid();
 }
-function startQuiz(){let qs=getFiltered();if(!qs.length)return;if(order==='rand')qs=[...qs].sort(()=>Math.random()-.5);const n=sessCount===0?qs.length:Math.min(sessCount,qs.length);sessQs=qs.slice(0,n);qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];seenQIds=new Set();sessStartTime=Date.now();sessionAnswers={};answered=false;translateOn=false;document.getElementById('btn-translate').classList.remove('active');document.getElementById('btn-translate').textContent='🌐 한국어';showScreen('quiz');showQ();}
+function startQuiz(){
+  let qs=getFiltered();
+  if(!qs.length)return;
+  if(order==='rand')qs=[...qs].sort(()=>Math.random()-.5);
+  const n=sessCount===0?qs.length:Math.min(sessCount,qs.length);
+  const newQs=qs.slice(0,n);
+
+  // 이전 세션과 동일한 문제 목록인지 확인
+  const prevIds=sessQs.map(q=>q.id).join(',');
+  const newIds=newQs.map(q=>q.id).join(',');
+  const isSameSession=prevIds===newIds&&Object.keys(sessionAnswers).length>0;
+
+  if(isSameSession){
+    // 같은 세션 → 마지막 미답 문제부터
+    const firstUnanswered=newQs.findIndex(q=>sessionAnswers[q.id]===undefined);
+    qIdx=firstUnanswered>=0?firstUnanswered:newQs.length-1;
+    sessQs=newQs;
+  } else {
+    // 새 세션
+    sessQs=newQs;qIdx=0;
+    sCorrect=0;sWrong=0;sWrongIds=[];seenQIds=new Set();
+    sessStartTime=Date.now();sessionAnswers={};
+  }
+
+  answered=false;translateOn=false;
+  document.getElementById('btn-translate').classList.remove('active');
+  document.getElementById('btn-translate').textContent='🌐 한국어';
+  showScreen('quiz');showQ();
+}
 function showQ(){const q=sessQs[qIdx];answered=false;translateOn=false;trStem='';trOpts=[];document.getElementById('btn-translate').classList.remove('active');document.getElementById('btn-translate').textContent='🌐 한국어';document.getElementById('q-counter').textContent=(qIdx+1)+' / '+sessQs.length;document.getElementById('prog').style.width=(qIdx/sessQs.length*100)+'%';document.getElementById('q-source').textContent='('+q.src+') Q'+q.qnum+' · '+q.cat+(q.sub&&!CAT_NO_SUB.has(q.cat)?' / '+q.sub:'');
     document.getElementById('q-stem').innerHTML=renderStem(q.stem);
     // 미디어 (이미지 or 영상)
