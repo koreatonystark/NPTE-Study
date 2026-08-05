@@ -1055,21 +1055,30 @@ const MSG_WRONG=['아우~!!!','얌마!!','정신차렷!!','틀렸다!','흠.....
 function showResultBadge(ok,autoNext){
   const msgs=ok?MSG_CORRECT:MSG_WRONG;
   const msg=msgs[Math.floor(Math.random()*msgs.length)];
+  const sub=ok&&autoNext?'오답 목록에서 해제됨':'';
+
+  const svg=ok?
+    // 정답: 둥근 말풍선 (꼬리 왼쪽 아래)
+    `<svg viewBox="0 0 200 130" width="200" height="130">
+      <path d="M12,0 Q0,0 0,12 L0,80 Q0,92 12,92 L80,92 L70,118 L110,92 L188,92 Q200,92 200,80 L200,12 Q200,0 188,0 Z" fill="#166534" stroke="#22c55e" stroke-width="2.5"/>
+      <text x="100" y="45" text-anchor="middle" fill="#4ade80" font-size="22" font-weight="800" font-family="sans-serif">${msg}</text>
+      ${sub?`<text x="100" y="72" text-anchor="middle" fill="#86efac" font-size="12" font-family="sans-serif">${sub}</text>`:''}
+    </svg>`
+  :
+    // 오답: 뾰족 폭발형
+    `<svg viewBox="0 0 200 200" width="180" height="180">
+      <path d="M100,5 L115,52 L162,25 L138,68 L190,72 L150,100 L185,130 L138,118 L142,165 L100,138 L100,168 L58,138 L18,165 L22,118 L-25,130 L10,100 L-30,72 L22,68 L-2,25 L50,52 Z" fill="#7f1d1d" stroke="#ef4444" stroke-width="2.5"/>
+      <text x="90" y="105" text-anchor="middle" fill="#fca5a5" font-size="20" font-weight="800" font-family="sans-serif">${msg}</text>
+    </svg>`;
+
   const overlay=document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;pointer-events:none';
-  const bg=ok?'#166534':'#7f1d1d';
-  const border=ok?'#22c55e':'#ef4444';
-  const col=ok?'#4ade80':'#fca5a5';
-  const sub=ok?(autoNext?'오답 목록에서 해제됨':''):'';
-  overlay.innerHTML='<div style="background:'+bg+';border:2px solid '+border+';border-radius:16px;padding:20px 36px;text-align:center;box-shadow:0 0 30px rgba(0,0,0,.5);animation:fadeIn .2s ease">'
-    +'<div style="font-size:22px;font-weight:800;color:'+col+';letter-spacing:.02em">'+msg+'</div>'
-    +(sub?'<div style="font-size:12px;color:'+col+';margin-top:6px;opacity:.8">'+sub+'</div>':'')
-    +'</div>';
+  const wrapper=document.createElement('div');
+  wrapper.style.cssText='animation:fadeIn .2s ease;filter:drop-shadow(0 4px 20px rgba(0,0,0,.5))';
+  wrapper.innerHTML=svg;
+  overlay.appendChild(wrapper);
   document.body.appendChild(overlay);
-  setTimeout(()=>{
-    overlay.remove();
-    if(autoNext)nextQ();
-  },1000);
+  setTimeout(()=>{overlay.remove();if(autoNext)nextQ();},1000);
 }
 function restoreHeadingEmoji(s){
   // 구글시트 CSV에서 ## 제목의 이모지가 ?/?? 로 깨지는 경우 복원
