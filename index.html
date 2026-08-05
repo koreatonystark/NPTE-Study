@@ -1058,28 +1058,43 @@ function showResultBadge(ok,autoNext){
   const sub=ok&&autoNext?'오답 목록에서 해제됨':'';
 
   const svg=ok?
-    // 정답: 둥근 말풍선 - 완전히 viewBox 안에
-    `<svg viewBox="0 0 220 140" width="220" height="140">
+    // 정답: 둥근 말풍선 - 팝업 애니메이션
+    `<svg viewBox="0 0 220 140" width="220" height="140" style="animation:popIn .35s cubic-bezier(.34,1.56,.64,1) both">
+      <style>
+        @keyframes popIn{
+          0%{transform:scale(0);opacity:0}
+          100%{transform:scale(1);opacity:1}
+        }
+      </style>
       <path d="M15,5 Q5,5 5,15 L5,85 Q5,95 15,95 L85,95 L75,125 L115,95 L205,95 Q215,95 215,85 L215,15 Q215,5 205,5 Z" fill="#166534" stroke="#22c55e" stroke-width="2.5" opacity="0.85"/>
       <text x="110" y="47" text-anchor="middle" fill="#4ade80" font-size="22" font-weight="800" font-family="sans-serif">${msg}</text>
       ${sub?`<text x="110" y="75" text-anchor="middle" fill="#86efac" font-size="12" font-family="sans-serif">${sub}</text>`:''}
     </svg>`
   :
-    // 오답: 폭발형 - 중심(110,105), 반경 모두 양수
-    `<svg viewBox="0 0 220 210" width="200" height="190">
+    // 오답: 폭발형 - 폭탄 터지는 애니메이션
+    `<svg viewBox="0 0 440 420" width="340" height="320" style="animation:explode .4s cubic-bezier(.36,.07,.19,.97) both">
+      <style>
+        @keyframes explode{
+          0%{transform:scale(0) rotate(-15deg);opacity:0}
+          40%{transform:scale(1.3) rotate(8deg);opacity:1}
+          65%{transform:scale(0.9) rotate(-4deg);opacity:1}
+          80%{transform:scale(1.1) rotate(2deg);opacity:1}
+          100%{transform:scale(1) rotate(0deg);opacity:1}
+        }
+      </style>
       <polygon points="
-        110,10 122,50 158,28 142,65 185,60 158,90
-        190,112 155,112 168,148 132,130 128,170
-        110,145 92,170 88,130 52,148 65,112
-        30,112 62,90 35,60 78,65 62,28 98,50"
-        fill="#7f1d1d" stroke="#ef4444" stroke-width="2.5" opacity="0.85"/>
-      <text x="110" y="108" text-anchor="middle" fill="#fca5a5" font-size="20" font-weight="800" font-family="sans-serif">${msg}</text>
+        220,20 244,100 316,56 284,130 370,120 316,180
+        380,224 310,224 336,296 264,260 256,340
+        220,290 184,340 176,260 104,296 130,224
+        60,224 124,180 70,120 156,130 124,56 196,100"
+        fill="#7f1d1d" stroke="#ef4444" stroke-width="4" opacity="0.85"/>
+      <text x="220" y="216" text-anchor="middle" fill="#fca5a5" font-size="36" font-weight="800" font-family="sans-serif">${msg}</text>
     </svg>`;
 
   const overlay=document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;pointer-events:none';
   const wrapper=document.createElement('div');
-  wrapper.style.cssText='animation:fadeIn .2s ease;filter:drop-shadow(0 4px 20px rgba(0,0,0,.4))';
+  wrapper.style.cssText='filter:drop-shadow(0 4px 20px rgba(0,0,0,.4))';
   wrapper.innerHTML=svg;
   overlay.appendChild(wrapper);
   document.body.appendChild(overlay);
