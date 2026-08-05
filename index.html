@@ -388,7 +388,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);
     <div class="filter-label">Mode</div>
     <div class="mode-tabs">
       <div class="mode-tab active" data-mode="cat" onclick="setMode('cat')">Category</div>
-      <div class="mode-tab" data-mode="year" onclick="setMode('year')">Year</div>
       <div class="mode-tab" data-mode="dup" onclick="setMode('dup')">🔁 Duplicate</div>
       <div class="mode-tab" data-mode="unique" onclick="setMode('unique')">1️⃣ Unique</div>
       <div class="mode-tab" data-mode="bm"   onclick="setMode('bm')">⭐ Bookmark</div>
@@ -396,15 +395,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);
       <div class="mode-tab" data-mode="skip" onclick="openSkipScreen()">⏭ Skipped</div>
     </div>
     <div id="mode-cat">
+      <div class="filter-label">Year <span id="year-sel-n" style="color:var(--accent2)"></span></div>
+      <div class="chip-wrap" id="year-chips" style="margin-bottom:10px"></div>
       <div class="filter-label">Category <span id="cat-sel-n" style="color:var(--accent2)"></span></div>
       <div class="cat-grid" id="cat-grid"></div>
     </div>
     <div id="mode-bm" style="display:none"><div id="bm-list" style="margin-top:8px"></div></div>
     <div id="mode-wr" style="display:none"><div id="wr-list" style="margin-top:8px"></div></div>
-    <div id="mode-year" style="display:none">
-      <div class="filter-label">Year</div>
-      <div class="chip-wrap" id="year-chips"></div>
-    </div>
 
     <div id="mode-opts">
       <div class="filter-label">Order</div>
@@ -1387,13 +1384,34 @@ async function loadData(forceReload=false){
 function buildYearChips(){
   const years=[...new Set(ALL_QS.map(q=>q.year).filter(Boolean))].sort();
   const w=document.getElementById('year-chips');
+  if(!w)return;
   w.innerHTML='';
+  // All 칩
+  const allD=document.createElement('div');
+  allD.className='chip'+(selYears.size===0?' selected':'');
+  allD.textContent='All';
+  allD.onclick=()=>{
+    selYears.clear();
+    document.querySelectorAll('#year-chips .chip').forEach(c=>c.classList.remove('selected'));
+    allD.classList.add('selected');
+    document.getElementById('year-sel-n').textContent='';
+    buildCatGrid();updateBtn();
+  };
+  w.appendChild(allD);
   years.forEach(y=>{
     const d=document.createElement('div');
-    d.className='chip';
+    d.className='chip'+(selYears.has(y)?' selected':'');
     d.dataset.year=y;
-    d.textContent=y+' ('+ALL_QS.filter(q=>q.year===y).length+')';
-    d.onclick=()=>toggleChip(selYears,y,d);
+    const cnt=ALL_QS.filter(q=>q.year===y).length;
+    d.textContent=y+' ('+cnt+')';
+    d.onclick=()=>{
+      toggleChip(selYears,y,d);
+      // All 칩 상태 갱신
+      allD.classList.toggle('selected',selYears.size===0);
+      const n=document.getElementById('year-sel-n');
+      n.textContent=selYears.size?'('+[...selYears].sort().join(', ')+')':'';
+      buildCatGrid();updateBtn();
+    };
     w.appendChild(d);
   });
 }
@@ -1402,6 +1420,7 @@ function buildCatGrid(){
   g.innerHTML='';
   function qFilter(q){
     if(store.skip.has(q.id))return false;
+    if(selYears.size&&!selYears.has(q.year))return false;
     if(mode==='dup')return q.isDup;
     if(mode==='unique')return !q.isDup;
     return true;
@@ -1521,9 +1540,9 @@ function getFiltered(){
   else if(mode==='wr')qs=ALL_QS.filter(q=>store.wrongs.has(q.id)&&!store.skip.has(q.id));
   else{
     qs=ALL_QS.filter(q=>!store.skip.has(q.id));
+    if(selYears.size)qs=qs.filter(q=>selYears.has(q.year));
     if(mode==='dup')qs=qs.filter(q=>q.isDup);
     if(mode==='unique')qs=qs.filter(q=>!q.isDup);
-    if(mode==='year'&&selYears.size)qs=qs.filter(q=>selYears.has(q.year));
     if(selCats.size)qs=qs.filter(q=>selCats.has(q.cat));
     if(selSubs.size)qs=qs.filter(q=>selSubs.has(q.sub));
   }
@@ -1539,16 +1558,14 @@ function setMode(m){
   mode=m;
   document.querySelectorAll('.mode-tab').forEach(t=>t.classList.toggle('active',t.dataset.mode===m));
   document.getElementById('mode-cat').style.display=(m==='cat'||m==='dup'||m==='unique')?'':'none';
-  document.getElementById('mode-year').style.display=m==='year'?'':'none';
   document.getElementById('mode-bm').style.display=m==='bm'?'':'none';
   document.getElementById('mode-wr').style.display=m==='wr'?'':'none';
-  document.getElementById('mode-opts').style.display=(m==='cat'||m==='dup'||m==='unique'||m==='year')?'':'none';
+  document.getElementById('mode-opts').style.display=(m==='cat'||m==='dup'||m==='unique')?'':'none';
   const wrCount=document.getElementById('wr-count');
   if(wrCount)wrCount.textContent=store.wrongs.size?'('+store.wrongs.size+')':'';
   if(m==='bm')renderModeList('bm');
   if(m==='wr')renderModeList('wr');
   if(m==='cat'||m==='dup'||m==='unique')buildCatGrid();
-  if(m==='year')buildYearChips();
   updateBtn();
 }
 function renderModeList(m){
