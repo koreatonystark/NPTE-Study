@@ -1722,6 +1722,9 @@ function updateStats(){
   if(wrCount)wrCount.textContent=store.wrongs.size?'('+store.wrongs.size+')':'';
   if(mode==='bm')renderModeList('bm');
   if(mode==='wr')renderModeList('wr');
+  // 홈 화면이면 카테고리 카드 진행 바 갱신
+  if(document.getElementById('home').classList.contains('active')&&
+     (mode==='cat'||mode==='dup'||mode==='unique'))buildCatGrid();
 }
 function startQuiz(){let qs=getFiltered();if(!qs.length)return;if(order==='rand')qs=[...qs].sort(()=>Math.random()-.5);const n=sessCount===0?qs.length:Math.min(sessCount,qs.length);sessQs=qs.slice(0,n);qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];seenQIds=new Set();sessStartTime=Date.now();sessionAnswers={};answered=false;translateOn=false;document.getElementById('btn-translate').classList.remove('active');document.getElementById('btn-translate').textContent='🌐 한국어';showScreen('quiz');showQ();}
 function showQ(){const q=sessQs[qIdx];answered=false;translateOn=false;trStem='';trOpts=[];document.getElementById('btn-translate').classList.remove('active');document.getElementById('btn-translate').textContent='🌐 한국어';document.getElementById('q-counter').textContent=(qIdx+1)+' / '+sessQs.length;document.getElementById('prog').style.width=(qIdx/sessQs.length*100)+'%';document.getElementById('q-source').textContent='('+q.src+') Q'+q.qnum+' · '+q.cat+(q.sub&&!CAT_NO_SUB.has(q.cat)?' / '+q.sub:'');
@@ -2251,7 +2254,7 @@ function toggleBm(){const q=sessQs[qIdx];store.bm.has(q.id)?store.bm.delete(q.id
 function showResult(){clearInterval(timerIv);const tot=sessQs.length,pct=Math.round(sCorrect/tot*100);document.getElementById('res-score').textContent=sCorrect+'/'+tot;document.getElementById('res-label').textContent=pct+'% correct · '+sWrong+' wrong';document.getElementById('bar-c').style.width=(sCorrect/tot*100)+'%';document.getElementById('bar-w').style.width=(sWrong/tot*100)+'%';document.getElementById('num-c').textContent=sCorrect;document.getElementById('num-w').textContent=sWrong;document.getElementById('btn-rw').style.display=sWrong?'':'none';document.getElementById('prog').style.width='100%';updateStats();showScreen('result');}
 function retrySame(){const qs=[...sessQs];if(order==='rand')qs.sort(()=>Math.random()-.5);sessQs=qs;qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];seenQIds=new Set();sessStartTime=Date.now();sessionAnswers={};answered=false;showScreen('quiz');showQ();}
 function retryWrong(){const wqs=ALL_QS.filter(q=>sWrongIds.includes(q.id));if(!wqs.length)return;sessQs=wqs;qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];seenQIds=new Set();sessStartTime=Date.now();sessionAnswers={};answered=false;showScreen('quiz');showQ();}
-function goHome(){clearInterval(timerIv);ttsReqId++;ttsOn=false;window.speechSynthesis.cancel();if(window._ttsAudio){window._ttsAudio.pause();window._ttsAudio=null;}updateStats();showScreen('home');updateBtn();}
+function goHome(){clearInterval(timerIv);ttsReqId++;ttsOn=false;window.speechSynthesis.cancel();if(window._ttsAudio){window._ttsAudio.pause();window._ttsAudio=null;}updateStats();showScreen('home');if(mode==='cat'||mode==='dup'||mode==='unique')buildCatGrid();updateBtn();}
 function confirmGoHome(){
   const onQuiz=document.getElementById('quiz').classList.contains('active');
   if(onQuiz&&sessQs.length){
