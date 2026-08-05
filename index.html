@@ -1001,21 +1001,22 @@ if('serviceWorker' in navigator){
 
 function renderStem(text){
   if(!VOCAB.length)return escHtml(text);
-  // 텍스트를 토큰으로 분리 (단어+공백/구두점)
   const tokens=text.match(/[\w'-]+|[^\w'-]+/g)||[];
   let result='',i=0;
   while(i<tokens.length){
     const tok=tokens[i];
     if(/[\w'-]/.test(tok)){
-      // 최대 5단어 숙어 매칭 시도
       let matched=false;
-      for(let len=5;len>=1;len--){
-        const phrase=tokens.slice(i,i+len*2-1).join('').toLowerCase().replace(/[^a-z0-9\s'-]/g,'').trim();
+      const maxLen=Math.min(5,Math.ceil((tokens.length-i)/2));
+      for(let len=maxLen;len>=1;len--){
+        const end=i+len*2-1;
+        if(end>tokens.length)continue;
+        const phrase=tokens.slice(i,end).join('').toLowerCase().replace(/[^a-z0-9\s'-]/g,'').trim();
         const entry=VOCAB.find(v=>v.word===phrase||v.word===phrase.replace(/-/g,' '));
         if(entry){
-          const display=tokens.slice(i,i+len*2-1).join('');
+          const display=tokens.slice(i,end).join('');
           result+='<span class="vw" onclick="showVocab(event,\''+escAttr(entry.word)+'\')">'+escHtml(display)+'</span>';
-          i+=len*2-1;matched=true;break;
+          i=end;matched=true;break;
         }
       }
       if(!matched){result+=escHtml(tok);i++;}
@@ -1034,13 +1035,16 @@ function renderStemText(text){
     const tok=tokens[i];
     if(/^[\w'-]+$/.test(tok)){
       let matched=false;
-      for(let len=Math.min(5,Math.floor((tokens.length-i+1)/2));len>=1;len--){
-        const phrase=tokens.slice(i,i+len*2-1).join('').toLowerCase().replace(/[^a-z0-9\s'-]/g,'').trim();
+      const maxLen=Math.min(5,Math.ceil((tokens.length-i)/2));
+      for(let len=maxLen;len>=1;len--){
+        const end=i+len*2-1;
+        if(end>tokens.length)continue;
+        const phrase=tokens.slice(i,end).join('').toLowerCase().replace(/[^a-z0-9\s'-]/g,'').trim();
         const entry=VOCAB.find(v=>v.word===phrase||v.word===phrase.replace(/-/g,' '));
         if(entry){
-          const display=tokens.slice(i,i+len*2-1).join('');
+          const display=tokens.slice(i,end).join('');
           result+='<span class="vw" onclick="showVocab(event,\''+escAttr(entry.word)+'\')">'+escHtml(display)+'</span>';
-          i+=len*2-1;matched=true;break;
+          i=end;matched=true;break;
         }
       }
       if(!matched){result+=escHtml(tok);i++;}
@@ -1174,12 +1178,25 @@ function renderExpl(text){
     if(/^https?:\/\/\S+$/.test(trimmed)){
       flushList();
       var url=trimmed;
-      if(/\.(png|jpg|jpeg|gif|webp|svg)(\?[^\s]*)?$/i.test(url)){
-        // 이미지 URL → 인라인 이미지 (모바일: 화면폭, PC: 원본)
+      // 유튜브 URL → 썸네일 + 링크 버튼
+      var ytm=url.match(/youtu\.be\/([^?&]+)/)||url.match(/youtube\.com\/(?:watch\?v=|shorts\/)([^?&]+)/);
+      if(ytm){
+        var vid=ytm[1];
+        out.push('<a href="'+escHtml(url)+'" target="_blank" rel="noopener" style="display:block;margin:10px 0;text-decoration:none;border-radius:8px;overflow:hidden;border:1px solid var(--border)">'
+          +'<div style="position:relative;line-height:0">'
+          +'<img src="https://img.youtube.com/vi/'+vid+'/hqdefault.jpg" alt="" style="width:100%;max-width:100%;height:auto;display:block">'
+          +'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.3)">'
+          +'<div style="width:56px;height:40px;background:#ff0000;border-radius:8px;display:flex;align-items:center;justify-content:center">'
+          +'<div style="width:0;height:0;border-top:10px solid transparent;border-bottom:10px solid transparent;border-left:18px solid #fff;margin-left:4px"></div>'
+          +'</div></div></div>'
+          +'<div style="padding:8px 12px;background:var(--bg3);font-size:12px;color:var(--text3)">▶ YouTube에서 보기</div>'
+          +'</a>');
+      // 이미지 URL → 인라인 이미지
+      }else if(/\.(png|jpg|jpeg|gif|webp|svg)(\?[^\s]*)?$/i.test(url)){
         out.push('<div style="margin:10px 0;line-height:0">'
           +'<img src="'+escHtml(url)+'" alt="" class="expl-img-inline" onclick="toggleImgZoom(this)">'
           +'</div>');
-      } else {
+      }else{
         out.push('<div style="margin:4px 0"><a href="'+escHtml(url)+'" target="_blank" rel="noopener" '
           +'style="color:var(--accent2);text-decoration:underline;word-break:break-all;font-size:14px">'
           +escHtml(url)+'</a></div>');
