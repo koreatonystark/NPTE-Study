@@ -138,47 +138,15 @@ main{padding:16px;max-width:740px;margin:0 auto}.sc{display:none}.sc.on{display:
   <div class="logo"><div class="logo-icon">🗂️</div><div><div class="logo-text">NPTE Chart Reading Master</div><div class="logo-sub">차트 읽기 완전 정복</div></div></div>
   <div class="hstats"><div class="hstat">🔥<b id="hS">0</b></div><div class="hstat">✅<b id="hT">0</b></div><div class="hstat">🎯<b id="hA">-</b></div></div>
 </header>
-<!-- ── App Toolbar ── -->
-<div style="background:#0d1526;border-bottom:1px solid #1e2d47;padding:7px 14px;display:flex;align-items:center;gap:8px;overflow-x:auto;scrollbar-width:none">
-  <a href="index.html" style="text-decoration:none;flex-shrink:0">
-    <div style="display:flex;align-items:center;gap:5px;padding:5px 10px;background:#1a2744;border:1px solid #2a3d66;border-radius:20px;font-size:12px;color:#7eb8f7;white-space:nowrap">
-      🏠 Question Bank
-    </div>
-  </a>
-  <a href="english.html" style="text-decoration:none;flex-shrink:0">
-    <div style="display:flex;align-items:center;gap:5px;padding:5px 10px;background:#1a2744;border:1px solid #2a3d66;border-radius:20px;font-size:12px;color:#9aabcb;white-space:nowrap">
-      📝 English
-    </div>
-  </a>
-  <a href="chart.html" style="text-decoration:none;flex-shrink:0">
-    <div style="display:flex;align-items:center;gap:5px;padding:5px 10px;background:#1a2744;border:1px solid #2a3d66;border-radius:20px;font-size:12px;color:#7eb8f7;border-color:#4f8ef7;white-space:nowrap">
-      📊 Chart
-    </div>
-  </a>
-</div>
-
 <div class="nav">
-  <button class="nb on" onclick="go('home')">🏠 홈</button>
-  <button class="nb" onclick="go('structure')">📋 차트 구조</button>
-  <button class="nb" onclick="go('vocab')">📖 용어 퀴즈</button>
+  <button class="nb on" onclick="go('structure')">📋 차트 구조</button>
   <button class="nb" onclick="go('strategy')">🎯 풀이 전략</button>
+  <button class="nb" onclick="go('vocab')">📖 용어 퀴즈</button>
   <button class="nb" onclick="go('quiz')">✏️ 차트 퀴즈</button>
 </div>
 <main>
-<!-- HOME -->
-<div id="sc-home" class="sc on">
-  <div class="home-hero"><h1>NPTE <em>차트 읽기</em><br>완전 정복 앱</h1><p>실제 EMR 스타일 차트를 읽고 임상 판단하는 능력을 단계적으로 훈련합니다.<br>이 앱 하나면 차트 문제 완벽 대비!</p></div>
-  <div id="home-streak" class="streak-box" style="display:none"><div style="font-size:22px">🔥</div><div><div style="font-size:15px;color:var(--text2)">연속 정답</div><div class="streak-n" id="streakN">0</div></div><div style="font-size:15px;color:var(--text2);margin-left:4px">개 진행 중!</div></div>
-  <div class="feature-grid">
-    <div class="feat-card" onclick="go('structure')"><div class="feat-icon">📋</div><div class="feat-title">차트 구조 학습</div><div class="feat-desc">7개 섹션 구성, 각 파트 역할, 핵심 용어 & 유사 표현 메모</div><div class="feat-cnt">7 SECTIONS · 80+ TERMS</div></div>
-    <div class="feat-card" onclick="go('vocab')"><div class="feat-icon">📖</div><div class="feat-title">용어 퀴즈</div><div class="feat-desc">차트 속 핵심 단어·약어·표현 즉시 반응 훈련</div><div class="feat-cnt" id="vocab-cnt">-- VOCAB</div></div>
-    <div class="feat-card" onclick="go('strategy')"><div class="feat-icon">🎯</div><div class="feat-title">풀이 전략</div><div class="feat-desc">8단계 전략 + 즉시 암기 기준표 + 약물 패턴</div><div class="feat-cnt">8 STEPS · QUICK REF</div></div>
-    <div class="feat-card" onclick="go('quiz')"><div class="feat-icon">✏️</div><div class="feat-title">차트 퀴즈</div><div class="feat-desc">실제 EMR 스타일 10개 차트 · 4가지 문제 유형</div><div class="feat-cnt" id="quiz-cnt">-- QUESTIONS</div></div>
-  </div>
-  <div class="start-big" onclick="go('quiz')"><div class="start-big-title">🚀 차트 퀴즈 바로 시작</div><div class="start-big-desc">실제 NPTE 스타일 차트를 읽고 문제를 풀어보세요</div></div>
-</div>
-<!-- STRUCTURE -->
-<div id="sc-structure" class="sc">
+<!-- STRUCTURE (메인화면) -->
+<div id="sc-structure" class="sc on">
   <div class="sec-label">📋 NPTE 차트의 7가지 구성 섹션</div>
   <div style="font-size:16px;color:var(--text2);margin-bottom:14px;line-height:1.65">NPTE Chart/Exhibit 문제는 실제 EMR(전자의무기록)과 동일한 구조입니다.<br>각 섹션의 <strong style="color:var(--text)">역할·용어·함정</strong>과 <strong style="color:var(--orange)">유사 표현 메모</strong>를 완전히 숙지하세요.</div>
   <div id="struct-list"></div>
@@ -776,13 +744,11 @@ function updHdr(){
   document.getElementById("hS").textContent=ST.sessStreak;
   document.getElementById("hT").textContent=ST.totAll;
   document.getElementById("hA").textContent=ST.totAll>0?Math.round(ST.totOk/ST.totAll*100)+"%":"-";
-  const sb=document.getElementById("home-streak");
-  if(ST.sessStreak>0){sb.style.display="flex";document.getElementById("streakN").textContent=ST.sessStreak;}
-  else sb.style.display="none";
+  // streak display removed (home screen removed)
 }
 function shuf(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
 
-const SCREENS=["home","structure","vocab","strategy","quiz"];
+const SCREENS=["structure","strategy","vocab","quiz"];
 function go(name){
   document.querySelectorAll(".sc").forEach(s=>s.classList.remove("on"));
   document.querySelectorAll(".nb").forEach(b=>b.classList.remove("on"));
@@ -791,7 +757,6 @@ function go(name){
   if(idx>=0)document.querySelectorAll(".nb")[idx].classList.add("on");
   if(name==="structure"&&!document.getElementById("struct-list").innerHTML)renderStructure();
   if(name==="strategy"&&!document.getElementById("strat-list").innerHTML)renderStrategy();
-  if(name==="home")updHdr();
 }
 
 function renderStructure(){
@@ -936,7 +901,6 @@ function startQuiz(){
   document.getElementById("qz-setup").style.display="none";
   document.getElementById("qz-area").style.display="block";
   document.getElementById("qz-result").style.display="none";
-  document.getElementById("quiz-cnt").textContent=QZB.length+" QUESTIONS";
   renderQZ();
 }
 function renderQZ(){
@@ -991,9 +955,7 @@ function showQZResult(){
 function resetQZ(){document.getElementById("qz-result").style.display="none";document.getElementById("qz-area").style.display="none";document.getElementById("qz-setup").style.display="block";}
 
 // INIT
-loadST();updHdr();
-document.getElementById("vocab-cnt").textContent=VOCAB.length+" VOCAB";
-document.getElementById("quiz-cnt").textContent=QZB.length+" QUESTIONS";
+loadST();updHdr();renderStructure();
 
 // ================================================================
 // UTIL

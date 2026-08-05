@@ -393,26 +393,30 @@ main{padding:18px;max-width:720px;margin:0 auto}
 </div>
 
 <div class="nav">
-  <button class="nb on" onclick="go('home')">🏠 홈</button>
-  <button class="nb" onclick="go('quiz')">📝 퀴즈</button>
-  <button class="nb" onclick="go('ref')">📚 레퍼런스</button>
+  <button class="nb on" onclick="go('ref')">📚 레퍼런스</button>
   <button class="nb chart-nb" onclick="go('chart')">🗂️ 차트읽기</button>
+  <button class="nb" onclick="go('quiz')">📝 퀴즈</button>
 </div>
 
 <main>
 
-<!-- HOME -->
-<div id="sc-home" class="sc on">
-  <div class="hero">
-    <h1>NPTE <em>영어 표현</em> 완전 정복</h1>
-    <p>의학 지식은 있는데 영어 표현이 막힌다면 이 앱이 해결해 드립니다.<br>
-    각 표현의 <strong>뜻·뉘앙스·용법·함정</strong>을 반복 숙달!</p>
+<!-- REFERENCE (홈) -->
+<div id="sc-ref" class="sc on">
+  <div class="pills" id="ref-pills">
+    <div class="pill on" onclick="filterRef('all',this)">전체</div>
+    <div class="pill" onclick="filterRef('modifier',this)">수식어</div>
+    <div class="pill" onclick="filterRef('verb',this)">동사</div>
+    <div class="pill" onclick="filterRef('phrase',this)">구 표현</div>
+    <div class="pill" onclick="filterRef('trap',this)">함정</div>
+    <div class="pill" onclick="filterRef('symptom',this)">🆕증상묘사</div>
+    <div class="pill" onclick="filterRef('clinical_verb',this)">🆕기능동사</div>
+    <div class="pill" onclick="filterRef('time_seq',this)">🆕시간순서</div>
+    <div class="pill" onclick="filterRef('comparison',this)">🆕비교대조</div>
+    <div class="pill" onclick="filterRef('contraindication',this)">🆕금기제한</div>
+    <div class="pill" onclick="filterRef('grading',this)">🆕등급표현</div>
+    <div class="pill" onclick="filterRef('abbr',this)">약어</div>
   </div>
-  <div id="home-streak" class="streak-box" style="display:none">
-    <div class="sb-icon">🔥</div>
-    <div class="sb-text">연속 정답 <span class="sb-n" id="homeStreakN">0</span>개 진행 중!</div>
-  </div>
-  <div class="pgrid" id="home-parts"></div>
+  <div id="ref-content"></div>
 </div>
 
 <!-- QUIZ -->
@@ -525,24 +529,7 @@ main{padding:18px;max-width:720px;margin:0 auto}
   </div>
 </div>
 
-<!-- REFERENCE -->
-<div id="sc-ref" class="sc">
-  <div class="pills" id="ref-pills">
-    <div class="pill on" onclick="filterRef('all',this)">전체</div>
-    <div class="pill" onclick="filterRef('modifier',this)">수식어</div>
-    <div class="pill" onclick="filterRef('verb',this)">동사</div>
-    <div class="pill" onclick="filterRef('phrase',this)">구 표현</div>
-    <div class="pill" onclick="filterRef('trap',this)">함정</div>
-    <div class="pill" onclick="filterRef('symptom',this)">🆕증상묘사</div>
-    <div class="pill" onclick="filterRef('clinical_verb',this)">🆕기능동사</div>
-    <div class="pill" onclick="filterRef('time_seq',this)">🆕시간순서</div>
-    <div class="pill" onclick="filterRef('comparison',this)">🆕비교대조</div>
-    <div class="pill" onclick="filterRef('contraindication',this)">🆕금기제한</div>
-    <div class="pill" onclick="filterRef('grading',this)">🆕등급표현</div>
-    <div class="pill" onclick="filterRef('abbr',this)">약어</div>
-  </div>
-  <div id="ref-content"></div>
-</div>
+
 
 <!-- CHART READING -->
 <div id="sc-chart" class="sc">
@@ -2257,9 +2244,7 @@ function updHdr(){
   document.getElementById('hS').textContent=S.sessStreak;
   document.getElementById('hT').textContent=S.totAll;
   document.getElementById('hA').textContent=S.totAll>0?Math.round(S.totOk/S.totAll*100)+'%':'-';
-  const sb=document.getElementById('home-streak');
-  if(S.sessStreak>0){sb.style.display='flex';document.getElementById('homeStreakN').textContent=S.sessStreak;}
-  else sb.style.display='none';
+  // streak badge removed from home (now on ref page)
 }
 
 // ============================================================
@@ -2269,10 +2254,9 @@ function go(name){
   document.querySelectorAll('.sc').forEach(s=>s.classList.remove('on'));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
   document.getElementById('sc-'+name).classList.add('on');
-  const idx=['home','quiz','ref','chart'].indexOf(name);
+  const idx=['ref','chart','quiz'].indexOf(name);
   if(idx>=0) document.querySelectorAll('.nb')[idx].classList.add('on');
   if(name==='ref') renderRef('all');
-  if(name==='home') buildHome();
   if(name==='chart'){showChartTab('overview');renderOverview();}
 }
 
@@ -3650,7 +3634,7 @@ document.addEventListener('click', () =>
 // chart tab go() integrated above
 
 // INIT
-loadSave(); buildHome();
+loadSave(); updHdr(); renderRef('all');
 </script>
 </body>
 </html>
