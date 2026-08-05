@@ -48,7 +48,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
   min-width:0;overflow:hidden}
 .cat-btn.selected{border-color:var(--accent);background:rgba(59,130,246,.12)}
 .cat-btn .em{font-size:22px;display:block;margin-bottom:5px}
-.cat-btn .nm{font-size:15px;font-weight:600;color:var(--text);line-height:0.8;word-break:keep-all}
+.cat-btn .nm{font-size:15px;font-weight:600;color:var(--text);line-height:0.9;word-break:keep-all}
 .cat-btn .ct{font-size:13px;color:var(--text3);margin-top:3px}
 .cat-btn .ck{position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;
   background:var(--accent);display:none;align-items:center;justify-content:center;font-size:10px;color:#fff}
@@ -1450,15 +1450,15 @@ function buildCatGrid(){
     var cor=catQs.filter(function(q){return store.done[q.id]===true;}).length;
     var pct=done?Math.round(cor/done*100):0;
     var barW=catQs.length?done/catQs.length*100:0;
-    var barCol=pct>=50?'#2563eb':'#1e3a5f';
+    var barCol=pct>=50?'#3b82f6':'#1d4ed8';
     var catId='sc_'+cat.replace(/[^a-z0-9]/gi,'_');
     var d=document.createElement('div');
     d.className='cat-btn'+(selCats.has(cat)?' selected':'');
     d.dataset.cat=cat;
     var html='<div style="display:flex;align-items:center;gap:6px"><span class="em">'+(CAT_EMOJI[cat]||'📚')+'</span><div class="nm">'+cat+'</div><div class="ct">'+cnt+'</div><div class="ck">✓</div></div>';
     // 진행 바
-    html+='<div style="margin-top:6px;background:var(--bg3);border-radius:3px;height:4px;overflow:hidden">'
-      +'<div style="height:100%;width:'+barW+'%;background:'+barCol+';transition:width .4s"></div></div>';
+    html+='<div style="margin-top:6px;background:rgba(255,255,255,0.08);border-radius:3px;height:5px;overflow:hidden">'
+      +'<div style="height:100%;width:'+barW+'%;background:'+barCol+';transition:width .4s;min-width:'+(barW>0?'6px':'0')+'"></div></div>';
     if(subs.length){
       html+='<div class="sub-chips" id="'+catId+'" style="display:'+(selCats.has(cat)?'flex':'none')+'">';
       html+='<span class="sub-chip sub-all" data-sub="" data-cid="'+catId+'" data-cat="'+cat+'">All</span>';
