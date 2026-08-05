@@ -1050,6 +1050,27 @@ function renderStemText(text){
   }
   return result;
 }
+const MSG_CORRECT=['정답!','Awesome!','와우! 굉장해!!','맞아 대단해!!','진짜 잘하네','장난 아닌데?','천재구나?','I Love it!','Nice!','완벽해!'];
+const MSG_WRONG=['아우~!!!','얌마!!','정신차렷!!','틀렸다!','흠......','LOL...','ㅜㅜ...','언젠간 맞겠지!','이걸 틀리냐...','아... 집중하자!','맞는 날도 있겠지!','바보!','XXXXXXXX'];
+function showResultBadge(ok,autoNext){
+  const msgs=ok?MSG_CORRECT:MSG_WRONG;
+  const msg=msgs[Math.floor(Math.random()*msgs.length)];
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;pointer-events:none';
+  const bg=ok?'#166534':'#7f1d1d';
+  const border=ok?'#22c55e':'#ef4444';
+  const col=ok?'#4ade80':'#fca5a5';
+  const sub=ok?(autoNext?'오답 목록에서 해제됨':''):'';
+  overlay.innerHTML='<div style="background:'+bg+';border:2px solid '+border+';border-radius:16px;padding:20px 36px;text-align:center;box-shadow:0 0 30px rgba(0,0,0,.5);animation:fadeIn .2s ease">'
+    +'<div style="font-size:22px;font-weight:800;color:'+col+';letter-spacing:.02em">'+msg+'</div>'
+    +(sub?'<div style="font-size:12px;color:'+col+';margin-top:6px;opacity:.8">'+sub+'</div>':'')
+    +'</div>';
+  document.body.appendChild(overlay);
+  setTimeout(()=>{
+    overlay.remove();
+    if(autoNext)nextQ();
+  },1000);
+}
 function restoreHeadingEmoji(s){
   // 구글시트 CSV에서 ## 제목의 이모지가 ?/?? 로 깨지는 경우 복원
   const map=[
@@ -1673,26 +1694,19 @@ function mlPick(el){
   });
   if(ok){
     store.done[qId]=true;store.wrongs.delete(qId);saveStore();updateStats();
-    // 중앙 뱃지 표시
-    const overlay=document.createElement('div');
-    overlay.style.cssText='position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;pointer-events:none';
-    overlay.innerHTML='<div style="background:#166534;border:2px solid #22c55e;border-radius:16px;padding:20px 36px;text-align:center;box-shadow:0 0 30px rgba(34,197,94,.5);animation:fadeIn .2s ease">'
-      +'<div style="font-size:32px">✅</div>'
-      +'<div style="font-size:20px;font-weight:800;color:#4ade80;margin-top:4px">정답!</div>'
-      +'<div style="font-size:12px;color:#86efac;margin-top:4px">오답 목록에서 해제됨</div>'
-      +'</div>';
-    document.body.appendChild(overlay);
+    // 중앙 뱃지 표시 후 문제 제거
+    showResultBadge(true, false);
     setTimeout(function(){
-      overlay.remove();
       var item=document.getElementById('ml-wr-'+qId);
       if(item){item.style.transition='opacity .3s';item.style.opacity='0';
         setTimeout(function(){renderModeList('wr');updateBtn();},300);}
     },1000);
   } else {
     store.done[qId]=false;store.wrongs.add(qId);saveStore();
+    showResultBadge(false, false);
     var retry=document.createElement('div');
-    retry.textContent='❌ 오답 — 접었다 펴서 다시 도전하세요';
-    retry.style.cssText='text-align:center;color:var(--danger);font-size:13px;font-weight:600;padding:10px';
+    retry.textContent='접었다 펴서 다시 도전하세요';
+    retry.style.cssText='text-align:center;color:var(--danger);font-size:12px;padding:8px';
     body.appendChild(retry);
   }
 }
@@ -1846,24 +1860,7 @@ function pick(chosen,correct,q){
   saveStore();saveSession();
   showPostAnswer(q);
   document.getElementById('btn-next').classList.add('ready');
-  // 정답 뱃지 표시
-  if(ok){
-    const overlay=document.createElement('div');
-    overlay.style.cssText='position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;pointer-events:none';
-    overlay.innerHTML='<div style="background:#166534;border:2px solid #22c55e;border-radius:16px;padding:20px 36px;text-align:center;box-shadow:0 0 30px rgba(34,197,94,.5);animation:fadeIn .2s ease">'
-      +'<div style="font-size:32px">✅</div>'
-      +'<div style="font-size:20px;font-weight:800;color:#4ade80;margin-top:4px">정답!</div>'
-      +(mode==='wr'?'<div style="font-size:12px;color:#86efac;margin-top:4px">오답 목록에서 해제됨</div>':'')
-      +'</div>';
-    document.body.appendChild(overlay);
-    if(mode==='wr'){
-      // Wrong 모드: 1초 후 뱃지 사라지고 자동으로 다음 문제
-      setTimeout(()=>{overlay.remove();nextQ();},1000);
-    } else {
-      // 일반 모드: 1초 후 뱃지만 사라짐, Next로 이동
-      setTimeout(()=>overlay.remove(),1000);
-    }
-  }
+  showResultBadge(ok, ok&&mode==='wr');
 }
 function showPostAnswer(q){
   document.getElementById('post-answer').className='post-answer show';
