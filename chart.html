@@ -10,20 +10,18 @@
 :root{--bg:#0f1a2e;--sf:#162236;--sf2:#1c2d47;--sf3:#243556;--border:#253450;--border2:#2e4068;--accent:#4f8ef7;--accent2:#7eb8f7;--gold:#f5c842;--gold2:#f7d96e;--green:#3ecf8e;--red:#f76f6f;--orange:#f7a54f;--purple:#a78bfa;--text:#e8edf8;--text2:#8fa4c8;--text3:#5a7099;--r:14px;--rs:9px;--rs2:6px;}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:"Inter",sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-header{background:var(--sf);border-bottom:none;padding:10px 18px;position:sticky;top:0;z-index:200;display:flex;align-items:center;}
+header{background:var(--sf);border-bottom:none;padding:11px 18px;display:flex;align-items:center;}
 .logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .logo-icon{font-size:22px;line-height:1}
 .logo-text{font-size:15px;font-weight:800;color:var(--gold);letter-spacing:.2px;line-height:1.2}
 .logo-sub{font-size:11px;color:var(--text2);font-weight:500;margin-top:2px;letter-spacing:.2px}
 .hstats{display:none}
 
+/* ── Tab+Nav wrapper: 스크롤 시 상단 고정 ── */
+.sticky-top{position:sticky;top:0;z-index:200;background:var(--sf);}
+
 /* ── App Tab Bar ── */
-.app-tabbar{
-  display:flex;
-  background:var(--sf);
-  border-bottom:1px solid var(--border);
-  position:sticky;top:52px;z-index:199;
-}
+.app-tabbar{display:flex;background:var(--sf);border-bottom:1px solid var(--border);}
 .app-tab{
   flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
   padding:8px 4px 7px;gap:2px;
@@ -38,7 +36,7 @@ header{background:var(--sf);border-bottom:none;padding:10px 18px;position:sticky
 .app-tab.active{color:#f5c842;border-bottom-color:#f5c842;background:rgba(245,200,66,.04)}
 .app-tab-icon{font-size:15px;line-height:1}
 .app-tab-label{font-size:10px;font-weight:700;letter-spacing:.3px}
-.nav{display:flex;background:var(--sf);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;position:sticky;top:98px;z-index:198}.nav::-webkit-scrollbar{display:none}
+.nav{display:flex;background:var(--sf);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;}.nav::-webkit-scrollbar{display:none}
 .nb{flex:0 0 auto;padding:11px 16px;font-size:16px;font-weight:600;color:var(--text2);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s}.nb.on{color:var(--gold);border-bottom-color:var(--gold)}.nb:hover{color:var(--text)}
 main{padding:16px;max-width:740px;margin:0 auto}.sc{display:none}.sc.on{display:block}
 .card{background:var(--sf);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:12px}
@@ -156,30 +154,6 @@ main{padding:16px;max-width:740px;margin:0 auto}.sc{display:none}.sc.on{display:
 .wt-ex .wt-en{color:var(--accent2);font-weight:600;margin-bottom:2px;font-size:11px;}
 .wt-ex .wt-ko-ex{color:var(--text2);}
 @media(max-width:500px){.wt-bubble{width:230px;}}
-
-/* ── Global App Tab Bar ── */
-.app-tabbar{
-  display:flex;
-  background:#0a1628;
-  border-bottom:1px solid #1e3050;
-  flex-shrink:0;
-}
-.app-tab{
-  flex:1;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:9px 4px 8px;gap:3px;
-  text-decoration:none;
-  color:#4a6080;
-  font-size:10px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;
-  border-bottom:2px solid transparent;
-  transition:all .18s;cursor:pointer;
-  background:none;border-top:none;border-left:none;border-right:none;
-  font-family:inherit;
-}
-.app-tab:hover{color:#7eb8f7;background:rgba(79,142,247,.06)}
-.app-tab.active{color:#f5c842;border-bottom-color:#f5c842;background:rgba(245,200,66,.05)}
-.app-tab-icon{font-size:17px;line-height:1}
-.app-tab-label{font-size:10px;font-weight:700;letter-spacing:.3px}
 </style>
 </head>
 <body>
@@ -187,7 +161,8 @@ main{padding:16px;max-width:740px;margin:0 auto}.sc{display:none}.sc.on{display:
   <div class="logo"><div class="logo-icon">🗂️</div><div><div class="logo-text">NPTE Chart Reading</div><div class="logo-sub">차트 읽기 완전 정복</div></div></div>
 </header>
 
-<!-- ── App Tab Bar ── -->
+<!-- ── sticky: app-tabbar + nav 만 고정 ── -->
+<div class="sticky-top">
 <nav class="app-tabbar">
   <a class="app-tab" href="index.html">
     <span class="app-tab-icon">📚</span>
@@ -202,13 +177,13 @@ main{padding:16px;max-width:740px;margin:0 auto}.sc{display:none}.sc.on{display:
     <span class="app-tab-label">Chart</span>
   </a>
 </nav>
-
 <div class="nav">
   <button class="nb on" onclick="go('structure')">📋 차트 구조</button>
   <button class="nb" onclick="go('strategy')">🎯 풀이 전략</button>
   <button class="nb" onclick="go('vocab')">📖 용어 퀴즈</button>
   <button class="nb" onclick="go('quiz')">✏️ 차트 퀴즈</button>
 </div>
+</div><!-- /sticky-top -->
 <main>
 <!-- STRUCTURE (메인화면) -->
 <div id="sc-structure" class="sc on">

@@ -25,9 +25,11 @@
 html,body{height:100%;background:var(--bg);color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden}
 #app{height:100%;display:flex;flex-direction:column}
-.screen{display:none;flex:1;flex-direction:column;overflow:hidden}
+.screen{display:none;flex:1;flex-direction:column;overflow-y:auto}
 .screen.active{display:flex}
-.home-header{padding:10px 18px;background:linear-gradient(160deg,#0f172a,#1a2f50);flex-shrink:0;display:flex;align-items:center;}
+
+/* home-header: static, 스크롤 시 사라짐 */
+.home-header{padding:11px 18px;background:linear-gradient(160deg,#0f172a,#1a2f50);flex-shrink:0;}
 .home-header-top{display:none}
 .logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .logo-icon{font-size:22px;line-height:1}
@@ -36,13 +38,11 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 .home-title{display:none}
 .home-sub{font-size:12px;color:var(--text2);margin-top:3px}
 
+/* sticky-top: app-tabbar + stats 묶어서 고정 */
+.sticky-top{position:sticky;top:0;z-index:200;background:linear-gradient(160deg,#0f172a,#1a2f50);}
+
 /* ── App Tab Bar ── */
-.app-tabbar{
-  display:flex;
-  background:linear-gradient(160deg,#0f172a,#1a2f50);
-  border-bottom:1px solid var(--border);
-  flex-shrink:0;
-}
+.app-tabbar{display:flex;background:transparent;border-bottom:1px solid var(--border);}
 .app-tab{
   flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
   padding:8px 4px 7px;gap:2px;
@@ -57,13 +57,11 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 .app-tab.active{color:#f5c842;border-bottom-color:#f5c842;background:rgba(245,200,66,.04)}
 .app-tab-icon{font-size:15px;line-height:1}
 .app-tab-label{font-size:10px;font-weight:700;letter-spacing:.3px}
-.home-stats{display:flex;gap:7px;margin-top:11px;flex-wrap:wrap}
+.home-stats{display:flex;gap:7px;padding:8px 16px 10px;flex-wrap:wrap;border-bottom:1px solid var(--border);}
 .stat-pill{background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);
   border-radius:20px;padding:3px 10px;font-size:11px;color:var(--accent2)}
 .stat-pill.btn{cursor:pointer}
-
-/* ── Header Tab Switcher ── */
-.filter-section{padding:0 16px 16px;overflow-y:auto;overflow-x:hidden;flex:1;box-sizing:border-box;width:100%}
+.filter-section{padding:0 16px 16px;overflow-x:hidden;box-sizing:border-box;width:100%}
 .filter-label{font-size:10px;font-weight:700;color:var(--text3);
   letter-spacing:.09em;text-transform:uppercase;margin:15px 0 8px}
 .mode-tabs{display:flex;gap:6px;margin-top:13px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
@@ -411,6 +409,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 <div id="app">
 
 <div id="home" class="screen">
+
+  <!-- 로고: static, 스크롤 시 사라짐 -->
   <div class="home-header">
     <div class="logo">
       <div class="logo-icon">📚</div>
@@ -421,30 +421,30 @@ html,body{height:100%;background:var(--bg);color:var(--text);
     </div>
   </div>
 
-  <!-- ── App Tab Bar ── -->
-  <nav class="app-tabbar">
-    <a class="app-tab active" href="index.html">
-      <span class="app-tab-icon">📚</span>
-      <span class="app-tab-label">Question</span>
-    </a>
-    <a class="app-tab" href="english.html">
-      <span class="app-tab-icon">📝</span>
-      <span class="app-tab-label">English</span>
-    </a>
-    <a class="app-tab" href="chart.html">
-      <span class="app-tab-icon">🗂️</span>
-      <span class="app-tab-label">Chart</span>
-    </a>
-  </nav>
-
-  <!-- stats pills -->
-  <div style="padding:10px 16px 0;display:flex;gap:7px;flex-wrap:wrap;flex-shrink:0;background:linear-gradient(160deg,#0f172a,#1a2f50)">
-    <span class="stat-pill" id="stat-done">0 solved</span>
-    <span class="stat-pill" id="stat-acc">—% acc</span>
-    <span class="stat-pill" id="stat-bm">0 ⭐</span>
-    <span class="stat-pill btn" onclick="loadData(true)">🔄 새로고침</span>
-    <span class="stat-pill btn" onclick="confirmReset()" style="border-color:rgba(239,68,68,.4);color:#ef4444;background:rgba(239,68,68,.1)">🗑 초기화</span>
-  </div>
+  <!-- sticky: 탭 + stats 고정 -->
+  <div class="sticky-top">
+    <nav class="app-tabbar">
+      <a class="app-tab active" href="index.html">
+        <span class="app-tab-icon">📚</span>
+        <span class="app-tab-label">Question</span>
+      </a>
+      <a class="app-tab" href="english.html">
+        <span class="app-tab-icon">📝</span>
+        <span class="app-tab-label">English</span>
+      </a>
+      <a class="app-tab" href="chart.html">
+        <span class="app-tab-icon">🗂️</span>
+        <span class="app-tab-label">Chart</span>
+      </a>
+    </nav>
+    <div class="home-stats">
+      <span class="stat-pill" id="stat-done">0 solved</span>
+      <span class="stat-pill" id="stat-acc">—% acc</span>
+      <span class="stat-pill" id="stat-bm">0 ⭐</span>
+      <span class="stat-pill btn" onclick="loadData(true)">🔄 새로고침</span>
+      <span class="stat-pill btn" onclick="confirmReset()" style="border-color:rgba(239,68,68,.4);color:#ef4444;background:rgba(239,68,68,.1)">🗑 초기화</span>
+    </div>
+  </div><!-- /sticky-top -->
   <div class="filter-section">
     <div class="filter-label">Mode</div>
     <div class="mode-tabs">
