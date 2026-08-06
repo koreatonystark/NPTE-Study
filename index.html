@@ -48,7 +48,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
   min-width:0;overflow:hidden}
 .cat-btn.selected{border-color:var(--accent);background:rgba(59,130,246,.12)}
 .cat-btn .em{font-size:22px;display:block;margin-bottom:5px}
-.cat-btn .nm{font-size:15px;font-weight:600;color:var(--text);line-height:0.9;word-break:keep-all}
+.cat-btn .nm{font-size:15px;font-weight:600;color:var(--text);line-height:1.4;word-break:keep-all}
 .cat-btn .ct{font-size:13px;color:var(--text3);margin-top:3px}
 .cat-btn .ck{position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;
   background:var(--accent);display:none;align-items:center;justify-content:center;font-size:10px;color:#fff}
@@ -142,9 +142,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);
   border-radius:var(--radius-sm);padding:16px;font-size:16px;line-height:1.8;
   color:var(--text);word-break:break-word;display:none}
 .explain-text.show{display:block}
-@keyframes fadeIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
-.expl-img-inline{width:100%;max-width:100%;height:auto;display:block;border-radius:6px;cursor:zoom-in}
-@media(min-width:600px){.expl-img-inline{max-width:50%}}
 .dup-area{margin-top:18px;padding-top:14px;border-top:1px solid var(--border);display:none}
 .dup-area.show{display:block}
 .dup-label{font-size:11px;color:var(--text3);font-weight:700;letter-spacing:.07em;
@@ -389,17 +386,24 @@ html,body{height:100%;background:var(--bg);color:var(--text);
     <div class="filter-label">Mode</div>
     <div class="mode-tabs">
       <div class="mode-tab active" data-mode="cat" onclick="setMode('cat')">Category</div>
-      <div class="mode-tab" data-mode="dup" onclick="setMode('dup')">🔁 Duplicate</div>
-      <div class="mode-tab" data-mode="unique" onclick="setMode('unique')">1️⃣ Unique</div>
+      <div class="mode-tab" data-mode="year" onclick="setMode('year')">Year</div>
+      <div class="mode-tab" data-mode="src"  onclick="setMode('src')">Version</div>
       <div class="mode-tab" data-mode="bm"   onclick="setMode('bm')">⭐ Bookmark</div>
       <div class="mode-tab" data-mode="wr"   onclick="setMode('wr')">❌ Wrong <span id="wr-count" style="font-size:11px;opacity:.8"></span></div>
       <div class="mode-tab" data-mode="skip" onclick="openSkipScreen()">⏭ Skipped</div>
+      <div class="mode-tab" data-mode="dup" onclick="startDupQuiz()">🔁 Duplicate</div>
     </div>
     <div id="mode-cat">
-      <div class="filter-label">Year <span id="year-sel-n" style="color:var(--accent2)"></span></div>
-      <div class="chip-wrap" id="year-chips" style="margin-bottom:10px"></div>
       <div class="filter-label">Category <span id="cat-sel-n" style="color:var(--accent2)"></span></div>
       <div class="cat-grid" id="cat-grid"></div>
+    </div>
+    <div id="mode-year" style="display:none">
+      <div class="filter-label">Year</div>
+      <div class="chip-wrap" id="year-chips"></div>
+    </div>
+    <div id="mode-src" style="display:none">
+      <div class="filter-label">Version / Source</div>
+      <div class="chip-wrap" id="src-chips"></div>
     </div>
     <div id="mode-bm" style="display:none"><div id="bm-list" style="margin-top:8px"></div></div>
     <div id="mode-wr" style="display:none"><div id="wr-list" style="margin-top:8px"></div></div>
@@ -421,7 +425,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
       <div id="sel-info" style="font-size:12px;color:var(--text3);margin-top:10px"></div>
     </div>
   </div>
-  <div class="start-bar" id="start-bar">
+  <div class="start-bar">
     <button class="btn-start" id="btn-start" onclick="startQuiz()" disabled>카테고리를 선택하세요</button>
   </div>
 </div>
@@ -465,7 +469,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
       <div class="explain-text" id="explain-text"></div>
     </div>
     <div class="dup-area" id="dup-area">
-      <div class="dup-label" id="dup-label">출제 이력</div>
+      <div class="dup-label">같은 문제 · 다른 버전</div>
       <div class="dup-tags" id="dup-tags"></div>
     </div>
   </div>
@@ -689,13 +693,16 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 
 <!-- 이미지 확대 오버레이 (핀치줌 지원) — body 최상위 -->
 <div id="img-zoom-overlay" style="display:none;position:fixed;inset:0;z-index:300;
-  background:rgba(0,0,0,0.92);overflow:hidden;cursor:zoom-out"
-  onclick="if(event.target===this||event.target===document.getElementById('img-zoom-big'))toggleImgZoom()">
+  background:rgba(0,0,0,0.92);overflow:hidden">
+  <button onclick="toggleImgZoom()" style="position:absolute;top:14px;right:14px;
+    z-index:301;background:rgba(255,255,255,0.15);border:none;border-radius:50%;
+    width:36px;height:36px;color:#fff;font-size:18px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center">✕</button>
   <div id="img-zoom-container" style="width:100%;height:100%;
-    display:flex;align-items:center;justify-content:center;overflow:hidden;pointer-events:none">
+    display:flex;align-items:center;justify-content:center;overflow:hidden">
     <img id="img-zoom-big" src="" alt="" style="max-width:100%;max-height:100%;
       object-fit:contain;transform-origin:center center;
-      transition:transform 0.1s;user-select:none;-webkit-user-select:none;pointer-events:auto;cursor:zoom-out">
+      transition:transform 0.1s;user-select:none;-webkit-user-select:none">
   </div>
 </div>
 
@@ -947,24 +954,8 @@ function getQuestionImageUrl(q){
   return '';
 }
 let VOCAB=[];
-const CAT_NORMALIZE={
-  'Cardiopulmonary':'Cardiovascular & Pulmonary',
-  'Metabolic/Endocrine':'Metabolic & Endocrine',
-  'Professional Responsibilities':'Professional Issues',
-  'System Interactions':'System Interactions / Differential Diagnosis',
-  'Therapeutic Exercise':'Modalities',
-  'Therapeutic Modalities':'Modalities',
-  'Other Systems':null
-};
-function normalizeCat(cat){
-  if(!cat)return '';
-  if(cat in CAT_NORMALIZE)return CAT_NORMALIZE[cat]||'';
-  return cat;
-}
 const CAT_ORDER=["Musculoskeletal","Neuromuscular","Cardiovascular & Pulmonary","Integumentary","Metabolic & Endocrine","Gastrointestinal","Genitourinary","Lymphatic","System Interactions / Differential Diagnosis","Equipment & Assistive Technology","Modalities","Safety","Professional Issues","Research"];
 const CAT_EMOJI={"Musculoskeletal":"🦴","Neuromuscular":"🧠","Cardiovascular & Pulmonary":"❤️","Integumentary":"🩹","Metabolic & Endocrine":"🔬","Gastrointestinal":"🫃","Genitourinary":"🫀","Lymphatic":"💧","System Interactions / Differential Diagnosis":"🔍","Equipment & Assistive Technology":"🦽","Modalities":"⚡","Safety":"🚨","Professional Issues":"📋","Research":"📊"};
-// sub 칩을 표시하지 않을 카테고리 (단일 주제 카테고리)
-const CAT_NO_SUB=new Set(["System Interactions / Differential Diagnosis","Equipment & Assistive Technology","Modalities","Safety","Professional Issues","Research"]);
 const TIMER_SEC=80,STORE_KEY='npte_v5';
 let ALL_QS=[],mode='cat',order='seq',sessCount=50;
 let selCats=new Set(),selYears=new Set(),selSrcs=new Set(),selSubs=new Set();
@@ -989,7 +980,7 @@ function loadTtsVoice(){
 window.speechSynthesis.onvoiceschanged=loadTtsVoice;
 loadTtsVoice();
 let sessStartTime=0,seenQIds=new Set(),sessionAnswers={};
-let store={done:{},bm:new Set(),wrongs:new Set(),skip:new Set(),answers:{}};
+let store={done:{},bm:new Set(),wrongs:new Set(),skip:new Set()};
 
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
@@ -999,22 +990,21 @@ if('serviceWorker' in navigator){
 
 function renderStem(text){
   if(!VOCAB.length)return escHtml(text);
+  // 텍스트를 토큰으로 분리 (단어+공백/구두점)
   const tokens=text.match(/[\w'-]+|[^\w'-]+/g)||[];
   let result='',i=0;
   while(i<tokens.length){
     const tok=tokens[i];
     if(/[\w'-]/.test(tok)){
+      // 최대 5단어 숙어 매칭 시도
       let matched=false;
-      const maxLen=Math.min(5,Math.ceil((tokens.length-i)/2));
-      for(let len=maxLen;len>=1;len--){
-        const end=i+len*2-1;
-        if(end>tokens.length)continue;
-        const phrase=tokens.slice(i,end).join('').toLowerCase().replace(/[^a-z0-9\s'-]/g,'').trim();
+      for(let len=5;len>=1;len--){
+        const phrase=tokens.slice(i,i+len*2-1).join('').toLowerCase().replace(/[^a-z0-9\s'-]/g,'').trim();
         const entry=VOCAB.find(v=>v.word===phrase||v.word===phrase.replace(/-/g,' '));
         if(entry){
-          const display=tokens.slice(i,end).join('');
+          const display=tokens.slice(i,i+len*2-1).join('');
           result+='<span class="vw" onclick="showVocab(event,\''+escAttr(entry.word)+'\')">'+escHtml(display)+'</span>';
-          i=end;matched=true;break;
+          i+=len*2-1;matched=true;break;
         }
       }
       if(!matched){result+=escHtml(tok);i++;}
@@ -1024,99 +1014,6 @@ function renderStem(text){
 }
 function escHtml(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function escAttr(t){return String(t).replace(/'/g,'&#39;');}
-// 해설 텍스트 노드에 vocab 연동 적용 (HTML 태그 제외)
-function renderStemText(text){
-  if(!VOCAB.length)return text;
-  const tokens=text.match(/[\w'-]+|[^\w'-]+/g)||[];
-  let result='',i=0;
-  while(i<tokens.length){
-    const tok=tokens[i];
-    if(/^[\w'-]+$/.test(tok)){
-      let matched=false;
-      const maxLen=Math.min(5,Math.ceil((tokens.length-i)/2));
-      for(let len=maxLen;len>=1;len--){
-        const end=i+len*2-1;
-        if(end>tokens.length)continue;
-        const phrase=tokens.slice(i,end).join('').toLowerCase().replace(/[^a-z0-9\s'-]/g,'').trim();
-        const entry=VOCAB.find(v=>v.word===phrase||v.word===phrase.replace(/-/g,' '));
-        if(entry){
-          const display=tokens.slice(i,end).join('');
-          result+='<span class="vw" onclick="showVocab(event,\''+escAttr(entry.word)+'\')">'+escHtml(display)+'</span>';
-          i=end;matched=true;break;
-        }
-      }
-      if(!matched){result+=escHtml(tok);i++;}
-    }else{result+=escHtml(tok);i++;}
-  }
-  return result;
-}
-const MSG_CORRECT=['정답!','Awesome!','와우! 굉장해!!','맞아 대단해!!','진짜 잘하네','장난 아닌데?','천재구나?','I Love it!','Nice!','완벽해!'];
-const MSG_WRONG=['아우~!!!','얌마!!','정신차렷!!','틀렸다!','흠......','LOL...','ㅜㅜ...','언젠간 맞겠지!','이걸 틀리냐...','아... 집중하자!','맞는 날도 있겠지!','바보!','XXXXXXXX'];
-function showResultBadge(ok,autoNext){
-  const msgs=ok?MSG_CORRECT:MSG_WRONG;
-  const msg=msgs[Math.floor(Math.random()*msgs.length)];
-  const sub=ok&&autoNext?'오답 목록에서 해제됨':'';
-
-  const svg=ok?
-    // 정답: 둥근 말풍선 - 팝업 애니메이션
-    `<svg viewBox="0 0 220 140" width="220" height="140" style="animation:popIn .35s cubic-bezier(.34,1.56,.64,1) both">
-      <style>
-        @keyframes popIn{
-          0%{transform:scale(0);opacity:0}
-          100%{transform:scale(1);opacity:1}
-        }
-      </style>
-      <path d="M15,5 Q5,5 5,15 L5,85 Q5,95 15,95 L85,95 L75,125 L115,95 L205,95 Q215,95 215,85 L215,15 Q215,5 205,5 Z" fill="#166534" stroke="#22c55e" stroke-width="2.5" opacity="0.85"/>
-      <text x="110" y="47" text-anchor="middle" fill="#4ade80" font-size="22" font-weight="800" font-family="sans-serif">${msg}</text>
-      ${sub?`<text x="110" y="75" text-anchor="middle" fill="#86efac" font-size="12" font-family="sans-serif">${sub}</text>`:''}
-    </svg>`
-  :
-    // 오답: 폭발형 - 폭탄 터지는 애니메이션
-    `<svg viewBox="0 0 440 420" width="340" height="320" style="animation:explode .4s cubic-bezier(.36,.07,.19,.97) both">
-      <style>
-        @keyframes explode{
-          0%{transform:scale(0) rotate(-15deg);opacity:0}
-          40%{transform:scale(1.3) rotate(8deg);opacity:1}
-          65%{transform:scale(0.9) rotate(-4deg);opacity:1}
-          80%{transform:scale(1.1) rotate(2deg);opacity:1}
-          100%{transform:scale(1) rotate(0deg);opacity:1}
-        }
-      </style>
-      <polygon points="
-        220,20 244,100 316,56 284,130 370,120 316,180
-        380,224 310,224 336,296 264,260 256,340
-        220,290 184,340 176,260 104,296 130,224
-        60,224 124,180 70,120 156,130 124,56 196,100"
-        fill="#7f1d1d" stroke="#ef4444" stroke-width="4" opacity="0.85"/>
-      <text x="220" y="216" text-anchor="middle" fill="#fca5a5" font-size="36" font-weight="800" font-family="sans-serif">${msg}</text>
-    </svg>`;
-
-  const overlay=document.createElement('div');
-  overlay.style.cssText='position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;pointer-events:none';
-  const wrapper=document.createElement('div');
-  wrapper.style.cssText='filter:drop-shadow(0 4px 20px rgba(0,0,0,.4))';
-  wrapper.innerHTML=svg;
-  overlay.appendChild(wrapper);
-  document.body.appendChild(overlay);
-  setTimeout(()=>{overlay.remove();if(autoNext)nextQ();},1000);
-}
-function restoreHeadingEmoji(s){
-  // 구글시트 CSV에서 ## 제목의 이모지가 ?/?? 로 깨지는 경우 복원
-  const map=[
-    [/^\?+\s*(임상|Clinical\s*Application)/i,'🏥 $1'],
-    [/^\?+\s*(오답|Wrong|Incorrect)/i,'❌ $1'],
-    [/^\?+\s*(병태생리|Pathophysiology)/i,'🔬 $1'],
-    [/^\?+\s*(연상|Summary|요약)/i,'🔗 $1'],
-    [/^\?+\s*(NPTE|빈출)/i,'🎯 $1'],
-    [/^\?+\s*(문제\s*분석|Analysis)/i,'🧠 $1'],
-    [/^\?+\s*(정답|Correct)/i,'✅ $1'],
-    [/^\?+\s*/,''],  // 나머지 ?? 제거
-  ];
-  for(var i=0;i<map.length;i++){
-    if(map[i][0].test(s))return s.replace(map[i][0],map[i][1]);
-  }
-  return s;
-}
 function renderExpl(text){
   var lines=text.split('\n');
   var out=[];
@@ -1124,15 +1021,11 @@ function renderExpl(text){
   var inTable=false;
   var inList=false;
 
-  function esc(s){
-    // & 만 이스케이프, < > 는 부등호로 그대로 표시 (HTML 태그 입력 없으므로 안전)
-    return s.replace(/&(?!amp;|lt;|gt;|nbsp;)/g,'&amp;');
-  }
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
   function inline(s){
-    s=fixEmojiNumbers(s);  // 1. 이모지/??를 플레이스홀더로
-    s=esc(s);              // 2. HTML 이스케이프
-    s=applyEmojiTokens(s); // 3. 플레이스홀더 → 컬러 스팬
+    s=esc(s);
+    s=fixEmojiNumbers(s);
     s=s.replace(/\*\*\*([^*]+)\*\*\*/g,'<strong><em>$1</em></strong>');
     s=s.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
     s=s.replace(/\*([^*]+)\*/g,'<em>$1</em>');
@@ -1141,21 +1034,7 @@ function renderExpl(text){
     s=s.replace(/【([^】]+)】/g,'<strong style="color:#60a5fa">【$1】</strong>');
     s=s.replace(/✅ ?정답/g,'<span style="color:#22c55e;font-weight:700">✅ 정답</span>');
     s=s.replace(/❌ ?오답/g,'<span style="color:#ef4444">❌ 오답</span>');
-    // URL: 이미지이면 <img>, 아니면 링크
-    s=s.replace(/(https?:\/\/[^\s&lt;"]+)/g,function(url){
-      if(/\.(png|jpg|jpeg|gif|webp|svg)(\?[^\s]*)?$/i.test(url)){
-        return '</span><div style="margin:8px 0"><img src="'+url+'" alt="" style="max-width:100%;height:auto;display:block;border-radius:6px;cursor:zoom-in" onclick="toggleImgZoom(this)"></div><span>';
-      }
-      return '<a href="'+url+'" target="_blank" rel="noopener" style="color:var(--accent2);text-decoration:underline;word-break:break-all">'+url+'</a>';
-    });
-    // VOCAB 단어 연동 (renderStem 적용)
-    if(VOCAB.length){
-      s=s.replace(/(<[^>]+>)|([^<]+)/g,function(m,tag,txt){
-        if(tag)return tag;
-        if(!txt)return '';
-        return renderStemText(txt);
-      });
-    }
+    s=s.replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener" style="color:var(--accent2);text-decoration:underline;word-break:break-all">$1</a>');
     return s;
   }
 
@@ -1188,8 +1067,6 @@ function renderExpl(text){
 
   lines.forEach(function(line){
     var trimmed=line.trim();
-    // 줄 시작 깨진 이모지(?) 제거
-    trimmed=trimmed.replace(/^\?+\s*/,'');
 
     if(trimmed.startsWith('|')&&trimmed.endsWith('|')){
       flushList();inTable=true;tbl.push(trimmed);return;
@@ -1207,8 +1084,7 @@ function renderExpl(text){
       var lvl=hm[1].length;
       var sz=['18px','16px','15px','14px'][lvl-1]||'14px';
       var mt=lvl===1?'16px':'12px';
-      var htxt=restoreHeadingEmoji(hm[2]);
-      out.push('<div style="font-size:'+sz+';font-weight:700;color:var(--accent2);margin:'+mt+' 0 6px">'+inline(htxt)+'</div>');return;
+      out.push('<div style="font-size:'+sz+';font-weight:700;color:var(--accent2);margin:'+mt+' 0 6px">'+inline(hm[2])+'</div>');return;
     }
 
     var qm=trimmed.match(/^>\s*(.*)/);
@@ -1224,36 +1100,6 @@ function renderExpl(text){
     }
 
     if(!trimmed){flushList();out.push('<br>');return;}
-
-    // URL 단독 줄 처리
-    if(/^https?:\/\/\S+$/.test(trimmed)){
-      flushList();
-      var url=trimmed;
-      // 유튜브 URL → 썸네일 + 링크 버튼
-      var ytm=url.match(/youtu\.be\/([^?&]+)/)||url.match(/youtube\.com\/(?:watch\?v=|shorts\/)([^?&]+)/);
-      if(ytm){
-        var vid=ytm[1];
-        out.push('<a href="'+escHtml(url)+'" target="_blank" rel="noopener" style="display:block;margin:10px 0;text-decoration:none;border-radius:8px;overflow:hidden;border:1px solid var(--border)">'
-          +'<div style="position:relative;line-height:0">'
-          +'<img src="https://img.youtube.com/vi/'+vid+'/hqdefault.jpg" alt="" style="width:100%;max-width:100%;height:auto;display:block">'
-          +'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.3)">'
-          +'<div style="width:56px;height:40px;background:#ff0000;border-radius:8px;display:flex;align-items:center;justify-content:center">'
-          +'<div style="width:0;height:0;border-top:10px solid transparent;border-bottom:10px solid transparent;border-left:18px solid #fff;margin-left:4px"></div>'
-          +'</div></div></div>'
-          +'<div style="padding:8px 12px;background:var(--bg3);font-size:12px;color:var(--text3)">▶ YouTube에서 보기</div>'
-          +'</a>');
-      // 이미지 URL → 인라인 이미지
-      }else if(/\.(png|jpg|jpeg|gif|webp|svg)(\?[^\s]*)?$/i.test(url)){
-        out.push('<div style="margin:10px 0;line-height:0">'
-          +'<img src="'+escHtml(url)+'" alt="" class="expl-img-inline" onclick="toggleImgZoom(this)">'
-          +'</div>');
-      }else{
-        out.push('<div style="margin:4px 0"><a href="'+escHtml(url)+'" target="_blank" rel="noopener" '
-          +'style="color:var(--accent2);text-decoration:underline;word-break:break-all;font-size:14px">'
-          +escHtml(url)+'</a></div>');
-      }
-      return;
-    }
 
     flushList();
     out.push('<div style="font-size:15px;line-height:1.8;color:var(--text);margin:2px 0">'+inline(trimmed)+'</div>');
@@ -1293,10 +1139,9 @@ function showVocab(e,word){
 }
 document.addEventListener('click',()=>document.getElementById('vocab-bubble').style.display='none');
 function parseCSV(t){
-  // RFC 4180 CSV 파서 - 따옴표 안의 \n은 셀 내용으로 처리
+  // RFC 4180: 따옴표 안의 \n은 셀 내용으로 처리 (행 구분 아님)
+  const rows=[];let cur=[],cell='',inQ=false;
   t=t.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
-  const rows=[];
-  let cur=[],cell='',inQ=false;
   for(let i=0;i<t.length;i++){
     const ch=t[i],nx=t[i+1];
     if(inQ){
@@ -1317,10 +1162,10 @@ function parseCSV(t){
   return r;
 }
 function splitLine(l){const r=[];let c='',q=false;for(let i=0;i<l.length;i++){const ch=l[i];if(ch==='"'){q=!q;}else if(ch===','&&!q){r.push(c);c='';}else c+=ch;}r.push(c);return r;}
-function loadStore(){try{const d=JSON.parse(localStorage.getItem(STORE_KEY)||'{}');store.done=d.done||{};store.bm=new Set((d.bm||[]).map(String));store.wrongs=new Set((d.wrongs||[]).map(String));store.skip=new Set((d.skip||[]).map(String));store.answers=d.answers||{};}catch(e){}}
+function loadStore(){try{const d=JSON.parse(localStorage.getItem(STORE_KEY)||'{}');store.done=d.done||{};store.bm=new Set((d.bm||[]).map(String));store.wrongs=new Set((d.wrongs||[]).map(String));store.skip=new Set((d.skip||[]).map(String));}catch(e){}}
 function saveStore(){
   try{
-    localStorage.setItem(STORE_KEY,JSON.stringify({done:store.done,bm:[...store.bm],wrongs:[...store.wrongs],skip:[...store.skip],answers:store.answers}));
+    localStorage.setItem(STORE_KEY,JSON.stringify({done:store.done,bm:[...store.bm],wrongs:[...store.wrongs],skip:[...store.skip]}));
   }catch(e){}
 }
 function saveSession(){
@@ -1379,12 +1224,9 @@ async function loadData(forceReload=false){
     ALL_QS=[];
     rows.forEach((r,i)=>{
       const stem=(r.stem||r.question||'').trim();if(!stem)return;
-      const normCat=normalizeCat(r.cat||'');
-      if(!normCat)return; // Other Systems 등 매핑 없는 cat 스킵
-      ALL_QS.push({id:String(i),cat:normCat,sub:r.sub||'',src:r.src||'',
+      ALL_QS.push({id:String(i),cat:r.cat||'',sub:r.sub||'',src:r.src||'',
         year:(r.year||(r.src||'').replace(/[^0-9]/g,'').substring(0,4)||'').toString(),
         qnum:parseInt(r.qnum||i+1)||i+1,stem,
-        appeared_in:r.appeared_in||'',
         opts:[r.opt1||'',r.opt2||'',r.opt3||'',r.opt4||''],
         answer:Math.max(0,(parseInt(r.answer)||1)-1),
         media_url:r.media_url||'',media_type:r.media_type||'none',
@@ -1393,13 +1235,23 @@ async function loadData(forceReload=false){
         expl_text:r.explanation||'',
         img_url:r.img||'',vid_url:r.vid||''});
     });
-    // appeared_in 컬럼 기반 중복 출제 정보 빌드
+    // 같은 stem의 중복 문제 → 버전 목록 빌드
+    // 중복 문제 감지: 같은 stem → 다른 src/qnum 정보 매핑
+    const stemMap={};
     ALL_QS.forEach(q=>{
-      const ai=(q.appeared_in||'').trim();
-      if(!ai){q.dupInfo=null;q.isDup=false;return;}
-      const entries=ai.split(',').map(s=>s.trim()).filter(Boolean);
-      q.isDup=entries.length>1; // 2번 이상 출제
-      q.dupInfo=entries; // "2014A_1", "2017C_160" 형태 배열
+      const key=q.stem.trim().substring(0,80);
+      if(!stemMap[key])stemMap[key]=[];
+      stemMap[key].push({src:q.src,qnum:q.qnum,id:q.id});
+    });
+    ALL_QS.forEach(q=>{
+      const key=q.stem.trim().substring(0,80);
+      const group=stemMap[key];
+      if(group.length>1){
+        // 이 문제와 다른 것들만 (자기 자신 제외)
+        q.dupInfo=group.filter(g=>g.id!==q.id).map(g=>'('+g.src+') Q'+g.qnum);
+      } else {
+        q.dupInfo=null;
+      }
     });
     if(!ALL_QS.length)throw new Error('유효한 문항 없음');
     // CAT_SUBS 동적 빌드: Sheets의 cat(A열), sub(B열) 값으로 구성
@@ -1423,7 +1275,7 @@ async function loadData(forceReload=false){
     }).catch(()=>{});
     loadGCSFileList(); // GCS 파일 목록 백그라운드 로드 (1회)
     document.getElementById('loading').style.display='none';
-    buildCatGrid();buildYearChips();
+    buildCatGrid();buildYearChips();buildSrcChips();
     document.getElementById('home-sub').textContent=ALL_QS.length.toLocaleString()+' 문항 · Google Sheets 연결됨';
     updateStats();if(mode==='bm'||mode==='wr')setTimeout(()=>renderModeList(mode),100);if(restoreSession()){
       showScreen('quiz');showQ();
@@ -1435,54 +1287,13 @@ async function loadData(forceReload=false){
     document.getElementById('retry-btn').style.display='block';
   }
 }
-function buildYearChips(){
-  const years=[...new Set(ALL_QS.map(q=>q.year).filter(Boolean))].sort();
-  const w=document.getElementById('year-chips');
-  if(!w)return;
-  w.innerHTML='';
-  // All 칩
-  const allD=document.createElement('div');
-  allD.className='chip'+(selYears.size===0?' selected':'');
-  allD.textContent='All';
-  allD.onclick=()=>{
-    selYears.clear();
-    document.querySelectorAll('#year-chips .chip').forEach(c=>c.classList.remove('selected'));
-    allD.classList.add('selected');
-    document.getElementById('year-sel-n').textContent='';
-    buildCatGrid();updateBtn();
-  };
-  w.appendChild(allD);
-  years.forEach(y=>{
-    const d=document.createElement('div');
-    d.className='chip'+(selYears.has(y)?' selected':'');
-    d.dataset.year=y;
-    const cnt=ALL_QS.filter(q=>q.year===y).length;
-    d.textContent=y+' ('+cnt+')';
-    d.onclick=()=>{
-      toggleChip(selYears,y,d);
-      // All 칩 상태 갱신
-      allD.classList.toggle('selected',selYears.size===0);
-      const n=document.getElementById('year-sel-n');
-      n.textContent=selYears.size?'('+[...selYears].sort().join(', ')+')':'';
-      buildCatGrid();updateBtn();
-    };
-    w.appendChild(d);
-  });
-}
 function buildCatGrid(){
   var g=document.getElementById('cat-grid');
   g.innerHTML='';
-  function qFilter(q){
-    if(store.skip.has(q.id))return false;
-    if(selYears.size&&!selYears.has(q.year))return false;
-    if(mode==='dup')return q.isDup;
-    if(mode==='unique')return !q.isDup;
-    return true;
-  }
-  var totalCnt=ALL_QS.filter(qFilter).length;
+  var totalCnt=ALL_QS.filter(function(q){return !store.skip.has(q.id);}).length;
   var allCard=document.createElement('div');
   allCard.className='cat-btn cat-all-btn'+(selCats.size===0?' selected':'');
-  allCard.innerHTML='<span class="em">📚</span><div class="nm">All Categories</div><div class="ct">'+totalCnt+'</div><div class="ck">✓</div>';
+  allCard.innerHTML='<span class="em">📚</span><div class="nm">All Categories</div><div class="ct">'+totalCnt+' Qs</div><div class="ck">✓</div>';
   allCard.onclick=function(){
     selCats.clear();selSubs.clear();
     document.querySelectorAll('.cat-btn').forEach(function(b){b.classList.remove('selected');});
@@ -1496,23 +1307,14 @@ function buildCatGrid(){
     return (ia<0?99:ia)-(ib<0?99:ib);
   });
   cats.forEach(function(cat){
-    var cnt=ALL_QS.filter(function(q){return q.cat===cat&&qFilter(q);}).length;
+    var cnt=ALL_QS.filter(function(q){return q.cat===cat&&!store.skip.has(q.id);}).length;
     if(!cnt)return;
-    var subs=CAT_NO_SUB.has(cat)?[]:(CAT_SUBS[cat]||[]);
-    var catQs=ALL_QS.filter(function(q){return q.cat===cat&&qFilter(q);});
-    var done=catQs.filter(function(q){return store.done[q.id]!==undefined;}).length;
-    var cor=catQs.filter(function(q){return store.done[q.id]===true;}).length;
-    var pct=done?Math.round(cor/done*100):0;
-    var barW=catQs.length?done/catQs.length*100:0;
-    var barCol=pct>=50?'#3b82f6':'#1d4ed8';
+    var subs=CAT_SUBS[cat]||[];
     var catId='sc_'+cat.replace(/[^a-z0-9]/gi,'_');
     var d=document.createElement('div');
     d.className='cat-btn'+(selCats.has(cat)?' selected':'');
     d.dataset.cat=cat;
-    var html='<div style="display:flex;align-items:center;gap:6px"><span class="em">'+(CAT_EMOJI[cat]||'📚')+'</span><div class="nm">'+cat+'</div><div class="ct">'+cnt+'</div><div class="ck">✓</div></div>';
-    // 진행 바
-    html+='<div style="margin-top:6px;background:rgba(255,255,255,0.08);border-radius:3px;height:5px;overflow:hidden">'
-      +'<div style="height:100%;width:'+barW+'%;background:'+barCol+';transition:width .4s;min-width:'+(barW>0?'6px':'0')+'"></div></div>';
+    var html='<div style="display:flex;align-items:center;gap:6px"><span class="em">'+(CAT_EMOJI[cat]||'📚')+'</span><div class="nm">'+cat+'</div><div class="ct">'+cnt+' Qs</div><div class="ck">✓</div></div>';
     if(subs.length){
       html+='<div class="sub-chips" id="'+catId+'" style="display:'+(selCats.has(cat)?'flex':'none')+'">';
       html+='<span class="sub-chip sub-all" data-sub="" data-cid="'+catId+'" data-cat="'+cat+'">All</span>';
@@ -1551,6 +1353,8 @@ function toggleSub(el){
   updateBtn();
 }
 
+function buildYearChips(){const years=[...new Set(ALL_QS.map(q=>q.year).filter(Boolean))].sort();const w=document.getElementById('year-chips');w.innerHTML='';years.forEach(y=>{const d=document.createElement('div');d.className='chip';d.dataset.year=y;d.textContent=y+' ('+ALL_QS.filter(q=>q.year===y).length+')';d.onclick=()=>toggleChip(selYears,y,d);w.appendChild(d);});}
+function buildSrcChips(){const srcs=[...new Set(ALL_QS.map(q=>q.src).filter(Boolean))].sort();const w=document.getElementById('src-chips');w.innerHTML='';srcs.forEach(s=>{const d=document.createElement('div');d.className='chip';d.dataset.src=s;d.textContent=s+' ('+ALL_QS.filter(q=>q.src===s).length+')';d.onclick=()=>toggleChip(selSrcs,s,d);w.appendChild(d);});}
 function toggleCat(cat,el){
   var wasSelected=selCats.has(cat);
   if(wasSelected){
@@ -1603,11 +1407,11 @@ function getFiltered(){
   else if(mode==='wr')qs=ALL_QS.filter(q=>store.wrongs.has(q.id)&&!store.skip.has(q.id));
   else{
     qs=ALL_QS.filter(q=>!store.skip.has(q.id));
-    if(selYears.size)qs=qs.filter(q=>selYears.has(q.year));
-    if(mode==='dup')qs=qs.filter(q=>q.isDup);
-    if(mode==='unique')qs=qs.filter(q=>!q.isDup);
-    if(selCats.size)qs=qs.filter(q=>selCats.has(q.cat));
-    if(selSubs.size)qs=qs.filter(q=>selSubs.has(q.sub));
+    if(mode==='cat'&&selCats.size)qs=qs.filter(q=>selCats.has(q.cat));
+    // sub 필터: selSubs가 있으면 해당 sub만, 없으면 선택된 cat 전체
+    if(mode==='cat'&&selSubs.size)qs=qs.filter(q=>selSubs.has(q.sub));
+    if(mode==='year'&&selYears.size)qs=qs.filter(q=>selYears.has(q.year));
+    if(mode==='src'&&selSrcs.size)qs=qs.filter(q=>selSrcs.has(q.src));
   }
   if(order==='seq'){
     qs=[...qs].sort((a,b)=>{
@@ -1620,16 +1424,12 @@ function getFiltered(){
 function setMode(m){
   mode=m;
   document.querySelectorAll('.mode-tab').forEach(t=>t.classList.toggle('active',t.dataset.mode===m));
-  document.getElementById('mode-cat').style.display=(m==='cat'||m==='dup'||m==='unique')?'':'none';
-  document.getElementById('mode-bm').style.display=m==='bm'?'':'none';
-  document.getElementById('mode-wr').style.display=m==='wr'?'':'none';
-  document.getElementById('mode-opts').style.display=(m==='cat'||m==='dup'||m==='unique')?'':'none';
-  var sb=document.getElementById('start-bar');if(sb)sb.style.display=(m==='bm'||m==='wr')?'none':'';
+  ['cat','year','src','bm','wr'].forEach(id=>document.getElementById('mode-'+id).style.display=(id===m)?'':'none');
+  document.getElementById('mode-opts').style.display=['cat','year','src'].includes(m)?'':'none';
   const wrCount=document.getElementById('wr-count');
   if(wrCount)wrCount.textContent=store.wrongs.size?'('+store.wrongs.size+')':'';
   if(m==='bm')renderModeList('bm');
   if(m==='wr')renderModeList('wr');
-  if(m==='cat'||m==='dup'||m==='unique')buildCatGrid();
   updateBtn();
 }
 function renderModeList(m){
@@ -1653,7 +1453,7 @@ function renderModeList(m){
         +'<div data-m="'+m+'" data-id="'+q.id+'" onclick="toggleMlItem(this.dataset.m,this.dataset.id)" style="flex:1;padding:12px 14px;cursor:pointer;min-width:0">'
           +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'
             +'<strong style="color:'+color+';font-size:12px">('+q.src+') Q'+q.qnum+'</strong>'
-            +'<span style="font-size:11px;color:var(--text3)">'+escHtml(q.cat+(q.sub&&!CAT_NO_SUB.has(q.cat)?' / '+q.sub:''))+'</span>'
+            +'<span style="font-size:11px;color:var(--text3)">'+escHtml(q.cat+(q.sub?' / '+q.sub:''))+'</span>'
             +'<span id="mla-'+m+'-'+q.id+'" style="margin-left:auto;color:var(--accent2);font-size:18px;transition:transform .2s;display:inline-block">▾</span>'
           +'</div>'
           +'<div style="font-size:13px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escHtml(q.stem.substring(0,65))+(q.stem.length>65?'…':'')+'</div>'
@@ -1696,7 +1496,7 @@ function toggleMlItem(m,id){
       +'</div>';
     }).join('');
     var explContent=q.expl_text||'(해설 없음)';
-    var explBtn='<div id="bmexpl-'+id+'" style="display:none;margin-top:10px;padding:12px;background:var(--bg3);border-radius:8px;font-size:14px;line-height:1.7;color:var(--text)">'+renderExpl(explContent)+'</div>'
+    var explBtn='<div id="bmexpl-'+id+'" style="display:none;margin-top:10px;padding:12px;background:var(--bg3);border-radius:8px;font-size:14px;line-height:1.7;color:var(--text)">'+escHtml(explContent)+'</div>'
       +'<button data-eid="'+id+'" onclick="toggleBmExpl(this);event.stopPropagation()" style="margin-top:10px;width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--accent2);font-size:13px;font-weight:600;cursor:pointer">📖 해설 보기</button>';
     body.innerHTML='<div style="font-size:15px;line-height:1.75;color:var(--text);margin-bottom:14px">'+escHtml(q.stem)+'</div>'+optsHtml+explBtn;
   }
@@ -1725,20 +1525,21 @@ function mlPick(el){
     else if(idx===chosen&&!ok){opt.style.borderColor='var(--danger)';opt.style.background='rgba(239,68,68,.08)';}
   });
   if(ok){
+    var badge=document.createElement('div');
+    badge.textContent='✅ CORRECT!';
+    badge.style.cssText='text-align:center;font-size:16px;font-weight:800;color:var(--success);padding:14px;letter-spacing:.05em';
+    body.appendChild(badge);
     store.done[qId]=true;store.wrongs.delete(qId);saveStore();updateStats();
-    // 중앙 뱃지 표시 후 문제 제거
-    showResultBadge(true, false);
     setTimeout(function(){
       var item=document.getElementById('ml-wr-'+qId);
-      if(item){item.style.transition='opacity .3s';item.style.opacity='0';
-        setTimeout(function(){renderModeList('wr');updateBtn();},300);}
-    },1000);
+      if(item){item.style.transition='opacity .5s';item.style.opacity='0';
+        setTimeout(function(){renderModeList('wr');updateBtn();},500);}
+    },900);
   } else {
     store.done[qId]=false;store.wrongs.add(qId);saveStore();
-    showResultBadge(false, false);
     var retry=document.createElement('div');
-    retry.textContent='접었다 펴서 다시 도전하세요';
-    retry.style.cssText='text-align:center;color:var(--danger);font-size:12px;padding:8px';
+    retry.textContent='❌ 오답 — 접었다 펴서 다시 도전하세요';
+    retry.style.cssText='text-align:center;color:var(--danger);font-size:13px;font-weight:600;padding:10px';
     body.appendChild(retry);
   }
 }
@@ -1757,7 +1558,7 @@ function doReset(){
   const bm=document.getElementById('rst-bm').checked;
   const skip=document.getElementById('rst-skip').checked;
   if(!done&&!bm&&!skip){alert('항목을 하나 이상 선택하세요.');return;}
-  if(done){store.done={};store.wrongs=new Set();store.answers={};sWrong=0;sCorrect=0;sWrongIds=[];sessionAnswers={};}
+  if(done){store.done={};store.wrongs=new Set();sWrong=0;sCorrect=0;sWrongIds=[];}
   if(bm)store.bm=new Set();
   if(skip)store.skip=new Set();
   saveStore();
@@ -1776,39 +1577,9 @@ function updateStats(){
   if(wrCount)wrCount.textContent=store.wrongs.size?'('+store.wrongs.size+')':'';
   if(mode==='bm')renderModeList('bm');
   if(mode==='wr')renderModeList('wr');
-  // 홈 화면이면 카테고리 카드 진행 바 갱신
-  if(document.getElementById('home').classList.contains('active')&&
-     (mode==='cat'||mode==='dup'||mode==='unique'))buildCatGrid();
 }
-function startQuiz(){
-  let qs=getFiltered();
-  if(!qs.length)return;
-  if(order==='rand')qs=[...qs].sort(()=>Math.random()-.5);
-  const n=sessCount===0?qs.length:Math.min(sessCount,qs.length);
-  // sessQs는 항상 ALL_QS의 최신 객체 참조
-  sessQs=qs.slice(0,n).map(q=>ALL_QS.find(fq=>fq.id===q.id)||q);
-
-  // store.answers에서 이 세션 문제들의 답 복원
-  sessionAnswers={};
-  sessQs.forEach(q=>{if(store.answers[q.id])sessionAnswers[q.id]=store.answers[q.id];});
-
-  // 첫 미답 문제로 이동
-  const firstUnanswered=sessQs.findIndex(q=>sessionAnswers[q.id]===undefined);
-  qIdx=firstUnanswered>=0?firstUnanswered:sessQs.length-1;
-
-  // sCorrect/sWrong 복원
-  sCorrect=sessQs.filter(q=>sessionAnswers[q.id]?.correct===sessionAnswers[q.id]?.chosen).length;
-  sWrong=sessQs.filter(q=>sessionAnswers[q.id]!==undefined&&sessionAnswers[q.id]?.correct!==sessionAnswers[q.id]?.chosen).length;
-  sWrongIds=sessQs.filter(q=>sessionAnswers[q.id]?.correct!==sessionAnswers[q.id]?.chosen&&sessionAnswers[q.id]!==undefined).map(q=>q.id);
-
-  seenQIds=new Set(Object.keys(sessionAnswers));
-  sessStartTime=Date.now();
-  answered=false;translateOn=false;
-  document.getElementById('btn-translate').classList.remove('active');
-  document.getElementById('btn-translate').textContent='🌐 한국어';
-  showScreen('quiz');showQ();
-}
-function showQ(){const q=sessQs[qIdx];answered=false;translateOn=false;trStem='';trOpts=[];document.getElementById('btn-translate').classList.remove('active');document.getElementById('btn-translate').textContent='🌐 한국어';document.getElementById('q-counter').textContent=(qIdx+1)+' / '+sessQs.length;document.getElementById('prog').style.width=(qIdx/sessQs.length*100)+'%';document.getElementById('q-source').textContent='('+q.src+') Q'+q.qnum+' · '+q.cat+(q.sub&&!CAT_NO_SUB.has(q.cat)?' / '+q.sub:'');
+function startQuiz(){let qs=getFiltered();if(!qs.length)return;if(order==='rand')qs=[...qs].sort(()=>Math.random()-.5);const n=sessCount===0?qs.length:Math.min(sessCount,qs.length);sessQs=qs.slice(0,n);qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];seenQIds=new Set();sessStartTime=Date.now();sessionAnswers={};answered=false;translateOn=false;document.getElementById('btn-translate').classList.remove('active');document.getElementById('btn-translate').textContent='🌐 한국어';showScreen('quiz');showQ();}
+function showQ(){const q=sessQs[qIdx];answered=false;translateOn=false;trStem='';trOpts=[];document.getElementById('btn-translate').classList.remove('active');document.getElementById('btn-translate').textContent='🌐 한국어';document.getElementById('q-counter').textContent=(qIdx+1)+' / '+sessQs.length;document.getElementById('prog').style.width=(qIdx/sessQs.length*100)+'%';document.getElementById('q-source').textContent='('+q.src+') Q'+q.qnum+' · '+q.cat+(q.sub?' / '+q.sub:'');
     document.getElementById('q-stem').innerHTML=renderStem(q.stem);
     // 미디어 (이미지 or 영상)
     const med=document.getElementById('q-media');med.innerHTML='';med.className='q-media';
@@ -1824,19 +1595,8 @@ function showQ(){const q=sessQs[qIdx];answered=false;translateOn=false;trStem=''
     // 중복 버전 — 보기 아래 별도 영역
     const dupArea=document.getElementById('dup-area');
     const dupTags=document.getElementById('dup-tags');
-    const dupLabel=document.getElementById('dup-label');
-    const ai=q.appeared_in||'';
-    if(ai){
-      const entries=ai.split(',').map(s=>s.trim()).filter(Boolean);
-      if(entries.length>1){
-        // 중복 출제
-        dupLabel.textContent='중복 출제 이력';
-        dupTags.innerHTML=entries.map(d=>'<span class="dup-tag">'+escHtml(d)+'</span>').join('');
-      } else {
-        // 단독 출제
-        dupLabel.textContent='출제 이력';
-        dupTags.innerHTML='<span class="dup-tag" style="color:var(--text3)">단독 출제 — '+escHtml(entries[0]||ai)+'</span>';
-      }
+    if(q.dupInfo&&q.dupInfo.length){
+      dupTags.innerHTML=q.dupInfo.map(d=>'<span class="dup-tag">'+escHtml(d)+'</span>').join('');
       dupArea.className='dup-area show';
     } else {
       dupArea.className='dup-area';
@@ -1847,8 +1607,8 @@ const q2=sessQs[qIdx];seenQIds.add(q2.id);saveSession();
 const sk=document.getElementById('btn-skip');
 sk.classList.toggle('skipped',store.skip.has(q2.id));
 sk.textContent=store.skip.has(q2.id)?'⏭ Skipped':'Skip';
-// 이미 답한 문제로 돌아온 경우 복원 (store.answers 우선, sessionAnswers 폴백)
-const prev=store.answers[q2.id]||sessionAnswers[q2.id];
+// 이미 답한 문제로 돌아온 경우 복원
+const prev=sessionAnswers[q2.id];
 if(prev!==undefined){restoreAnswer(q2,prev);}
 else{document.getElementById('quiz-body').scrollTop=0;startTimer();ttsRead();}
 }
@@ -1889,11 +1649,16 @@ function pick(chosen,correct,q){
     store.done[q.id]=false;store.wrongs.add(q.id);
   }
   sessionAnswers[q.id]={chosen,correct};
-  store.answers[q.id]={chosen,correct};
   saveStore();saveSession();
   showPostAnswer(q);
   document.getElementById('btn-next').classList.add('ready');
-  showResultBadge(ok, ok&&mode==='wr');
+  // Wrong 모드에서 정답: 배지 표시
+  if(ok&&mode==='wr'){
+    const badge=document.createElement('div');
+    badge.textContent='✅ 오답 목록에서 해제됨';
+    badge.style.cssText='text-align:center;color:var(--success);font-size:13px;font-weight:600;margin-top:8px;padding:8px;background:var(--success-bg);border-radius:8px';
+    document.getElementById('quiz-body').appendChild(badge);
+  }
 }
 function showPostAnswer(q){
   document.getElementById('post-answer').className='post-answer show';
@@ -2184,8 +1949,7 @@ async function ttsRead(){
 async function toggleTranslate(){const btn=document.getElementById('btn-translate');if(translateOn){const q=sessQs[qIdx];document.getElementById('q-stem').textContent=q.stem;document.querySelectorAll('.opt-text').forEach((el,i)=>el.innerHTML=renderStem(q.opts[i]||''));translateOn=false;btn.classList.remove('active');btn.textContent='🌐 한국어';return;}btn.textContent='⏳';btn.disabled=true;const q=sessQs[qIdx];try{if(!trStem){const all=[q.stem,...q.opts.filter(Boolean)];const joined=all.map((t,i)=>'['+i+'] '+t).join('\n');const url='https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q='+encodeURIComponent(joined);const res=await fetch(url);const data=await res.json();const raw=data[0].map(x=>x[0]).join('').split('\n');const result=[];for(const line of raw){const m=line.match(/^\[(\d+)\]\s*(.*)/);if(m)result[parseInt(m[1])]=m[2];}trStem=result[0]||q.stem;trOpts=q.opts.map((_,i)=>result[i+1]||q.opts[i]||'');}document.getElementById('q-stem').textContent=trStem;document.querySelectorAll('.opt-text').forEach((el,i)=>{if(i<trOpts.length)el.textContent=trOpts[i];});translateOn=true;btn.classList.add('active');btn.textContent='🌐 English';}catch(e){alert('번역 실패. 인터넷 연결을 확인하세요.');btn.textContent='🌐 한국어';}btn.disabled=false;}
 
 function restoreAnswer(q,prev){
-  // ALL_QS에서 최신 데이터로 갱신 (vid_url 등 누락 방지)
-  const freshQ=ALL_QS.find(fq=>fq.id===q.id)||q;
+  // 이미 답한 문제 상태 복원
   answered=true;clearInterval(timerIv);
   const {chosen,correct}=prev;
   document.querySelectorAll('.opt-btn').forEach((b,i)=>{
@@ -2193,10 +1957,11 @@ function restoreAnswer(q,prev){
     if(i===correct)b.classList.add('correct');
     else if(i===chosen&&chosen!==correct)b.classList.add('wrong');
   });
+  // 타이머 완료 상태
   const fill=document.getElementById('timer-fill');
   const track=document.getElementById('timer-track');
   fill.style.width='0%';fill.style.background='#ef4444';
-  showPostAnswer(freshQ);
+  showPostAnswer(q);
   document.getElementById('btn-next').classList.add('ready');
   document.getElementById('quiz-body').scrollTop=0;
 }
@@ -2269,7 +2034,7 @@ function openSkipScreen(){
           '<div data-id="'+q.id+'" onclick="toggleSkipItem(this.dataset.id)" style="flex:1;padding:13px 14px;cursor:pointer;min-width:0">'+
             '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">'+
               '<strong style="color:var(--warn);font-size:13px">'+(q.allSrcs?q.allSrcs.join(' · '):q.src)+' Q'+q.qnum+'</strong>'+
-              '<span style="font-size:11px;color:var(--text3)">'+(q.cat+(q.sub&&!CAT_NO_SUB.has(q.cat)?' / '+q.sub:''))+'</span>'+
+              '<span style="font-size:11px;color:var(--text3)">'+(q.cat+(q.sub?' / '+q.sub:''))+'</span>'+
               '<span id="sia-'+q.id+'" style="color:var(--accent2);font-size:18px;margin-left:auto;transition:transform .25s;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--bg3);flex-shrink:0">▾</span>'+
             '</div>'+
             '<div style="font-size:13px;color:var(--text2);line-height:1.5;word-break:break-word">'+escHtml(q.stem.substring(0,80))+(q.stem.length>80?'…':'')+'</div>'+
@@ -2330,7 +2095,7 @@ function toggleBm(){const q=sessQs[qIdx];store.bm.has(q.id)?store.bm.delete(q.id
 function showResult(){clearInterval(timerIv);const tot=sessQs.length,pct=Math.round(sCorrect/tot*100);document.getElementById('res-score').textContent=sCorrect+'/'+tot;document.getElementById('res-label').textContent=pct+'% correct · '+sWrong+' wrong';document.getElementById('bar-c').style.width=(sCorrect/tot*100)+'%';document.getElementById('bar-w').style.width=(sWrong/tot*100)+'%';document.getElementById('num-c').textContent=sCorrect;document.getElementById('num-w').textContent=sWrong;document.getElementById('btn-rw').style.display=sWrong?'':'none';document.getElementById('prog').style.width='100%';updateStats();showScreen('result');}
 function retrySame(){const qs=[...sessQs];if(order==='rand')qs.sort(()=>Math.random()-.5);sessQs=qs;qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];seenQIds=new Set();sessStartTime=Date.now();sessionAnswers={};answered=false;showScreen('quiz');showQ();}
 function retryWrong(){const wqs=ALL_QS.filter(q=>sWrongIds.includes(q.id));if(!wqs.length)return;sessQs=wqs;qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];seenQIds=new Set();sessStartTime=Date.now();sessionAnswers={};answered=false;showScreen('quiz');showQ();}
-function goHome(){clearInterval(timerIv);ttsReqId++;ttsOn=false;window.speechSynthesis.cancel();if(window._ttsAudio){window._ttsAudio.pause();window._ttsAudio=null;}updateStats();showScreen('home');if(mode==='cat'||mode==='dup'||mode==='unique')buildCatGrid();updateBtn();}
+function goHome(){clearInterval(timerIv);ttsReqId++;ttsOn=false;window.speechSynthesis.cancel();if(window._ttsAudio){window._ttsAudio.pause();window._ttsAudio=null;}updateStats();showScreen('home');updateBtn();}
 function confirmGoHome(){
   const onQuiz=document.getElementById('quiz').classList.contains('active');
   if(onQuiz&&sessQs.length){
@@ -2392,26 +2157,25 @@ document.addEventListener('visibilitychange',()=>{
 });
 // 이모지 숫자 → 컬러 텍스트 변환 (안드로이드 흑백 이모지 우회)
 function fixEmojiNumbers(text){
-  if(!text)return text;
   return text
-    .replace(/1️⃣/g,'\x01N1\x01')
-    .replace(/2️⃣/g,'\x01N2\x01')
-    .replace(/3️⃣/g,'\x01N3\x01')
-    .replace(/4️⃣/g,'\x01N4\x01')
-    .replace(/5️⃣/g,'\x01N5\x01')
-    .replace(/6️⃣/g,'\x01N6\x01')
-    .replace(/7️⃣/g,'\x01N7\x01')
-    .replace(/8️⃣/g,'\x01N8\x01')
-    .replace(/9️⃣/g,'\x01N9\x01')
-    .replace(/🔟/g,'\x01N10\x01')
-    // 혹시 남아있을 깨진 숫자이모지: 1?? 2?? 등
-    .replace(/(\d+)\?\?/g,'\x01N$1\x01')
-    // ~~**2번 ?**~~ 패턴의 ? → — (오답 취소선)
-    .replace(/(\d+번)\s*\?/g,'$1 —');
+    .replace(/1️⃣/g,'<span style="color:#3b82f6;font-weight:700">①</span>')
+    .replace(/2️⃣/g,'<span style="color:#3b82f6;font-weight:700">②</span>')
+    .replace(/3️⃣/g,'<span style="color:#3b82f6;font-weight:700">③</span>')
+    .replace(/4️⃣/g,'<span style="color:#3b82f6;font-weight:700">④</span>')
+    .replace(/5️⃣/g,'<span style="color:#3b82f6;font-weight:700">⑤</span>')
+    .replace(/6️⃣/g,'<span style="color:#3b82f6;font-weight:700">⑥</span>')
+    .replace(/7️⃣/g,'<span style="color:#3b82f6;font-weight:700">⑦</span>')
+    .replace(/8️⃣/g,'<span style="color:#3b82f6;font-weight:700">⑧</span>')
+    .replace(/9️⃣/g,'<span style="color:#3b82f6;font-weight:700">⑨</span>')
+    .replace(/🔟/g,'<span style="color:#3b82f6;font-weight:700">⑩</span>');
 }
-function applyEmojiTokens(s){
-  // esc() 이후에 호출 — 플레이스홀더 → 컬러 스팬
-  return s.replace(/\x01N(\d+)\x01/g,(_,n)=>'<span style="color:#3b82f6;font-weight:700">'+n+'.</span>');
+function startDupQuiz(){
+  const pool=ALL_QS.filter(q=>q.dupInfo&&q.dupInfo.length);
+  if(!pool.length){alert('중복 문제가 없습니다.');return;}
+  sessQs=order==='rand'?shuffle([...pool]):[...pool];
+  if(sessCount&&sessQs.length>sessCount)sessQs=sessQs.slice(0,sessCount);
+  qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];sessionAnswers={};answered=false;
+  showScreen('quiz');showQ();
 }
 let analyticsTargetCat=null,analyticsTargetSub=null;
 
