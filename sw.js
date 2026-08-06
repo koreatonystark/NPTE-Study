@@ -1,4 +1,4 @@
-const CACHE = 'npte-v7';
+const CACHE = 'npte-v8';
 const BASE = '/NPTE-Study';
 const ASSETS = [
   BASE + '/',
