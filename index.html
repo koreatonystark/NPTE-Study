@@ -1785,7 +1785,8 @@ function startQuiz(){
   if(!qs.length)return;
   if(order==='rand')qs=[...qs].sort(()=>Math.random()-.5);
   const n=sessCount===0?qs.length:Math.min(sessCount,qs.length);
-  sessQs=qs.slice(0,n);
+  // sessQs는 항상 ALL_QS의 최신 객체 참조
+  sessQs=qs.slice(0,n).map(q=>ALL_QS.find(fq=>fq.id===q.id)||q);
 
   // store.answers에서 이 세션 문제들의 답 복원
   sessionAnswers={};
@@ -2183,7 +2184,8 @@ async function ttsRead(){
 async function toggleTranslate(){const btn=document.getElementById('btn-translate');if(translateOn){const q=sessQs[qIdx];document.getElementById('q-stem').textContent=q.stem;document.querySelectorAll('.opt-text').forEach((el,i)=>el.innerHTML=renderStem(q.opts[i]||''));translateOn=false;btn.classList.remove('active');btn.textContent='🌐 한국어';return;}btn.textContent='⏳';btn.disabled=true;const q=sessQs[qIdx];try{if(!trStem){const all=[q.stem,...q.opts.filter(Boolean)];const joined=all.map((t,i)=>'['+i+'] '+t).join('\n');const url='https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q='+encodeURIComponent(joined);const res=await fetch(url);const data=await res.json();const raw=data[0].map(x=>x[0]).join('').split('\n');const result=[];for(const line of raw){const m=line.match(/^\[(\d+)\]\s*(.*)/);if(m)result[parseInt(m[1])]=m[2];}trStem=result[0]||q.stem;trOpts=q.opts.map((_,i)=>result[i+1]||q.opts[i]||'');}document.getElementById('q-stem').textContent=trStem;document.querySelectorAll('.opt-text').forEach((el,i)=>{if(i<trOpts.length)el.textContent=trOpts[i];});translateOn=true;btn.classList.add('active');btn.textContent='🌐 English';}catch(e){alert('번역 실패. 인터넷 연결을 확인하세요.');btn.textContent='🌐 한국어';}btn.disabled=false;}
 
 function restoreAnswer(q,prev){
-  // 이미 답한 문제 상태 복원
+  // ALL_QS에서 최신 데이터로 갱신 (vid_url 등 누락 방지)
+  const freshQ=ALL_QS.find(fq=>fq.id===q.id)||q;
   answered=true;clearInterval(timerIv);
   const {chosen,correct}=prev;
   document.querySelectorAll('.opt-btn').forEach((b,i)=>{
@@ -2191,11 +2193,10 @@ function restoreAnswer(q,prev){
     if(i===correct)b.classList.add('correct');
     else if(i===chosen&&chosen!==correct)b.classList.add('wrong');
   });
-  // 타이머 완료 상태
   const fill=document.getElementById('timer-fill');
   const track=document.getElementById('timer-track');
   fill.style.width='0%';fill.style.background='#ef4444';
-  showPostAnswer(q);
+  showPostAnswer(freshQ);
   document.getElementById('btn-next').classList.add('ready');
   document.getElementById('quiz-body').scrollTop=0;
 }
