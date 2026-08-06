@@ -25,43 +25,16 @@
 html,body{height:100%;background:var(--bg);color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden}
 #app{height:100%;display:flex;flex-direction:column}
-.screen{display:none;flex:1;flex-direction:column;overflow-y:auto}
+.screen{display:none;flex:1;flex-direction:column;overflow:hidden}
 .screen.active{display:flex}
-
-/* home-header: static, 스크롤 시 사라짐 */
-.home-header{padding:11px 18px;background:linear-gradient(160deg,#0f172a,#1a2f50);flex-shrink:0;}
-.home-header-top{display:none}
-.logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.logo-icon{font-size:22px;line-height:1}
-.logo-text{font-size:15px;font-weight:800;color:var(--accent2);letter-spacing:.2px;line-height:1.2}
-.logo-sub{font-size:11px;color:var(--text2);font-weight:500;margin-top:2px;letter-spacing:.2px}
-.home-title{display:none}
+.home-header{padding:20px 18px 14px;background:linear-gradient(160deg,#0f172a,#1a2f50);flex-shrink:0}
+.home-title{font-size:22px;font-weight:700;letter-spacing:-0.5px}
 .home-sub{font-size:12px;color:var(--text2);margin-top:3px}
-
-/* sticky-top: app-tabbar + stats 묶어서 고정 */
-.sticky-top{position:sticky;top:0;z-index:200;background:linear-gradient(160deg,#0f172a,#1a2f50);}
-
-/* ── App Tab Bar ── */
-.app-tabbar{display:flex;background:transparent;border-bottom:1px solid var(--border);}
-.app-tab{
-  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:8px 4px 7px;gap:2px;
-  text-decoration:none;color:#4a6080;
-  font-size:10px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;
-  border-bottom:2px solid transparent;
-  transition:all .18s;cursor:pointer;
-  background:none;border-top:none;border-left:none;border-right:none;
-  font-family:inherit;
-}
-.app-tab:hover{color:#7eb8f7;background:rgba(79,142,247,.06)}
-.app-tab.active{color:#f5c842;border-bottom-color:#f5c842;background:rgba(245,200,66,.04)}
-.app-tab-icon{font-size:15px;line-height:1}
-.app-tab-label{font-size:10px;font-weight:700;letter-spacing:.3px}
-.home-stats{display:flex;gap:7px;padding:8px 16px 10px;flex-wrap:wrap;border-bottom:1px solid var(--border);}
+.home-stats{display:flex;gap:7px;margin-top:11px;flex-wrap:wrap}
 .stat-pill{background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);
   border-radius:20px;padding:3px 10px;font-size:11px;color:var(--accent2)}
 .stat-pill.btn{cursor:pointer}
-.filter-section{padding:0 16px 16px;overflow-x:hidden;box-sizing:border-box;width:100%}
+.filter-section{padding:0 16px 16px;overflow-y:auto;overflow-x:hidden;flex:1;box-sizing:border-box;width:100%}
 .filter-label{font-size:10px;font-weight:700;color:var(--text3);
   letter-spacing:.09em;text-transform:uppercase;margin:15px 0 8px}
 .mode-tabs{display:flex;gap:6px;margin-top:13px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
@@ -223,7 +196,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
   border-radius:var(--radius-sm);color:var(--danger);font-size:13px;font-weight:600;
   cursor:pointer;flex-shrink:0}
 /* Skip 관리 화면 */
-#skip-screen{display:none}
+#skip-screen{position:fixed;inset:0;background:var(--bg);z-index:150;display:none;flex-direction:column}
 .skip-header{background:var(--bg2);border-bottom:1px solid var(--border);
   padding:14px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0}
 .skip-header h2{font-size:16px;font-weight:700;flex:1}
@@ -363,37 +336,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 
 <style>
 @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.1);opacity:.7}}
-
-/* ── Global App Tab Bar ── */
-.app-tabbar{
-  display:flex;
-  background:#0a1628;
-  border-bottom:1px solid #1e3050;
-  padding:0;
-  flex-shrink:0;
-  position:sticky;top:0;z-index:300;
-}
-.app-tab{
-  flex:1;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:9px 4px 8px;
-  gap:3px;
-  text-decoration:none;
-  color:#4a6080;
-  font-size:10px;font-weight:700;
-  letter-spacing:.3px;
-  text-transform:uppercase;
-  border-bottom:2px solid transparent;
-  transition:all .18s;
-  cursor:pointer;
-  background:none;border-top:none;border-left:none;border-right:none;
-  border-bottom:2px solid transparent;
-  font-family:inherit;
-}
-.app-tab:hover{color:#7eb8f7;background:rgba(79,142,247,.06)}
-.app-tab.active{color:#f5c842;border-bottom-color:#f5c842;background:rgba(245,200,66,.05)}
-.app-tab-icon{font-size:17px;line-height:1}
-.app-tab-label{font-size:10px;font-weight:700;letter-spacing:.3px}
 </style>
 
 
@@ -407,36 +349,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 </div>
 
 <div id="app">
-
 <div id="home" class="screen">
-
-  <!-- 로고: static, 스크롤 시 사라짐 -->
   <div class="home-header">
-    <div class="logo">
-      <div class="logo-icon">📚</div>
-      <div>
-        <div class="logo-text">NPTE-PT Study</div>
-        <div class="logo-sub" id="home-sub">불러오는 중…</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- sticky: 탭 + stats 고정 -->
-  <div class="sticky-top">
-    <nav class="app-tabbar">
-      <a class="app-tab active" href="index.html">
-        <span class="app-tab-icon">📚</span>
-        <span class="app-tab-label">Question</span>
-      </a>
-      <a class="app-tab" href="english.html">
-        <span class="app-tab-icon">📝</span>
-        <span class="app-tab-label">English</span>
-      </a>
-      <a class="app-tab" href="chart.html">
-        <span class="app-tab-icon">🗂️</span>
-        <span class="app-tab-label">Chart</span>
-      </a>
-    </nav>
+    <div class="home-title">NPTE-PT Study</div>
+    <div class="home-sub" id="home-sub">불러오는 중…</div>
     <div class="home-stats">
       <span class="stat-pill" id="stat-done">0 solved</span>
       <span class="stat-pill" id="stat-acc">—% acc</span>
@@ -444,8 +360,32 @@ html,body{height:100%;background:var(--bg);color:var(--text);
       <span class="stat-pill btn" onclick="loadData(true)">🔄 새로고침</span>
       <span class="stat-pill btn" onclick="confirmReset()" style="border-color:rgba(239,68,68,.4);color:#ef4444;background:rgba(239,68,68,.1)">🗑 초기화</span>
     </div>
-  </div><!-- /sticky-top -->
+  </div>
   <div class="filter-section">
+    <!-- ── 다른 앱 런처 ── -->
+    <div class="filter-label">Study Tools</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:4px;width:100%">
+      <a href="english.html" style="text-decoration:none;min-width:0">
+        <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;
+          padding:12px 6px;cursor:pointer;transition:all .15s;text-align:center">
+          <div style="font-size:22px;margin-bottom:5px">📝</div>
+          <div style="font-size:11px;font-weight:700;color:var(--text);line-height:1.3">English<br>Mastery</div>
+        </div>
+      </a>
+      <a href="chart.html" style="text-decoration:none;min-width:0">
+        <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;
+          padding:12px 6px;cursor:pointer;transition:all .15s;text-align:center">
+          <div style="font-size:22px;margin-bottom:5px">📊</div>
+          <div style="font-size:11px;font-weight:700;color:var(--text);line-height:1.3">Chart<br>Reading</div>
+        </div>
+      </a>
+      <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;
+        padding:12px 6px;cursor:pointer;transition:all .15s;text-align:center;min-width:0"
+        onclick="openAnalytics()">
+        <div style="font-size:22px;margin-bottom:5px">📈</div>
+        <div style="font-size:11px;font-weight:700;color:var(--text);line-height:1.3">Score<br>Analytics</div>
+      </div>
+    </div>
     <div class="filter-label">Mode</div>
     <div class="mode-tabs">
       <div class="mode-tab active" data-mode="cat" onclick="setMode('cat')">Category</div>
@@ -453,7 +393,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
       <div class="mode-tab" data-mode="unique" onclick="setMode('unique')">1️⃣ Unique</div>
       <div class="mode-tab" data-mode="bm"   onclick="setMode('bm')">⭐ Bookmark</div>
       <div class="mode-tab" data-mode="wr"   onclick="setMode('wr')">❌ Wrong <span id="wr-count" style="font-size:11px;opacity:.8"></span></div>
-      <div class="mode-tab" data-mode="skip" onclick="setMode('skip')">⏭ Skipped</div>
+      <div class="mode-tab" data-mode="skip" onclick="openSkipScreen()">⏭ Skipped</div>
     </div>
     <div id="mode-cat">
       <div class="filter-label">Year <span id="year-sel-n" style="color:var(--accent2)"></span></div>
@@ -463,7 +403,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);
     </div>
     <div id="mode-bm" style="display:none"><div id="bm-list" style="margin-top:8px"></div></div>
     <div id="mode-wr" style="display:none"><div id="wr-list" style="margin-top:8px"></div></div>
-    <div id="mode-skip" style="display:none"><div id="skip-list" style="margin-top:8px"></div></div>
 
     <div id="mode-opts">
       <div class="filter-label">Order</div>
@@ -1185,7 +1124,10 @@ function renderExpl(text){
   var inTable=false;
   var inList=false;
 
-  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function esc(s){
+    // & 만 이스케이프, < > 는 부등호로 그대로 표시 (HTML 태그 입력 없으므로 안전)
+    return s.replace(/&(?!amp;|lt;|gt;|nbsp;)/g,'&amp;');
+  }
 
   function inline(s){
     s=fixEmojiNumbers(s);  // 1. 이모지/??를 플레이스홀더로
@@ -1482,7 +1424,7 @@ async function loadData(forceReload=false){
     loadGCSFileList(); // GCS 파일 목록 백그라운드 로드 (1회)
     document.getElementById('loading').style.display='none';
     buildCatGrid();buildYearChips();
-    document.getElementById('home-sub').textContent=ALL_QS.length.toLocaleString()+' 문항';
+    document.getElementById('home-sub').textContent=ALL_QS.length.toLocaleString()+' 문항 · Google Sheets 연결됨';
     updateStats();if(mode==='bm'||mode==='wr')setTimeout(()=>renderModeList(mode),100);if(restoreSession()){
       showScreen('quiz');showQ();
     } else {
@@ -1681,14 +1623,12 @@ function setMode(m){
   document.getElementById('mode-cat').style.display=(m==='cat'||m==='dup'||m==='unique')?'':'none';
   document.getElementById('mode-bm').style.display=m==='bm'?'':'none';
   document.getElementById('mode-wr').style.display=m==='wr'?'':'none';
-  document.getElementById('mode-skip').style.display=m==='skip'?'':'none';
   document.getElementById('mode-opts').style.display=(m==='cat'||m==='dup'||m==='unique')?'':'none';
-  var sb=document.getElementById('start-bar');if(sb)sb.style.display=(m==='bm'||m==='wr'||m==='skip')?'none':'';
+  var sb=document.getElementById('start-bar');if(sb)sb.style.display=(m==='bm'||m==='wr')?'none':'';
   const wrCount=document.getElementById('wr-count');
   if(wrCount)wrCount.textContent=store.wrongs.size?'('+store.wrongs.size+')':'';
   if(m==='bm')renderModeList('bm');
   if(m==='wr')renderModeList('wr');
-  if(m==='skip')renderSkipList();
   if(m==='cat'||m==='dup'||m==='unique')buildCatGrid();
   updateBtn();
 }
@@ -2312,35 +2252,36 @@ function endQuiz(){
 }
 function closeEndModal(){document.getElementById('end-modal').style.display='none';}
 
-function renderSkipList(){
+function openSkipScreen(){
   const list=document.getElementById('skip-list');
-  if(!list)return;
   const skipped=[...store.skip];
+  document.getElementById('skip-count').textContent=skipped.length+'문제';
   if(!skipped.length){
-    list.innerHTML='<p style="color:var(--text2);font-size:14px;padding:12px 0;line-height:1.7">⏭ Skip한 문제가 없습니다.<br><span style="font-size:12px">문제 풀이 중 Skip 버튼을 누르면 여기에 표시됩니다.</span></p>';
-    return;
-  }
-  const items=ALL_QS.filter(q=>store.skip.has(q.id)).sort((a,b)=>{
-    if(a.src!==b.src)return a.src.localeCompare(b.src);return a.qnum-b.qnum;
-  });
-  list.innerHTML=items.map(q=>
-    '<div id="si-'+q.id+'" style="border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden;background:var(--bg2)">'+
-      '<div style="display:flex;align-items:stretch">'+
-        '<div data-id="'+q.id+'" onclick="toggleSkipItem(this.dataset.id)" style="flex:1;padding:13px 14px;cursor:pointer;min-width:0">'+
-          '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">'+
-            '<strong style="color:var(--warn);font-size:13px">'+(q.allSrcs?q.allSrcs.join(' · '):q.src)+' Q'+q.qnum+'</strong>'+
-            '<span style="font-size:11px;color:var(--text3)">'+(q.cat+(q.sub&&!CAT_NO_SUB.has(q.cat)?' / '+q.sub:''))+'</span>'+
-            '<span id="sia-'+q.id+'" style="color:var(--accent2);font-size:18px;margin-left:auto;transition:transform .25s;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--bg3);flex-shrink:0">▾</span>'+
+    list.innerHTML='<div class="skip-empty">⏭ Skipped 문제가 없습니다.<br><span style="font-size:12px">문제 풀이 중 Skip 버튼을 누르면 여기에 표시됩니다.</span></div>';
+  } else {
+    const items=ALL_QS.filter(q=>store.skip.has(q.id)).sort((a,b)=>{
+      if(a.src!==b.src)return a.src.localeCompare(b.src);return a.qnum-b.qnum;
+    });
+    list.innerHTML=items.map(q=>
+      '<div id="si-'+q.id+'" style="border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden;background:var(--bg2)">'+
+        '<div style="display:flex;align-items:stretch">'+
+          '<div data-id="'+q.id+'" onclick="toggleSkipItem(this.dataset.id)" style="flex:1;padding:13px 14px;cursor:pointer;min-width:0">'+
+            '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">'+
+              '<strong style="color:var(--warn);font-size:13px">'+(q.allSrcs?q.allSrcs.join(' · '):q.src)+' Q'+q.qnum+'</strong>'+
+              '<span style="font-size:11px;color:var(--text3)">'+(q.cat+(q.sub&&!CAT_NO_SUB.has(q.cat)?' / '+q.sub:''))+'</span>'+
+              '<span id="sia-'+q.id+'" style="color:var(--accent2);font-size:18px;margin-left:auto;transition:transform .25s;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--bg3);flex-shrink:0">▾</span>'+
+            '</div>'+
+            '<div style="font-size:13px;color:var(--text2);line-height:1.5;word-break:break-word">'+escHtml(q.stem.substring(0,80))+(q.stem.length>80?'…':'')+'</div>'+
           '</div>'+
-          '<div style="font-size:13px;color:var(--text2);line-height:1.5;word-break:break-word">'+escHtml(q.stem.substring(0,80))+(q.stem.length>80?'…':'')+'</div>'+
+          '<button data-id="'+q.id+'" onclick="unskip(this.dataset.id)" style="flex-shrink:0;border-radius:0;border:none;border-left:1px solid var(--border);padding:0 14px;margin:0;writing-mode:vertical-lr;font-size:12px;letter-spacing:.05em;background:rgba(239,68,68,.1);color:var(--danger);cursor:pointer">해제</button>'+
         '</div>'+
-        '<button data-id="'+q.id+'" onclick="unskip(this.dataset.id)" style="flex-shrink:0;border-radius:0;border:none;border-left:1px solid var(--border);padding:0 14px;margin:0;writing-mode:vertical-lr;font-size:12px;letter-spacing:.05em;background:rgba(239,68,68,.1);color:var(--danger);cursor:pointer">해제</button>'+
-      '</div>'+
-      '<div id="sib-'+q.id+'" data-id="'+q.id+'" onclick="toggleSkipItem(this.dataset.id)" style="display:none;border-top:1px solid var(--border);padding:14px;cursor:pointer"></div>'+
-    '</div>'
-  ).join('');
+        '<div id="sib-'+q.id+'" data-id="'+q.id+'" onclick="toggleSkipItem(this.dataset.id)" style="display:none;border-top:1px solid var(--border);padding:14px;cursor:pointer"></div>'+
+      '</div>'
+    ).join('');
+  }
+  document.getElementById('skip-screen').style.display='flex';
+  history.pushState({page:'skip'},'','');
 }
-function openSkipScreen(){setMode('skip');}  // 하위 호환
 function toggleSkipItem(id){
   const body=document.getElementById('sib-'+id);
   const arrow=document.getElementById('sia-'+id);
@@ -2365,10 +2306,10 @@ function toggleSkipItem(id){
   arrow.style.transform='rotate(180deg)';
   setTimeout(()=>document.getElementById('si-'+id).scrollIntoView({behavior:'smooth',block:'start'}),60);
 }
-function closeSkipScreen(){setMode('cat');updateBtn();}
+function closeSkipScreen(){document.getElementById('skip-screen').style.display='none';updateBtn();}
 function unskip(id){
   store.skip.delete(id);saveStore();
-  renderSkipList();updateBtn();
+  openSkipScreen();updateBtn();
 }
 function nextQ(){
   // Wrong 모드에서 방금 맞춘 문제는 세션 목록에서 제거
@@ -2415,7 +2356,9 @@ window.addEventListener('popstate',function(e){
   const analyticsOpen=document.getElementById('analytics-overlay').style.display==='flex';
   if(analyticsOpen){closeAnalytics();history.pushState({page:'home'},'','');return;}
 
-  // 3. (skip은 인라인 모드로 전환, 팝스테이트 불필요)
+  // 3. skip 화면
+  const skipOpen=document.getElementById('skip-screen').style.display==='flex';
+  if(skipOpen){closeSkipScreen();history.pushState({page:'home'},'','');return;}
 
   // 4. analytics start 모달
   const aModalOpen=document.getElementById('analytics-start-modal').style.display==='flex';
