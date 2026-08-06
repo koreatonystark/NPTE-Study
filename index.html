@@ -386,15 +386,24 @@ html,body{height:100%;background:var(--bg);color:var(--text);
     <div class="filter-label">Mode</div>
     <div class="mode-tabs">
       <div class="mode-tab active" data-mode="cat" onclick="setMode('cat')">Category</div>
-      <div class="mode-tab" data-mode="dup" onclick="setMode('dup')">🔁 Duplicate</div>
-      <div class="mode-tab" data-mode="unique" onclick="setMode('unique')">1️⃣ Unique</div>
+      <div class="mode-tab" data-mode="year" onclick="setMode('year')">Year</div>
+      <div class="mode-tab" data-mode="src"  onclick="setMode('src')">Version</div>
       <div class="mode-tab" data-mode="bm"   onclick="setMode('bm')">⭐ Bookmark</div>
       <div class="mode-tab" data-mode="wr"   onclick="setMode('wr')">❌ Wrong <span id="wr-count" style="font-size:11px;opacity:.8"></span></div>
       <div class="mode-tab" data-mode="skip" onclick="openSkipScreen()">⏭ Skipped</div>
+      <div class="mode-tab" data-mode="dup" onclick="startDupQuiz()">🔁 Duplicate</div>
     </div>
     <div id="mode-cat">
       <div class="filter-label">Category <span id="cat-sel-n" style="color:var(--accent2)"></span></div>
       <div class="cat-grid" id="cat-grid"></div>
+    </div>
+    <div id="mode-year" style="display:none">
+      <div class="filter-label">Year</div>
+      <div class="chip-wrap" id="year-chips"></div>
+    </div>
+    <div id="mode-src" style="display:none">
+      <div class="filter-label">Version / Source</div>
+      <div class="chip-wrap" id="src-chips"></div>
     </div>
     <div id="mode-bm" style="display:none"><div id="bm-list" style="margin-top:8px"></div></div>
     <div id="mode-wr" style="display:none"><div id="wr-list" style="margin-top:8px"></div></div>
@@ -460,7 +469,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
       <div class="explain-text" id="explain-text"></div>
     </div>
     <div class="dup-area" id="dup-area">
-      <div class="dup-label" id="dup-label">출제 이력</div>
+      <div class="dup-label">같은 문제 · 다른 버전</div>
       <div class="dup-tags" id="dup-tags"></div>
     </div>
   </div>
@@ -945,24 +954,8 @@ function getQuestionImageUrl(q){
   return '';
 }
 let VOCAB=[];
-const CAT_NORMALIZE={
-  'Cardiopulmonary':'Cardiovascular & Pulmonary',
-  'Metabolic/Endocrine':'Metabolic & Endocrine',
-  'Professional Responsibilities':'Professional Issues',
-  'System Interactions':'System Interactions / Differential Diagnosis',
-  'Therapeutic Exercise':'Modalities',
-  'Therapeutic Modalities':'Modalities',
-  'Other Systems':null
-};
-function normalizeCat(cat){
-  if(!cat)return '';
-  if(cat in CAT_NORMALIZE)return CAT_NORMALIZE[cat]||'';
-  return cat;
-}
 const CAT_ORDER=["Musculoskeletal","Neuromuscular","Cardiovascular & Pulmonary","Integumentary","Metabolic & Endocrine","Gastrointestinal","Genitourinary","Lymphatic","System Interactions / Differential Diagnosis","Equipment & Assistive Technology","Modalities","Safety","Professional Issues","Research"];
 const CAT_EMOJI={"Musculoskeletal":"🦴","Neuromuscular":"🧠","Cardiovascular & Pulmonary":"❤️","Integumentary":"🩹","Metabolic & Endocrine":"🔬","Gastrointestinal":"🫃","Genitourinary":"🫀","Lymphatic":"💧","System Interactions / Differential Diagnosis":"🔍","Equipment & Assistive Technology":"🦽","Modalities":"⚡","Safety":"🚨","Professional Issues":"📋","Research":"📊"};
-// sub 칩을 표시하지 않을 카테고리 (단일 주제 카테고리)
-const CAT_NO_SUB=new Set(["Equipment & Assistive Technology","Modalities","Safety","Professional Issues","Research"]);
 const TIMER_SEC=80,STORE_KEY='npte_v5';
 let ALL_QS=[],mode='cat',order='seq',sessCount=50;
 let selCats=new Set(),selYears=new Set(),selSrcs=new Set(),selSubs=new Set();
@@ -1021,23 +1014,6 @@ function renderStem(text){
 }
 function escHtml(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function escAttr(t){return String(t).replace(/'/g,'&#39;');}
-function restoreHeadingEmoji(s){
-  // 구글시트 CSV에서 ## 제목의 이모지가 ?/?? 로 깨지는 경우 복원
-  const map=[
-    [/^\?+\s*(임상|Clinical\s*Application)/i,'🏥 $1'],
-    [/^\?+\s*(오답|Wrong|Incorrect)/i,'❌ $1'],
-    [/^\?+\s*(병태생리|Pathophysiology)/i,'🔬 $1'],
-    [/^\?+\s*(연상|Summary|요약)/i,'🔗 $1'],
-    [/^\?+\s*(NPTE|빈출)/i,'🎯 $1'],
-    [/^\?+\s*(문제\s*분석|Analysis)/i,'🧠 $1'],
-    [/^\?+\s*(정답|Correct)/i,'✅ $1'],
-    [/^\?+\s*/,''],  // 나머지 ?? 제거
-  ];
-  for(var i=0;i<map.length;i++){
-    if(map[i][0].test(s))return s.replace(map[i][0],map[i][1]);
-  }
-  return s;
-}
 function renderExpl(text){
   var lines=text.split('\n');
   var out=[];
@@ -1048,9 +1024,8 @@ function renderExpl(text){
   function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
   function inline(s){
-    s=fixEmojiNumbers(s);  // 1. 이모지/??를 플레이스홀더로
-    s=esc(s);              // 2. HTML 이스케이프
-    s=applyEmojiTokens(s); // 3. 플레이스홀더 → 컬러 스팬
+    s=esc(s);
+    s=fixEmojiNumbers(s);
     s=s.replace(/\*\*\*([^*]+)\*\*\*/g,'<strong><em>$1</em></strong>');
     s=s.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
     s=s.replace(/\*([^*]+)\*/g,'<em>$1</em>');
@@ -1092,8 +1067,6 @@ function renderExpl(text){
 
   lines.forEach(function(line){
     var trimmed=line.trim();
-    // 줄 시작 깨진 이모지(?) 제거
-    trimmed=trimmed.replace(/^\?+\s*/,'');
 
     if(trimmed.startsWith('|')&&trimmed.endsWith('|')){
       flushList();inTable=true;tbl.push(trimmed);return;
@@ -1111,8 +1084,7 @@ function renderExpl(text){
       var lvl=hm[1].length;
       var sz=['18px','16px','15px','14px'][lvl-1]||'14px';
       var mt=lvl===1?'16px':'12px';
-      var htxt=restoreHeadingEmoji(hm[2]);
-      out.push('<div style="font-size:'+sz+';font-weight:700;color:var(--accent2);margin:'+mt+' 0 6px">'+inline(htxt)+'</div>');return;
+      out.push('<div style="font-size:'+sz+';font-weight:700;color:var(--accent2);margin:'+mt+' 0 6px">'+inline(hm[2])+'</div>');return;
     }
 
     var qm=trimmed.match(/^>\s*(.*)/);
@@ -1167,10 +1139,9 @@ function showVocab(e,word){
 }
 document.addEventListener('click',()=>document.getElementById('vocab-bubble').style.display='none');
 function parseCSV(t){
-  // RFC 4180 CSV 파서 - 따옴표 안의 \n은 셀 내용으로 처리
+  // RFC 4180: 따옴표 안의 \n은 셀 내용으로 처리 (행 구분 아님)
+  const rows=[];let cur=[],cell='',inQ=false;
   t=t.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
-  const rows=[];
-  let cur=[],cell='',inQ=false;
   for(let i=0;i<t.length;i++){
     const ch=t[i],nx=t[i+1];
     if(inQ){
@@ -1253,12 +1224,9 @@ async function loadData(forceReload=false){
     ALL_QS=[];
     rows.forEach((r,i)=>{
       const stem=(r.stem||r.question||'').trim();if(!stem)return;
-      const normCat=normalizeCat(r.cat||'');
-      if(!normCat)return; // Other Systems 등 매핑 없는 cat 스킵
-      ALL_QS.push({id:String(i),cat:normCat,sub:r.sub||'',src:r.src||'',
+      ALL_QS.push({id:String(i),cat:r.cat||'',sub:r.sub||'',src:r.src||'',
         year:(r.year||(r.src||'').replace(/[^0-9]/g,'').substring(0,4)||'').toString(),
         qnum:parseInt(r.qnum||i+1)||i+1,stem,
-        appeared_in:r.appeared_in||'',
         opts:[r.opt1||'',r.opt2||'',r.opt3||'',r.opt4||''],
         answer:Math.max(0,(parseInt(r.answer)||1)-1),
         media_url:r.media_url||'',media_type:r.media_type||'none',
@@ -1267,13 +1235,23 @@ async function loadData(forceReload=false){
         expl_text:r.explanation||'',
         img_url:r.img||'',vid_url:r.vid||''});
     });
-    // appeared_in 컬럼 기반 중복 출제 정보 빌드
+    // 같은 stem의 중복 문제 → 버전 목록 빌드
+    // 중복 문제 감지: 같은 stem → 다른 src/qnum 정보 매핑
+    const stemMap={};
     ALL_QS.forEach(q=>{
-      const ai=(q.appeared_in||'').trim();
-      if(!ai){q.dupInfo=null;q.isDup=false;return;}
-      const entries=ai.split(',').map(s=>s.trim()).filter(Boolean);
-      q.isDup=entries.length>1; // 2번 이상 출제
-      q.dupInfo=entries; // "2014A_1", "2017C_160" 형태 배열
+      const key=q.stem.trim().substring(0,80);
+      if(!stemMap[key])stemMap[key]=[];
+      stemMap[key].push({src:q.src,qnum:q.qnum,id:q.id});
+    });
+    ALL_QS.forEach(q=>{
+      const key=q.stem.trim().substring(0,80);
+      const group=stemMap[key];
+      if(group.length>1){
+        // 이 문제와 다른 것들만 (자기 자신 제외)
+        q.dupInfo=group.filter(g=>g.id!==q.id).map(g=>'('+g.src+') Q'+g.qnum);
+      } else {
+        q.dupInfo=null;
+      }
     });
     if(!ALL_QS.length)throw new Error('유효한 문항 없음');
     // CAT_SUBS 동적 빌드: Sheets의 cat(A열), sub(B열) 값으로 구성
@@ -1297,7 +1275,7 @@ async function loadData(forceReload=false){
     }).catch(()=>{});
     loadGCSFileList(); // GCS 파일 목록 백그라운드 로드 (1회)
     document.getElementById('loading').style.display='none';
-    buildCatGrid();
+    buildCatGrid();buildYearChips();buildSrcChips();
     document.getElementById('home-sub').textContent=ALL_QS.length.toLocaleString()+' 문항 · Google Sheets 연결됨';
     updateStats();if(mode==='bm'||mode==='wr')setTimeout(()=>renderModeList(mode),100);if(restoreSession()){
       showScreen('quiz');showQ();
@@ -1312,13 +1290,7 @@ async function loadData(forceReload=false){
 function buildCatGrid(){
   var g=document.getElementById('cat-grid');
   g.innerHTML='';
-  function qFilter(q){
-    if(store.skip.has(q.id))return false;
-    if(mode==='dup')return q.isDup;
-    if(mode==='unique')return !q.isDup;
-    return true;
-  }
-  var totalCnt=ALL_QS.filter(qFilter).length;
+  var totalCnt=ALL_QS.filter(function(q){return !store.skip.has(q.id);}).length;
   var allCard=document.createElement('div');
   allCard.className='cat-btn cat-all-btn'+(selCats.size===0?' selected':'');
   allCard.innerHTML='<span class="em">📚</span><div class="nm">All Categories</div><div class="ct">'+totalCnt+' Qs</div><div class="ck">✓</div>';
@@ -1335,9 +1307,9 @@ function buildCatGrid(){
     return (ia<0?99:ia)-(ib<0?99:ib);
   });
   cats.forEach(function(cat){
-    var cnt=ALL_QS.filter(function(q){return q.cat===cat&&qFilter(q);}).length;
+    var cnt=ALL_QS.filter(function(q){return q.cat===cat&&!store.skip.has(q.id);}).length;
     if(!cnt)return;
-    var subs=CAT_NO_SUB.has(cat)?[]:(CAT_SUBS[cat]||[]);
+    var subs=CAT_SUBS[cat]||[];
     var catId='sc_'+cat.replace(/[^a-z0-9]/gi,'_');
     var d=document.createElement('div');
     d.className='cat-btn'+(selCats.has(cat)?' selected':'');
@@ -1381,6 +1353,8 @@ function toggleSub(el){
   updateBtn();
 }
 
+function buildYearChips(){const years=[...new Set(ALL_QS.map(q=>q.year).filter(Boolean))].sort();const w=document.getElementById('year-chips');w.innerHTML='';years.forEach(y=>{const d=document.createElement('div');d.className='chip';d.dataset.year=y;d.textContent=y+' ('+ALL_QS.filter(q=>q.year===y).length+')';d.onclick=()=>toggleChip(selYears,y,d);w.appendChild(d);});}
+function buildSrcChips(){const srcs=[...new Set(ALL_QS.map(q=>q.src).filter(Boolean))].sort();const w=document.getElementById('src-chips');w.innerHTML='';srcs.forEach(s=>{const d=document.createElement('div');d.className='chip';d.dataset.src=s;d.textContent=s+' ('+ALL_QS.filter(q=>q.src===s).length+')';d.onclick=()=>toggleChip(selSrcs,s,d);w.appendChild(d);});}
 function toggleCat(cat,el){
   var wasSelected=selCats.has(cat);
   if(wasSelected){
@@ -1433,10 +1407,11 @@ function getFiltered(){
   else if(mode==='wr')qs=ALL_QS.filter(q=>store.wrongs.has(q.id)&&!store.skip.has(q.id));
   else{
     qs=ALL_QS.filter(q=>!store.skip.has(q.id));
-    if(mode==='dup')qs=qs.filter(q=>q.isDup);
-    if(mode==='unique')qs=qs.filter(q=>!q.isDup);
-    if(selCats.size)qs=qs.filter(q=>selCats.has(q.cat));
-    if(selSubs.size)qs=qs.filter(q=>selSubs.has(q.sub));
+    if(mode==='cat'&&selCats.size)qs=qs.filter(q=>selCats.has(q.cat));
+    // sub 필터: selSubs가 있으면 해당 sub만, 없으면 선택된 cat 전체
+    if(mode==='cat'&&selSubs.size)qs=qs.filter(q=>selSubs.has(q.sub));
+    if(mode==='year'&&selYears.size)qs=qs.filter(q=>selYears.has(q.year));
+    if(mode==='src'&&selSrcs.size)qs=qs.filter(q=>selSrcs.has(q.src));
   }
   if(order==='seq'){
     qs=[...qs].sort((a,b)=>{
@@ -1449,16 +1424,12 @@ function getFiltered(){
 function setMode(m){
   mode=m;
   document.querySelectorAll('.mode-tab').forEach(t=>t.classList.toggle('active',t.dataset.mode===m));
-  ['cat','bm','wr'].forEach(id=>document.getElementById('mode-'+id).style.display=(id===m||m==='dup'||m==='unique')?((id==='cat')?'':'none'):'none');
-  document.getElementById('mode-cat').style.display=(m==='cat'||m==='dup'||m==='unique')?'':'none';
-  document.getElementById('mode-opts').style.display=(m==='cat'||m==='dup'||m==='unique')?'':'none';
-  document.getElementById('mode-bm').style.display=m==='bm'?'':'none';
-  document.getElementById('mode-wr').style.display=m==='wr'?'':'none';
+  ['cat','year','src','bm','wr'].forEach(id=>document.getElementById('mode-'+id).style.display=(id===m)?'':'none');
+  document.getElementById('mode-opts').style.display=['cat','year','src'].includes(m)?'':'none';
   const wrCount=document.getElementById('wr-count');
   if(wrCount)wrCount.textContent=store.wrongs.size?'('+store.wrongs.size+')':'';
   if(m==='bm')renderModeList('bm');
   if(m==='wr')renderModeList('wr');
-  if(m==='cat'||m==='dup'||m==='unique')buildCatGrid();
   updateBtn();
 }
 function renderModeList(m){
@@ -1525,7 +1496,7 @@ function toggleMlItem(m,id){
       +'</div>';
     }).join('');
     var explContent=q.expl_text||'(해설 없음)';
-    var explBtn='<div id="bmexpl-'+id+'" style="display:none;margin-top:10px;padding:12px;background:var(--bg3);border-radius:8px;font-size:14px;line-height:1.7;color:var(--text)">'+renderExpl(explContent)+'</div>'
+    var explBtn='<div id="bmexpl-'+id+'" style="display:none;margin-top:10px;padding:12px;background:var(--bg3);border-radius:8px;font-size:14px;line-height:1.7;color:var(--text)">'+escHtml(explContent)+'</div>'
       +'<button data-eid="'+id+'" onclick="toggleBmExpl(this);event.stopPropagation()" style="margin-top:10px;width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--accent2);font-size:13px;font-weight:600;cursor:pointer">📖 해설 보기</button>';
     body.innerHTML='<div style="font-size:15px;line-height:1.75;color:var(--text);margin-bottom:14px">'+escHtml(q.stem)+'</div>'+optsHtml+explBtn;
   }
@@ -1624,19 +1595,8 @@ function showQ(){const q=sessQs[qIdx];answered=false;translateOn=false;trStem=''
     // 중복 버전 — 보기 아래 별도 영역
     const dupArea=document.getElementById('dup-area');
     const dupTags=document.getElementById('dup-tags');
-    const dupLabel=document.getElementById('dup-label');
-    const ai=q.appeared_in||'';
-    if(ai){
-      const entries=ai.split(',').map(s=>s.trim()).filter(Boolean);
-      if(entries.length>1){
-        // 중복 출제
-        dupLabel.textContent='중복 출제 이력';
-        dupTags.innerHTML=entries.map(d=>'<span class="dup-tag">'+escHtml(d)+'</span>').join('');
-      } else {
-        // 단독 출제
-        dupLabel.textContent='출제 이력';
-        dupTags.innerHTML='<span class="dup-tag" style="color:var(--text3)">단독 출제 — '+escHtml(entries[0]||ai)+'</span>';
-      }
+    if(q.dupInfo&&q.dupInfo.length){
+      dupTags.innerHTML=q.dupInfo.map(d=>'<span class="dup-tag">'+escHtml(d)+'</span>').join('');
       dupArea.className='dup-area show';
     } else {
       dupArea.className='dup-area';
@@ -2197,26 +2157,25 @@ document.addEventListener('visibilitychange',()=>{
 });
 // 이모지 숫자 → 컬러 텍스트 변환 (안드로이드 흑백 이모지 우회)
 function fixEmojiNumbers(text){
-  if(!text)return text;
   return text
-    .replace(/1️⃣/g,'\x01N1\x01')
-    .replace(/2️⃣/g,'\x01N2\x01')
-    .replace(/3️⃣/g,'\x01N3\x01')
-    .replace(/4️⃣/g,'\x01N4\x01')
-    .replace(/5️⃣/g,'\x01N5\x01')
-    .replace(/6️⃣/g,'\x01N6\x01')
-    .replace(/7️⃣/g,'\x01N7\x01')
-    .replace(/8️⃣/g,'\x01N8\x01')
-    .replace(/9️⃣/g,'\x01N9\x01')
-    .replace(/🔟/g,'\x01N10\x01')
-    // 혹시 남아있을 깨진 숫자이모지: 1?? 2?? 등
-    .replace(/(\d+)\?\?/g,'\x01N$1\x01')
-    // ~~**2번 ?**~~ 패턴의 ? → — (오답 취소선)
-    .replace(/(\d+번)\s*\?/g,'$1 —');
+    .replace(/1️⃣/g,'<span style="color:#3b82f6;font-weight:700">①</span>')
+    .replace(/2️⃣/g,'<span style="color:#3b82f6;font-weight:700">②</span>')
+    .replace(/3️⃣/g,'<span style="color:#3b82f6;font-weight:700">③</span>')
+    .replace(/4️⃣/g,'<span style="color:#3b82f6;font-weight:700">④</span>')
+    .replace(/5️⃣/g,'<span style="color:#3b82f6;font-weight:700">⑤</span>')
+    .replace(/6️⃣/g,'<span style="color:#3b82f6;font-weight:700">⑥</span>')
+    .replace(/7️⃣/g,'<span style="color:#3b82f6;font-weight:700">⑦</span>')
+    .replace(/8️⃣/g,'<span style="color:#3b82f6;font-weight:700">⑧</span>')
+    .replace(/9️⃣/g,'<span style="color:#3b82f6;font-weight:700">⑨</span>')
+    .replace(/🔟/g,'<span style="color:#3b82f6;font-weight:700">⑩</span>');
 }
-function applyEmojiTokens(s){
-  // esc() 이후에 호출 — 플레이스홀더 → 컬러 스팬
-  return s.replace(/\x01N(\d+)\x01/g,(_,n)=>'<span style="color:#3b82f6;font-weight:700">'+n+'.</span>');
+function startDupQuiz(){
+  const pool=ALL_QS.filter(q=>q.dupInfo&&q.dupInfo.length);
+  if(!pool.length){alert('중복 문제가 없습니다.');return;}
+  sessQs=order==='rand'?shuffle([...pool]):[...pool];
+  if(sessCount&&sessQs.length>sessCount)sessQs=sessQs.slice(0,sessCount);
+  qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];sessionAnswers={};answered=false;
+  showScreen('quiz');showQ();
 }
 let analyticsTargetCat=null,analyticsTargetSub=null;
 
