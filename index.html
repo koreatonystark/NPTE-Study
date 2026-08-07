@@ -48,7 +48,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
   min-width:0;overflow:hidden}
 .cat-btn.selected{border-color:var(--accent);background:rgba(59,130,246,.12)}
 .cat-btn .em{font-size:22px;display:block;margin-bottom:5px}
-.cat-btn .nm{font-size:15px;font-weight:600;color:var(--text);line-height:0.9;word-break:keep-all}
+.cat-btn .nm{font-size:15px;font-weight:600;color:var(--text);line-height:0.5;word-break:keep-all}
 .cat-btn .ct{font-size:13px;color:var(--text3);margin-top:3px}
 .cat-btn .ck{position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;
   background:var(--accent);display:none;align-items:center;justify-content:center;font-size:10px;color:#fff}
@@ -142,7 +142,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);
   border-radius:var(--radius-sm);padding:16px;font-size:16px;line-height:1.8;
   color:var(--text);word-break:break-word;display:none}
 .explain-text.show{display:block}
-@keyframes fadeIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
 .expl-img-inline{width:100%;max-width:100%;height:auto;display:block;border-radius:6px;cursor:zoom-in}
 @media(min-width:600px){.expl-img-inline{max-width:50%}}
 .dup-area{margin-top:18px;padding-top:14px;border-top:1px solid var(--border);display:none}
@@ -421,7 +420,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
       <div id="sel-info" style="font-size:12px;color:var(--text3);margin-top:10px"></div>
     </div>
   </div>
-  <div class="start-bar" id="start-bar">
+  <div class="start-bar">
     <button class="btn-start" id="btn-start" onclick="startQuiz()" disabled>카테고리를 선택하세요</button>
   </div>
 </div>
@@ -454,22 +453,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);
       <div id="expl-media-img" style="display:none;margin-bottom:10px;border-radius:8px;overflow:hidden;background:var(--bg3);cursor:zoom-in">
         <img id="expl-media-img-el" src="" alt="" style="width:100%;height:auto;display:block">
       </div>
-      <div id="expl-media-vid" style="display:none;margin-bottom:10px;border-radius:10px;overflow:hidden;background:var(--bg3)">
-        <!-- 썸네일 (탭하면 인앱 iframe으로 교체) -->
-        <div id="expl-vid-thumb" style="position:relative;cursor:pointer" onclick="playVidInline()">
-          <img id="expl-vid-thumb-img" src="" alt="영상 재생" style="width:100%;display:block;border-radius:10px">
-          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;border-radius:10px;background:rgba(0,0,0,.35)">
-            <div style="width:56px;height:56px;border-radius:50%;background:rgba(255,0,0,.85);display:flex;align-items:center;justify-content:center">
-              <span style="font-size:22px;margin-left:4px">▶</span>
-            </div>
-          </div>
-        </div>
-        <!-- 인앱 iframe (처음엔 숨김) -->
-        <div id="expl-vid-iframe-wrap" style="display:none;position:relative;padding-bottom:56.25%;height:0">
-          <iframe id="expl-vid-iframe" src="" allowfullscreen
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            style="position:absolute;top:0;left:0;width:100%;height:100%;border:none"></iframe>
-        </div>
+      <div id="expl-media-vid" style="display:none;margin-bottom:10px">
+        <a id="expl-media-vid-link" href="" target="_blank" rel="noopener"
+          style="display:flex;align-items:center;justify-content:center;gap:10px;
+          padding:16px;background:#1a1a2e;border:1px solid #ff0000;border-radius:8px;
+          color:#ff4444;font-size:15px;font-weight:600;text-decoration:none">
+          ▶ YouTube에서 영상 보기
+        </a>
       </div>
       <div class="explain-text" id="explain-text"></div>
     </div>
@@ -998,7 +988,7 @@ function loadTtsVoice(){
 window.speechSynthesis.onvoiceschanged=loadTtsVoice;
 loadTtsVoice();
 let sessStartTime=0,seenQIds=new Set(),sessionAnswers={};
-let store={done:{},bm:new Set(),wrongs:new Set(),skip:new Set(),answers:{}};
+let store={done:{},bm:new Set(),wrongs:new Set(),skip:new Set()};
 
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
@@ -1059,56 +1049,6 @@ function renderStemText(text){
   }
   return result;
 }
-const MSG_CORRECT=['정답!','Awesome!','와우! 굉장해!!','맞아 대단해!!','진짜 잘하네','장난 아닌데?','천재구나?','I Love it!','Nice!','완벽해!'];
-const MSG_WRONG=['아우~!!!','얌마!!','정신차렷!!','틀렸다!','흠......','LOL...','ㅜㅜ...','언젠간 맞겠지!','이걸 틀리냐...','아... 집중하자!','맞는 날도 있겠지!','바보!','XXXXXXXX'];
-function showResultBadge(ok,autoNext){
-  const msgs=ok?MSG_CORRECT:MSG_WRONG;
-  const msg=msgs[Math.floor(Math.random()*msgs.length)];
-  const sub=ok&&autoNext?'오답 목록에서 해제됨':'';
-
-  const svg=ok?
-    // 정답: 둥근 말풍선 - 팝업 애니메이션
-    `<svg viewBox="0 0 220 140" width="220" height="140" style="animation:popIn .35s cubic-bezier(.34,1.56,.64,1) both">
-      <style>
-        @keyframes popIn{
-          0%{transform:scale(0);opacity:0}
-          100%{transform:scale(1);opacity:1}
-        }
-      </style>
-      <path d="M15,5 Q5,5 5,15 L5,85 Q5,95 15,95 L85,95 L75,125 L115,95 L205,95 Q215,95 215,85 L215,15 Q215,5 205,5 Z" fill="#166534" stroke="#22c55e" stroke-width="2.5" opacity="0.85"/>
-      <text x="110" y="47" text-anchor="middle" fill="#4ade80" font-size="22" font-weight="800" font-family="sans-serif">${msg}</text>
-      ${sub?`<text x="110" y="75" text-anchor="middle" fill="#86efac" font-size="12" font-family="sans-serif">${sub}</text>`:''}
-    </svg>`
-  :
-    // 오답: 폭발형 - 폭탄 터지는 애니메이션
-    `<svg viewBox="0 0 440 420" width="340" height="320" style="animation:explode .4s cubic-bezier(.36,.07,.19,.97) both">
-      <style>
-        @keyframes explode{
-          0%{transform:scale(0) rotate(-15deg);opacity:0}
-          40%{transform:scale(1.3) rotate(8deg);opacity:1}
-          65%{transform:scale(0.9) rotate(-4deg);opacity:1}
-          80%{transform:scale(1.1) rotate(2deg);opacity:1}
-          100%{transform:scale(1) rotate(0deg);opacity:1}
-        }
-      </style>
-      <polygon points="
-        220,20 244,100 316,56 284,130 370,120 316,180
-        380,224 310,224 336,296 264,260 256,340
-        220,290 184,340 176,260 104,296 130,224
-        60,224 124,180 70,120 156,130 124,56 196,100"
-        fill="#7f1d1d" stroke="#ef4444" stroke-width="4" opacity="0.85"/>
-      <text x="220" y="216" text-anchor="middle" fill="#fca5a5" font-size="36" font-weight="800" font-family="sans-serif">${msg}</text>
-    </svg>`;
-
-  const overlay=document.createElement('div');
-  overlay.style.cssText='position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;pointer-events:none';
-  const wrapper=document.createElement('div');
-  wrapper.style.cssText='filter:drop-shadow(0 4px 20px rgba(0,0,0,.4))';
-  wrapper.innerHTML=svg;
-  overlay.appendChild(wrapper);
-  document.body.appendChild(overlay);
-  setTimeout(()=>{overlay.remove();if(autoNext)nextQ();},1000);
-}
 function restoreHeadingEmoji(s){
   // 구글시트 CSV에서 ## 제목의 이모지가 ?/?? 로 깨지는 경우 복원
   const map=[
@@ -1133,10 +1073,7 @@ function renderExpl(text){
   var inTable=false;
   var inList=false;
 
-  function esc(s){
-    // & 만 이스케이프, < > 는 부등호로 그대로 표시 (HTML 태그 입력 없으므로 안전)
-    return s.replace(/&(?!amp;|lt;|gt;|nbsp;)/g,'&amp;');
-  }
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
   function inline(s){
     s=fixEmojiNumbers(s);  // 1. 이모지/??를 플레이스홀더로
@@ -1326,10 +1263,10 @@ function parseCSV(t){
   return r;
 }
 function splitLine(l){const r=[];let c='',q=false;for(let i=0;i<l.length;i++){const ch=l[i];if(ch==='"'){q=!q;}else if(ch===','&&!q){r.push(c);c='';}else c+=ch;}r.push(c);return r;}
-function loadStore(){try{const d=JSON.parse(localStorage.getItem(STORE_KEY)||'{}');store.done=d.done||{};store.bm=new Set((d.bm||[]).map(String));store.wrongs=new Set((d.wrongs||[]).map(String));store.skip=new Set((d.skip||[]).map(String));store.answers=d.answers||{};}catch(e){}}
+function loadStore(){try{const d=JSON.parse(localStorage.getItem(STORE_KEY)||'{}');store.done=d.done||{};store.bm=new Set((d.bm||[]).map(String));store.wrongs=new Set((d.wrongs||[]).map(String));store.skip=new Set((d.skip||[]).map(String));}catch(e){}}
 function saveStore(){
   try{
-    localStorage.setItem(STORE_KEY,JSON.stringify({done:store.done,bm:[...store.bm],wrongs:[...store.wrongs],skip:[...store.skip],answers:store.answers}));
+    localStorage.setItem(STORE_KEY,JSON.stringify({done:store.done,bm:[...store.bm],wrongs:[...store.wrongs],skip:[...store.skip]}));
   }catch(e){}
 }
 function saveSession(){
@@ -1508,20 +1445,20 @@ function buildCatGrid(){
     var cnt=ALL_QS.filter(function(q){return q.cat===cat&&qFilter(q);}).length;
     if(!cnt)return;
     var subs=CAT_NO_SUB.has(cat)?[]:(CAT_SUBS[cat]||[]);
-    var catQs=ALL_QS.filter(function(q){return q.cat===cat&&qFilter(q);});
+    var catQs=ALL_QS.filter(function(q){return q.cat===cat;});
     var done=catQs.filter(function(q){return store.done[q.id]!==undefined;}).length;
     var cor=catQs.filter(function(q){return store.done[q.id]===true;}).length;
     var pct=done?Math.round(cor/done*100):0;
     var barW=catQs.length?done/catQs.length*100:0;
-    var barCol=pct>=50?'#3b82f6':'#1d4ed8';
+    var barCol=pct>=50?'#2563eb':'#1e3a5f';
     var catId='sc_'+cat.replace(/[^a-z0-9]/gi,'_');
     var d=document.createElement('div');
     d.className='cat-btn'+(selCats.has(cat)?' selected':'');
     d.dataset.cat=cat;
     var html='<div style="display:flex;align-items:center;gap:6px"><span class="em">'+(CAT_EMOJI[cat]||'📚')+'</span><div class="nm">'+cat+'</div><div class="ct">'+cnt+'</div><div class="ck">✓</div></div>';
     // 진행 바
-    html+='<div style="margin-top:6px;background:rgba(255,255,255,0.08);border-radius:3px;height:5px;overflow:hidden">'
-      +'<div style="height:100%;width:'+barW+'%;background:'+barCol+';transition:width .4s;min-width:'+(barW>0?'6px':'0')+'"></div></div>';
+    html+='<div style="margin-top:6px;background:var(--bg3);border-radius:3px;height:4px;overflow:hidden">'
+      +'<div style="height:100%;width:'+barW+'%;background:'+barCol+';transition:width .4s"></div></div>';
     if(subs.length){
       html+='<div class="sub-chips" id="'+catId+'" style="display:'+(selCats.has(cat)?'flex':'none')+'">';
       html+='<span class="sub-chip sub-all" data-sub="" data-cid="'+catId+'" data-cat="'+cat+'">All</span>';
@@ -1633,7 +1570,6 @@ function setMode(m){
   document.getElementById('mode-bm').style.display=m==='bm'?'':'none';
   document.getElementById('mode-wr').style.display=m==='wr'?'':'none';
   document.getElementById('mode-opts').style.display=(m==='cat'||m==='dup'||m==='unique')?'':'none';
-  var sb=document.getElementById('start-bar');if(sb)sb.style.display=(m==='bm'||m==='wr')?'none':'';
   const wrCount=document.getElementById('wr-count');
   if(wrCount)wrCount.textContent=store.wrongs.size?'('+store.wrongs.size+')':'';
   if(m==='bm')renderModeList('bm');
@@ -1734,20 +1670,21 @@ function mlPick(el){
     else if(idx===chosen&&!ok){opt.style.borderColor='var(--danger)';opt.style.background='rgba(239,68,68,.08)';}
   });
   if(ok){
+    var badge=document.createElement('div');
+    badge.textContent='✅ CORRECT!';
+    badge.style.cssText='text-align:center;font-size:16px;font-weight:800;color:var(--success);padding:14px;letter-spacing:.05em';
+    body.appendChild(badge);
     store.done[qId]=true;store.wrongs.delete(qId);saveStore();updateStats();
-    // 중앙 뱃지 표시 후 문제 제거
-    showResultBadge(true, false);
     setTimeout(function(){
       var item=document.getElementById('ml-wr-'+qId);
-      if(item){item.style.transition='opacity .3s';item.style.opacity='0';
-        setTimeout(function(){renderModeList('wr');updateBtn();},300);}
-    },1000);
+      if(item){item.style.transition='opacity .5s';item.style.opacity='0';
+        setTimeout(function(){renderModeList('wr');updateBtn();},500);}
+    },900);
   } else {
     store.done[qId]=false;store.wrongs.add(qId);saveStore();
-    showResultBadge(false, false);
     var retry=document.createElement('div');
-    retry.textContent='접었다 펴서 다시 도전하세요';
-    retry.style.cssText='text-align:center;color:var(--danger);font-size:12px;padding:8px';
+    retry.textContent='❌ 오답 — 접었다 펴서 다시 도전하세요';
+    retry.style.cssText='text-align:center;color:var(--danger);font-size:13px;font-weight:600;padding:10px';
     body.appendChild(retry);
   }
 }
@@ -1766,7 +1703,7 @@ function doReset(){
   const bm=document.getElementById('rst-bm').checked;
   const skip=document.getElementById('rst-skip').checked;
   if(!done&&!bm&&!skip){alert('항목을 하나 이상 선택하세요.');return;}
-  if(done){store.done={};store.wrongs=new Set();store.answers={};sWrong=0;sCorrect=0;sWrongIds=[];sessionAnswers={};}
+  if(done){store.done={};store.wrongs=new Set();sWrong=0;sCorrect=0;sWrongIds=[];}
   if(bm)store.bm=new Set();
   if(skip)store.skip=new Set();
   saveStore();
@@ -1785,38 +1722,8 @@ function updateStats(){
   if(wrCount)wrCount.textContent=store.wrongs.size?'('+store.wrongs.size+')':'';
   if(mode==='bm')renderModeList('bm');
   if(mode==='wr')renderModeList('wr');
-  // 홈 화면이면 카테고리 카드 진행 바 갱신
-  if(document.getElementById('home').classList.contains('active')&&
-     (mode==='cat'||mode==='dup'||mode==='unique'))buildCatGrid();
 }
-function startQuiz(){
-  let qs=getFiltered();
-  if(!qs.length)return;
-  if(order==='rand')qs=[...qs].sort(()=>Math.random()-.5);
-  const n=sessCount===0?qs.length:Math.min(sessCount,qs.length);
-  // sessQs는 항상 ALL_QS의 최신 객체 참조
-  sessQs=qs.slice(0,n).map(q=>ALL_QS.find(fq=>fq.id===q.id)||q);
-
-  // store.answers에서 이 세션 문제들의 답 복원
-  sessionAnswers={};
-  sessQs.forEach(q=>{if(store.answers[q.id])sessionAnswers[q.id]=store.answers[q.id];});
-
-  // 첫 미답 문제로 이동
-  const firstUnanswered=sessQs.findIndex(q=>sessionAnswers[q.id]===undefined);
-  qIdx=firstUnanswered>=0?firstUnanswered:sessQs.length-1;
-
-  // sCorrect/sWrong 복원
-  sCorrect=sessQs.filter(q=>sessionAnswers[q.id]?.correct===sessionAnswers[q.id]?.chosen).length;
-  sWrong=sessQs.filter(q=>sessionAnswers[q.id]!==undefined&&sessionAnswers[q.id]?.correct!==sessionAnswers[q.id]?.chosen).length;
-  sWrongIds=sessQs.filter(q=>sessionAnswers[q.id]?.correct!==sessionAnswers[q.id]?.chosen&&sessionAnswers[q.id]!==undefined).map(q=>q.id);
-
-  seenQIds=new Set(Object.keys(sessionAnswers));
-  sessStartTime=Date.now();
-  answered=false;translateOn=false;
-  document.getElementById('btn-translate').classList.remove('active');
-  document.getElementById('btn-translate').textContent='🌐 한국어';
-  showScreen('quiz');showQ();
-}
+function startQuiz(){let qs=getFiltered();if(!qs.length)return;if(order==='rand')qs=[...qs].sort(()=>Math.random()-.5);const n=sessCount===0?qs.length:Math.min(sessCount,qs.length);sessQs=qs.slice(0,n);qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];seenQIds=new Set();sessStartTime=Date.now();sessionAnswers={};answered=false;translateOn=false;document.getElementById('btn-translate').classList.remove('active');document.getElementById('btn-translate').textContent='🌐 한국어';showScreen('quiz');showQ();}
 function showQ(){const q=sessQs[qIdx];answered=false;translateOn=false;trStem='';trOpts=[];document.getElementById('btn-translate').classList.remove('active');document.getElementById('btn-translate').textContent='🌐 한국어';document.getElementById('q-counter').textContent=(qIdx+1)+' / '+sessQs.length;document.getElementById('prog').style.width=(qIdx/sessQs.length*100)+'%';document.getElementById('q-source').textContent='('+q.src+') Q'+q.qnum+' · '+q.cat+(q.sub&&!CAT_NO_SUB.has(q.cat)?' / '+q.sub:'');
     document.getElementById('q-stem').innerHTML=renderStem(q.stem);
     // 미디어 (이미지 or 영상)
@@ -1856,8 +1763,8 @@ const q2=sessQs[qIdx];seenQIds.add(q2.id);saveSession();
 const sk=document.getElementById('btn-skip');
 sk.classList.toggle('skipped',store.skip.has(q2.id));
 sk.textContent=store.skip.has(q2.id)?'⏭ Skipped':'Skip';
-// 이미 답한 문제로 돌아온 경우 복원 (store.answers 우선, sessionAnswers 폴백)
-const prev=store.answers[q2.id]||sessionAnswers[q2.id];
+// 이미 답한 문제로 돌아온 경우 복원
+const prev=sessionAnswers[q2.id];
 if(prev!==undefined){restoreAnswer(q2,prev);}
 else{document.getElementById('quiz-body').scrollTop=0;startTimer();ttsRead();}
 }
@@ -1870,14 +1777,6 @@ function gdImg(url){
     return url;
   }
   return GCS_BASE+url;
-}
-function playVidInline(){
-  const iframe=document.getElementById('expl-vid-iframe');
-  const src=iframe.dataset.src||'';
-  if(!src)return;
-  iframe.src=src;
-  document.getElementById('expl-vid-thumb').style.display='none';
-  document.getElementById('expl-vid-iframe-wrap').style.display='block';
 }
 function gdEmbed(url){let m=url.match(/youtu\.be\/([^?]+)/)||url.match(/youtube\.com\/watch\?v=([^&]+)/);if(m)return 'https://www.youtube-nocookie.com/embed/'+m[1]+'?playsinline=1&rel=0';m=url.match(/\/d\/([^/]+)/);if(m)return 'https://drive.google.com/file/d/'+m[1]+'/preview';return url;}
 function getYouTubeId(url){const m=url.match(/youtu\.be\/([^?&]+)/)||url.match(/youtube\.com\/(?:watch\?v=|shorts\/)([^?&]+)/);return m?m[1]:'';}
@@ -1906,11 +1805,16 @@ function pick(chosen,correct,q){
     store.done[q.id]=false;store.wrongs.add(q.id);
   }
   sessionAnswers[q.id]={chosen,correct};
-  store.answers[q.id]={chosen,correct};
   saveStore();saveSession();
   showPostAnswer(q);
   document.getElementById('btn-next').classList.add('ready');
-  showResultBadge(ok, ok&&mode==='wr');
+  // Wrong 모드에서 정답: 배지 표시
+  if(ok&&mode==='wr'){
+    const badge=document.createElement('div');
+    badge.textContent='✅ 오답 목록에서 해제됨';
+    badge.style.cssText='text-align:center;color:var(--success);font-size:13px;font-weight:600;margin-top:8px;padding:8px;background:var(--success-bg);border-radius:8px';
+    document.getElementById('quiz-body').appendChild(badge);
+  }
 }
 function showPostAnswer(q){
   document.getElementById('post-answer').className='post-answer show';
@@ -1933,23 +1837,17 @@ function showPostAnswer(q){
     imgWrap.style.display='block';
     imgWrap.onclick=()=>toggleImgZoom(imgEl);
   }
-  // 영상 — 썸네일 탭 → 인앱 iframe 재생
+  // 영상 — 썸네일 + YouTube 링크
   if(q.vid_url){
     const vidId=getYouTubeId(q.vid_url);
-    const thumb=document.getElementById('expl-vid-thumb');
-    const thumbImg=document.getElementById('expl-vid-thumb-img');
-    const iframeWrap=document.getElementById('expl-vid-iframe-wrap');
-    const iframe=document.getElementById('expl-vid-iframe');
-    thumb.style.display='block';
-    iframeWrap.style.display='none';
-    iframe.src='';iframe.dataset.src='';
+    const linkEl=document.getElementById('expl-media-vid-link');
+    linkEl.href=q.vid_url;
     if(vidId){
-      thumbImg.src='https://img.youtube.com/vi/'+vidId+'/hqdefault.jpg';
-      iframe.dataset.src='https://www.youtube-nocookie.com/embed/'+vidId+'?autoplay=1&playsinline=1&rel=0';
+      linkEl.innerHTML='<img src="https://img.youtube.com/vi/'+vidId+'/hqdefault.jpg" alt="YouTube 영상 재생" style="width:100%;display:block;border-radius:6px"><div style="margin-top:8px;text-align:center;font-size:13px;color:#ff4444;font-weight:600">▶ YouTube에서 보기</div>';
+      linkEl.style.cssText='display:block;text-decoration:none;border:1px solid #333;border-radius:8px;overflow:hidden;padding:0';
     } else {
-      thumb.style.display='none';
-      iframeWrap.style.display='block';
-      iframe.src=gdEmbed(q.vid_url);
+      linkEl.innerHTML='▶ YouTube에서 영상 보기';
+      linkEl.style.cssText='display:flex;align-items:center;justify-content:center;gap:10px;padding:16px;background:#1a1a2e;border:1px solid #ff0000;border-radius:8px;color:#ff4444;font-size:15px;font-weight:600;text-decoration:none';
     }
     vidWrap.style.display='block';
   }
@@ -2207,8 +2105,7 @@ async function ttsRead(){
 async function toggleTranslate(){const btn=document.getElementById('btn-translate');if(translateOn){const q=sessQs[qIdx];document.getElementById('q-stem').textContent=q.stem;document.querySelectorAll('.opt-text').forEach((el,i)=>el.innerHTML=renderStem(q.opts[i]||''));translateOn=false;btn.classList.remove('active');btn.textContent='🌐 한국어';return;}btn.textContent='⏳';btn.disabled=true;const q=sessQs[qIdx];try{if(!trStem){const all=[q.stem,...q.opts.filter(Boolean)];const joined=all.map((t,i)=>'['+i+'] '+t).join('\n');const url='https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q='+encodeURIComponent(joined);const res=await fetch(url);const data=await res.json();const raw=data[0].map(x=>x[0]).join('').split('\n');const result=[];for(const line of raw){const m=line.match(/^\[(\d+)\]\s*(.*)/);if(m)result[parseInt(m[1])]=m[2];}trStem=result[0]||q.stem;trOpts=q.opts.map((_,i)=>result[i+1]||q.opts[i]||'');}document.getElementById('q-stem').textContent=trStem;document.querySelectorAll('.opt-text').forEach((el,i)=>{if(i<trOpts.length)el.textContent=trOpts[i];});translateOn=true;btn.classList.add('active');btn.textContent='🌐 English';}catch(e){alert('번역 실패. 인터넷 연결을 확인하세요.');btn.textContent='🌐 한국어';}btn.disabled=false;}
 
 function restoreAnswer(q,prev){
-  // ALL_QS에서 최신 데이터로 갱신 (vid_url 등 누락 방지)
-  const freshQ=ALL_QS.find(fq=>fq.id===q.id)||q;
+  // 이미 답한 문제 상태 복원
   answered=true;clearInterval(timerIv);
   const {chosen,correct}=prev;
   document.querySelectorAll('.opt-btn').forEach((b,i)=>{
@@ -2216,10 +2113,11 @@ function restoreAnswer(q,prev){
     if(i===correct)b.classList.add('correct');
     else if(i===chosen&&chosen!==correct)b.classList.add('wrong');
   });
+  // 타이머 완료 상태
   const fill=document.getElementById('timer-fill');
   const track=document.getElementById('timer-track');
   fill.style.width='0%';fill.style.background='#ef4444';
-  showPostAnswer(freshQ);
+  showPostAnswer(q);
   document.getElementById('btn-next').classList.add('ready');
   document.getElementById('quiz-body').scrollTop=0;
 }
@@ -2353,7 +2251,7 @@ function toggleBm(){const q=sessQs[qIdx];store.bm.has(q.id)?store.bm.delete(q.id
 function showResult(){clearInterval(timerIv);const tot=sessQs.length,pct=Math.round(sCorrect/tot*100);document.getElementById('res-score').textContent=sCorrect+'/'+tot;document.getElementById('res-label').textContent=pct+'% correct · '+sWrong+' wrong';document.getElementById('bar-c').style.width=(sCorrect/tot*100)+'%';document.getElementById('bar-w').style.width=(sWrong/tot*100)+'%';document.getElementById('num-c').textContent=sCorrect;document.getElementById('num-w').textContent=sWrong;document.getElementById('btn-rw').style.display=sWrong?'':'none';document.getElementById('prog').style.width='100%';updateStats();showScreen('result');}
 function retrySame(){const qs=[...sessQs];if(order==='rand')qs.sort(()=>Math.random()-.5);sessQs=qs;qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];seenQIds=new Set();sessStartTime=Date.now();sessionAnswers={};answered=false;showScreen('quiz');showQ();}
 function retryWrong(){const wqs=ALL_QS.filter(q=>sWrongIds.includes(q.id));if(!wqs.length)return;sessQs=wqs;qIdx=0;sCorrect=0;sWrong=0;sWrongIds=[];seenQIds=new Set();sessStartTime=Date.now();sessionAnswers={};answered=false;showScreen('quiz');showQ();}
-function goHome(){clearInterval(timerIv);ttsReqId++;ttsOn=false;window.speechSynthesis.cancel();if(window._ttsAudio){window._ttsAudio.pause();window._ttsAudio=null;}updateStats();showScreen('home');if(mode==='cat'||mode==='dup'||mode==='unique')buildCatGrid();updateBtn();}
+function goHome(){clearInterval(timerIv);ttsReqId++;ttsOn=false;window.speechSynthesis.cancel();if(window._ttsAudio){window._ttsAudio.pause();window._ttsAudio=null;}updateStats();showScreen('home');updateBtn();}
 function confirmGoHome(){
   const onQuiz=document.getElementById('quiz').classList.contains('active');
   if(onQuiz&&sessQs.length){
