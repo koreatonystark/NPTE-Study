@@ -2318,6 +2318,30 @@ function renderSkipList(){
 }
 function openSkipScreen(){setMode('skip');}
 function closeSkipScreen(){setMode('cat');}
+function toggleSkipItem(id){
+  const body=document.getElementById('sib-'+id);
+  const arrow=document.getElementById('sia-'+id);
+  if(!body)return;
+  const isOpen=body.style.display!=='none';
+  document.querySelectorAll('[id^="sib-"]').forEach(b=>b.style.display='none');
+  document.querySelectorAll('[id^="sia-"]').forEach(a=>a.style.transform='');
+  if(isOpen)return;
+  const q=ALL_QS.find(q=>q.id===id);
+  if(!q)return;
+  const L=['A','B','C','D'];
+  body.innerHTML=
+    '<div style="font-size:15px;line-height:1.75;color:var(--text);margin-bottom:14px">'+escHtml(q.stem)+'</div>'+
+    q.opts.filter(o=>o).map((o,i)=>
+      '<div style="display:flex;gap:9px;padding:10px 12px;border:1.5px solid '+(i===q.answer?'var(--success)':'var(--border)')+
+      ';border-radius:9px;background:'+(i===q.answer?'var(--success-bg)':'var(--bg)')+';margin-bottom:7px">'+
+      '<span style="min-width:21px;height:21px;border-radius:50%;background:'+(i===q.answer?'var(--success)':'var(--bg3)')+
+      ';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:'+(i===q.answer?'#fff':'var(--text2)')+';flex-shrink:0">'+L[i]+'</span>'+
+      '<span style="font-size:14px;line-height:1.5;color:'+(i===q.answer?'var(--success)':'var(--text)')+'">'+escHtml(o)+'</span>'+
+      '</div>').join('');
+  body.style.display='block';
+  arrow.style.transform='rotate(180deg)';
+  setTimeout(()=>document.getElementById('si-'+id).scrollIntoView({behavior:'smooth',block:'start'}),60);
+}
 function closeSkipScreen(){document.getElementById('skip-screen').style.display='none';updateBtn();}
 function unskip(id){
   store.skip.delete(id);saveStore();
