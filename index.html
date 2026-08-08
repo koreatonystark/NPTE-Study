@@ -1147,6 +1147,7 @@ function renderExpl(text){
     s=s.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
     s=s.replace(/\*([^*]+)\*/g,'<em>$1</em>');
     s=s.replace(/~~([^~]+)~~/g,'<span style="text-decoration:line-through;color:var(--text3)">$1</span>');
+    s=s.replace(/==([^=]+)==/g,'<span style="color:#ef4444;font-weight:600">$1</span>');
     s=s.replace(/`([^`]+)`/g,'<code style="background:rgba(255,255,255,.1);padding:1px 5px;border-radius:4px;font-size:.92em">$1</code>');
     s=s.replace(/【([^】]+)】/g,'<strong style="color:#60a5fa">【$1】</strong>');
     s=s.replace(/✅ ?정답/g,'<span style="color:#22c55e;font-weight:700">✅ 정답</span>');
