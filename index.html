@@ -1262,7 +1262,7 @@ function renderExpl(text){
           +'</div>'
           +'</div>');
       // 이미지 URL → 인라인 이미지
-      }else if(/\.(png|jpg|jpeg|gif|webp|svg)(\?[^\s]*)?$/i.test(url)){
+      }else if(/\.(png|jpg|jpeg|gif|webp|svg|avif)(\?[^\s]*)?$/i.test(url)){
         out.push('<div style="margin:10px 0;line-height:0">'
           +'<img src="'+escHtml(url)+'" alt="" class="expl-img-inline" onclick="toggleImgZoom(this)">'
           +'</div>');
